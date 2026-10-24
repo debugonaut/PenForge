@@ -1,0 +1,283 @@
+{
+  "$defs": {
+    "ArtifactRef": {
+      "additionalProperties": false,
+      "properties": {
+        "content_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "record_id": {
+          "pattern": "^[a-z0-9][a-z0-9._:-]{0,119}$",
+          "title": "Record Id",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "record_id",
+        "content_hash"
+      ],
+      "title": "ArtifactRef",
+      "type": "object"
+    }
+  },
+  "$id": "https://penforge.invalid/research/v1/experiment_record.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "artifacts": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ArtifactRef"
+      },
+      "title": "Artifacts",
+      "type": "array"
+    },
+    "benchmarks": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ArtifactRef"
+      },
+      "title": "Benchmarks",
+      "type": "array"
+    },
+    "capability_status": {
+      "const": "research_only",
+      "default": "research_only",
+      "title": "Capability Status",
+      "type": "string"
+    },
+    "code_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Code Ref"
+    },
+    "command": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Command",
+      "type": "array"
+    },
+    "compared_methods": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ArtifactRef"
+      },
+      "title": "Compared Methods",
+      "type": "array"
+    },
+    "config_hash": {
+      "anyOf": [
+        {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Config Hash"
+    },
+    "created_on": {
+      "format": "date",
+      "title": "Created On",
+      "type": "string"
+    },
+    "datasets": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ArtifactRef"
+      },
+      "title": "Datasets",
+      "type": "array"
+    },
+    "environment_lock_hash": {
+      "anyOf": [
+        {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Environment Lock Hash"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Limitations",
+      "type": "array"
+    },
+    "method_kind": {
+      "anyOf": [
+        {
+          "enum": [
+            "classical_cv",
+            "pretrained",
+            "fine_tune",
+            "custom_training"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Method Kind"
+    },
+    "parents": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ArtifactRef"
+      },
+      "title": "Parents",
+      "type": "array"
+    },
+    "recipe_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ArtifactRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "record_id": {
+      "pattern": "^[a-z0-9][a-z0-9._:-]{0,119}$",
+      "title": "Record Id",
+      "type": "string"
+    },
+    "record_type": {
+      "const": "experiment_record",
+      "default": "experiment_record",
+      "title": "Record Type",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "script_code": {
+      "enum": [
+        "Latn",
+        "Deva"
+      ],
+      "title": "Script Code",
+      "type": "string"
+    },
+    "seed": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Seed"
+    },
+    "selected_model_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ArtifactRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "selection_rationale": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Selection Rationale"
+    },
+    "stage": {
+      "enum": [
+        "dataset_research",
+        "baseline_comparison",
+        "training",
+        "heldout_evaluation",
+        "model_registration",
+        "staged_deployment",
+        "monitoring"
+      ],
+      "title": "Stage",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "planned",
+        "completed"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "style": {
+      "enum": [
+        "print",
+        "cursive",
+        "mixed"
+      ],
+      "title": "Style",
+      "type": "string"
+    },
+    "training_required": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Training Required"
+    }
+  },
+  "required": [
+    "record_id",
+    "created_on",
+    "stage",
+    "status",
+    "script_code",
+    "style",
+    "limitations"
+  ],
+  "title": "ExperimentRecord",
+  "type": "object"
+}

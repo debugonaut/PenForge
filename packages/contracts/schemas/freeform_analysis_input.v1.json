@@ -1,0 +1,150 @@
+{
+  "$defs": {
+    "CaptureSize": {
+      "additionalProperties": false,
+      "properties": {
+        "height": {
+          "maximum": 32768,
+          "minimum": 1,
+          "title": "Height",
+          "type": "integer"
+        },
+        "width": {
+          "maximum": 32768,
+          "minimum": 1,
+          "title": "Width",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "width",
+        "height"
+      ],
+      "title": "CaptureSize",
+      "type": "object"
+    },
+    "FreeformCanvasSource": {
+      "additionalProperties": false,
+      "properties": {
+        "asset_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Asset Id",
+          "type": "string"
+        },
+        "capture_size_px": {
+          "$ref": "#/$defs/CaptureSize"
+        },
+        "document_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Document Hash",
+          "type": "string"
+        },
+        "drawing_mode": {
+          "const": "fixed_round_v1",
+          "default": "fixed_round_v1",
+          "title": "Drawing Mode",
+          "type": "string"
+        },
+        "project_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "sample_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Sample Id",
+          "type": "string"
+        },
+        "source_sha256": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Source Sha256",
+          "type": "string"
+        },
+        "source_type": {
+          "const": "canvas_drawing",
+          "default": "canvas_drawing",
+          "title": "Source Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "project_id",
+        "sample_id",
+        "asset_id",
+        "source_sha256",
+        "document_hash",
+        "capture_size_px"
+      ],
+      "title": "FreeformCanvasSource",
+      "type": "object"
+    },
+    "SuppliedTranscription": {
+      "additionalProperties": false,
+      "properties": {
+        "origin": {
+          "const": "user_transcription",
+          "default": "user_transcription",
+          "title": "Origin",
+          "type": "string"
+        },
+        "prompt_is_ground_truth": {
+          "const": false,
+          "default": false,
+          "title": "Prompt Is Ground Truth",
+          "type": "boolean"
+        },
+        "text": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "title": "SuppliedTranscription",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "quality_policy": {
+      "const": "accuracy_first",
+      "default": "accuracy_first",
+      "title": "Quality Policy",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "script_code": {
+      "const": "Latn",
+      "default": "Latn",
+      "title": "Script Code",
+      "type": "string"
+    },
+    "source": {
+      "$ref": "#/$defs/FreeformCanvasSource"
+    },
+    "transcription": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/SuppliedTranscription"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "schema_version",
+    "source"
+  ],
+  "title": "FreeformAnalysisInput",
+  "type": "object"
+}

@@ -1,0 +1,676 @@
+{
+  "schema_version": 1,
+  "template_id": "penforge-latin-ascii",
+  "template_version": "1.0.0",
+  "script_code": "Latn",
+  "page": {
+    "width_mm": 210.0,
+    "height_mm": 297.0,
+    "index": 1
+  },
+  "markers": {
+    "type": "aruco",
+    "dictionary": "DICT_4X4_50",
+    "items": [
+      {
+        "marker_id": 4,
+        "rect_mm": {
+          "x": 12.0,
+          "y": 12.0,
+          "width": 10.0,
+          "height": 10.0
+        }
+      },
+      {
+        "marker_id": 5,
+        "rect_mm": {
+          "x": 188.0,
+          "y": 12.0,
+          "width": 10.0,
+          "height": 10.0
+        }
+      },
+      {
+        "marker_id": 6,
+        "rect_mm": {
+          "x": 188.0,
+          "y": 275.0,
+          "width": 10.0,
+          "height": 10.0
+        }
+      },
+      {
+        "marker_id": 7,
+        "rect_mm": {
+          "x": 12.0,
+          "y": 275.0,
+          "width": 10.0,
+          "height": 10.0
+        }
+      }
+    ],
+    "quiet_zone_mm": 3.0
+  },
+  "page_identity": {
+    "encoding": "qr",
+    "public_payload": "penforge-latin-ascii:1.0.0:1",
+    "rect_mm": {
+      "x": 91.0,
+      "y": 8.0,
+      "width": 28.0,
+      "height": 28.0
+    },
+    "quiet_zone_modules": 4
+  },
+  "cells": [
+    {
+      "cell_id": "ascii-082",
+      "codepoints": [
+        82
+      ],
+      "rect_mm": {
+        "x": 17.0,
+        "y": 50.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-083",
+      "codepoints": [
+        83
+      ],
+      "rect_mm": {
+        "x": 42.0,
+        "y": 50.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-084",
+      "codepoints": [
+        84
+      ],
+      "rect_mm": {
+        "x": 67.0,
+        "y": 50.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-085",
+      "codepoints": [
+        85
+      ],
+      "rect_mm": {
+        "x": 92.0,
+        "y": 50.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-086",
+      "codepoints": [
+        86
+      ],
+      "rect_mm": {
+        "x": 117.0,
+        "y": 50.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-087",
+      "codepoints": [
+        87
+      ],
+      "rect_mm": {
+        "x": 142.0,
+        "y": 50.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-088",
+      "codepoints": [
+        88
+      ],
+      "rect_mm": {
+        "x": 167.0,
+        "y": 50.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-089",
+      "codepoints": [
+        89
+      ],
+      "rect_mm": {
+        "x": 17.0,
+        "y": 79.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-090",
+      "codepoints": [
+        90
+      ],
+      "rect_mm": {
+        "x": 42.0,
+        "y": 79.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-091",
+      "codepoints": [
+        91
+      ],
+      "rect_mm": {
+        "x": 67.0,
+        "y": 79.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-092",
+      "codepoints": [
+        92
+      ],
+      "rect_mm": {
+        "x": 92.0,
+        "y": 79.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-093",
+      "codepoints": [
+        93
+      ],
+      "rect_mm": {
+        "x": 117.0,
+        "y": 79.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-094",
+      "codepoints": [
+        94
+      ],
+      "rect_mm": {
+        "x": 142.0,
+        "y": 79.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-095",
+      "codepoints": [
+        95
+      ],
+      "rect_mm": {
+        "x": 167.0,
+        "y": 79.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-096",
+      "codepoints": [
+        96
+      ],
+      "rect_mm": {
+        "x": 17.0,
+        "y": 108.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-097",
+      "codepoints": [
+        97
+      ],
+      "rect_mm": {
+        "x": 42.0,
+        "y": 108.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-098",
+      "codepoints": [
+        98
+      ],
+      "rect_mm": {
+        "x": 67.0,
+        "y": 108.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-099",
+      "codepoints": [
+        99
+      ],
+      "rect_mm": {
+        "x": 92.0,
+        "y": 108.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-100",
+      "codepoints": [
+        100
+      ],
+      "rect_mm": {
+        "x": 117.0,
+        "y": 108.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-101",
+      "codepoints": [
+        101
+      ],
+      "rect_mm": {
+        "x": 142.0,
+        "y": 108.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-102",
+      "codepoints": [
+        102
+      ],
+      "rect_mm": {
+        "x": 167.0,
+        "y": 108.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-103",
+      "codepoints": [
+        103
+      ],
+      "rect_mm": {
+        "x": 17.0,
+        "y": 137.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-104",
+      "codepoints": [
+        104
+      ],
+      "rect_mm": {
+        "x": 42.0,
+        "y": 137.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-105",
+      "codepoints": [
+        105
+      ],
+      "rect_mm": {
+        "x": 67.0,
+        "y": 137.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-106",
+      "codepoints": [
+        106
+      ],
+      "rect_mm": {
+        "x": 92.0,
+        "y": 137.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-107",
+      "codepoints": [
+        107
+      ],
+      "rect_mm": {
+        "x": 117.0,
+        "y": 137.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-108",
+      "codepoints": [
+        108
+      ],
+      "rect_mm": {
+        "x": 142.0,
+        "y": 137.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-109",
+      "codepoints": [
+        109
+      ],
+      "rect_mm": {
+        "x": 167.0,
+        "y": 137.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-110",
+      "codepoints": [
+        110
+      ],
+      "rect_mm": {
+        "x": 17.0,
+        "y": 166.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-111",
+      "codepoints": [
+        111
+      ],
+      "rect_mm": {
+        "x": 42.0,
+        "y": 166.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-112",
+      "codepoints": [
+        112
+      ],
+      "rect_mm": {
+        "x": 67.0,
+        "y": 166.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-113",
+      "codepoints": [
+        113
+      ],
+      "rect_mm": {
+        "x": 92.0,
+        "y": 166.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-114",
+      "codepoints": [
+        114
+      ],
+      "rect_mm": {
+        "x": 117.0,
+        "y": 166.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-115",
+      "codepoints": [
+        115
+      ],
+      "rect_mm": {
+        "x": 142.0,
+        "y": 166.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-116",
+      "codepoints": [
+        116
+      ],
+      "rect_mm": {
+        "x": 167.0,
+        "y": 166.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-117",
+      "codepoints": [
+        117
+      ],
+      "rect_mm": {
+        "x": 17.0,
+        "y": 195.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-118",
+      "codepoints": [
+        118
+      ],
+      "rect_mm": {
+        "x": 42.0,
+        "y": 195.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-119",
+      "codepoints": [
+        119
+      ],
+      "rect_mm": {
+        "x": 67.0,
+        "y": 195.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-120",
+      "codepoints": [
+        120
+      ],
+      "rect_mm": {
+        "x": 92.0,
+        "y": 195.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-121",
+      "codepoints": [
+        121
+      ],
+      "rect_mm": {
+        "x": 117.0,
+        "y": 195.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-122",
+      "codepoints": [
+        122
+      ],
+      "rect_mm": {
+        "x": 142.0,
+        "y": 195.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-123",
+      "codepoints": [
+        123
+      ],
+      "rect_mm": {
+        "x": 167.0,
+        "y": 195.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-124",
+      "codepoints": [
+        124
+      ],
+      "rect_mm": {
+        "x": 17.0,
+        "y": 224.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-125",
+      "codepoints": [
+        125
+      ],
+      "rect_mm": {
+        "x": 42.0,
+        "y": 224.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    },
+    {
+      "cell_id": "ascii-126",
+      "codepoints": [
+        126
+      ],
+      "rect_mm": {
+        "x": 67.0,
+        "y": 224.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "latin-shared"
+    }
+  ],
+  "guides": [
+    {
+      "guide_id": "latin-shared",
+      "baseline_offset_mm": 19.0,
+      "cap_height_offset_mm": 5.0,
+      "x_height_offset_mm": 11.0,
+      "descender_offset_mm": 24.0
+    }
+  ],
+  "extraction": {
+    "margin_mm": 0.5,
+    "min_markers": 4
+  },
+  "printing": {
+    "printable_margin_mm": 8.0,
+    "scale_reference_rect_mm": {
+      "x": 90.0,
+      "y": 279.0,
+      "width": 20.0,
+      "height": 4.0
+    },
+    "guide_color": "#c2d9ed",
+    "border_color": "#d6dfe8"
+  }
+}

@@ -1,0 +1,90 @@
+.panel {
+  width: 100%;
+  max-width: 42rem;
+  padding: clamp(1rem, 3vw, 2rem);
+  margin: 1rem auto;
+  border: 1.5px solid var(--ink, #342820);
+  background: var(--paper, #fffaf0);
+  border-radius: 1rem;
+  color: var(--ink, #342820);
+  overflow-wrap: anywhere;
+}
+.panel h2 {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  line-height: 1.2;
+  margin: 0 0 1rem;
+}
+.panel p {
+  line-height: 1.6;
+  margin: 0.75rem 0;
+}
+.panel label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin: 1rem 0;
+  line-height: 1.5;
+}
+.panel input {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex: 0 0 1.15rem;
+  margin-top: 0.2rem;
+  accent-color: #663d2b;
+}
+.panel a {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.panel button {
+  max-width: 100%;
+  white-space: normal;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+.note {
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
+.panel details {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+.panel summary {
+  cursor: pointer;
+  padding: 0.5rem 0;
+}
+.panel :focus-visible {
+  outline: 3px solid #af452f;
+  outline-offset: 4px;
+}
+
+.panel textarea,
+.panel select {
+  font: inherit;
+  max-width: 100%;
+  padding: 0.6rem;
+  background: #fffdf5;
+  color: #342820;
+  border: 1px solid #725443;
+  border-radius: 0.4rem;
+}
+.panel textarea {
+  width: 100%;
+}
+.panel:has(textarea) label {
+  flex-direction: column;
+}
+.panel:has(textarea) input {
+  width: 100%;
+  height: auto;
+  flex: auto;
+  padding: 0.6rem;
+  font: inherit;
+  border: 1px solid #725443;
+  border-radius: 0.4rem;
+}

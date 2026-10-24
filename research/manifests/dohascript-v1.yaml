@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "record_type": "dataset_manifest",
+  "dataset_id": "dohascript",
+  "version": "1.0.0",
+  "status": "candidate",
+  "source_kind": "licensed_public",
+  "source": [
+    {
+      "schema_version": 1,
+      "uri": "https://arxiv.org/abs/2602.18089",
+      "content_hash": null,
+      "checked_on": "2026-10-20",
+      "finding": "Paper reports 531 Hindi writers, one page each over a fixed 89-word corpus, with per-writer demographics and ethics approval. The stated participant consent is for academic purpose and research use only. No data licence or distribution terms are published."
+    },
+    {
+      "schema_version": 1,
+      "uri": "https://huggingface.co/datasets/SIR-Lab/DohaScript",
+      "content_hash": null,
+      "checked_on": "2026-10-20",
+      "finding": "Public, ungated mirror of a 200-page sample (images/ directory, 200 files, 93800000 bytes). Card tags license:other with no named licence, so the sample inherits the paper's academic/research-only scope rather than an open grant."
+    }
+  ],
+  "script_codes": [
+    "Deva"
+  ],
+  "style_partitions": [
+    "cursive",
+    "mixed"
+  ],
+  "license": {
+    "schema_version": 1,
+    "status": "pending",
+    "identifier": null,
+    "evidence": [],
+    "permitted_uses": [],
+    "restrictions": [
+      "No public licence or independently reviewable authorization for PenForge use is asserted in this manifest.",
+      "Do not infer permission to train, generate font derivatives, or redistribute source data from public source availability."
+    ]
+  },
+  "consent": {
+    "schema_version": 1,
+    "status": "not_applicable",
+    "policy_version": null,
+    "consent_ref": null,
+    "evidence": [
+      {
+        "schema_version": 1,
+        "uri": "https://arxiv.org/abs/2602.18089",
+        "content_hash": null,
+        "checked_on": "2026-10-20",
+        "finding": "The paper states ethics approval and academic/research-only participant consent. Penforge records that scope as the binding ceiling rather than treating institutional permission as participant consent."
+      }
+    ],
+    "withdrawal_exclusion": true
+  },
+  "writer_resolution": "pending",
+  "writer_registry_ref": null,
+  "raw_data_in_repository": false,
+  "content_hash": "sha256:cff86613c1e59cb36677bbcbc908f3a70e7751b6b5ebf3babaab66cc2184240a",
+  "samples": [],
+  "limitations": [
+    "The local sample has 200 JPEG-named paths: 197 match their extension, two decode as PNG despite a JPEG filename, and one is empty/unreadable. No trusted transcription or writer-map file was downloaded.",
+    "Demographic filenames are private source metadata, not reliable global writer identities; no identities are inferred from them.",
+    "Excluded from R1 training/evaluation. Research-only participant consent remains binding; institutional permission does not widen it.",
+    "Page words cannot be assigned or split into glyph truth from an assumed fixed prompt.",
+    "Public evidence does not establish provider authorization or participant opt-in; no use is admitted."
+  ]
+}

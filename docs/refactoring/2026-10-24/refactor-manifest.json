@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "plan_file": "refactor-plan.md",
+  "assessment_source": "assessment.md",
+  "created": "2026-10-24",
+  "authorization": "Owner clarified that the linked workflows request actual codebase auditing and simplification; agent selects bounded sequential refactors.",
+  "status": "completed",
+  "current_chunk": null,
+  "preflight_passed": true,
+  "baseline": {
+    "frontend_tests": 129,
+    "typecheck": "passed",
+    "lint": "passed",
+    "contracts": "passed",
+    "boundaries": "passed"
+  },
+  "evidence_directory": "artifacts/refactoring-20261024",
+  "revision": "unborn main; no commits",
+  "publication_authorized": false,
+  "chunks": [
+    {
+      "id": 1,
+      "name": "Consolidate TypeScript test loading",
+      "status": "completed",
+      "depends_on": [],
+      "verification": {
+        "frontend_tests": 129,
+        "test_declarations_unchanged": 129,
+        "typecheck": "passed",
+        "lint": "passed",
+        "evidence": "artifacts/refactoring-20261024/chunk-01-*.txt"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Share account JSON request policy",
+      "status": "completed",
+      "depends_on": [
+        1
+      ],
+      "verification": {
+        "public_client_characterization_before": 21,
+        "frontend_tests_after": 150,
+        "typecheck": "passed",
+        "lint": "passed",
+        "contracts": "passed"
+      }
+    },
+    {
+      "id": 3,
+      "name": "Share owner-fenced token acquisition",
+      "status": "completed",
+      "depends_on": [
+        2
+      ],
+      "verification": {
+        "frontend_tests": 157,
+        "new_token_race_tests": 7,
+        "typecheck": "passed",
+        "lint": "passed",
+        "contracts": "passed"
+      }
+    },
+    {
+      "id": 4,
+      "name": "Verify and repair architecture guard",
+      "status": "completed",
+      "depends_on": [],
+      "verification": {
+        "initial_regression_tests_failed": 15,
+        "initial_regression_tests_total": 34,
+        "final_guard_regressions": 36,
+        "guard_and_foundation_tests": 54,
+        "boundary_check": "passed",
+        "ruff": "passed",
+        "format": "passed",
+        "mypy": "passed"
+      }
+    },
+    {
+      "id": 5,
+      "name": "Repair observed studio state and layout",
+      "status": "completed",
+      "depends_on": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "reason": "Browser audit reproduced false account-save status, narrow header overflow and URL mode changes retaining the account screen.",
+      "verification": {
+        "frontend_tests": 157,
+        "typecheck": "passed",
+        "lint": "passed",
+        "contracts": "passed",
+        "production_build": "passed_with_existing_css_warnings",
+        "production_start": "loopback_3025_verified",
+        "account_demo_viewports": [
+          "1440x900",
+          "768x1000",
+          "390x844",
+          "320x844",
+          "1280x600"
+        ],
+        "horizontal_overflow": false,
+        "false_account_saved_claim": false,
+        "keyboard_demo_link": "passed",
+        "mobile_demo_link": "passed",
+        "back_forward": "passed",
+        "demo_reload": "passed",
+        "console_errors_warnings": 0,
+        "os_gentle_browser": "unexecuted",
+        "live_configured_account": "unexecuted",
+        "evidence": "artifacts/refactoring-20261024/navigation-final-browser.json"
+      }
+    },
+    {
+      "id": 6,
+      "name": "Make agent continuation concise",
+      "status": "completed",
+      "depends_on": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "verification": {
+        "map": "docs/CODEBASE_MAP.md",
+        "original_status_lines": 1222,
+        "current_status_lines": 121,
+        "historical_content_roundtrips": true,
+        "documentation_links": 996,
+        "documentation_files": 128,
+        "preserved_specification_hashes": 2,
+        "source_files_checked": 397,
+        "existing_test_declarations_unchanged": 129,
+        "private_font_files_checked": 5,
+        "private_font_files_changed": 0,
+        "reading_time_improvement": "not_measured"
+      }
+    }
+  ],
+  "completed": "2026-10-24",
+  "results_file": "results.md"
+}

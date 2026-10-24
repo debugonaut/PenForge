@@ -1,0 +1,108 @@
+.thumbnail {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--paper-thumb-size, 46px);
+  height: var(--paper-thumb-size, 46px);
+  flex: 0 0 auto;
+  pointer-events: none;
+}
+.sheet {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: visible;
+  filter: drop-shadow(1px 2px 0 #192e3514);
+}
+.page {
+  fill: #fffdf7;
+  stroke: #b7a58d;
+  stroke-width: 0.9;
+}
+.kraft .page {
+  fill: #e1c49d;
+}
+.ruled .page,
+.graph .page {
+  fill: #fffdf4;
+}
+.fibers {
+  stroke: #806d4a;
+  stroke-width: 0.5;
+  opacity: 0.3;
+}
+.rules {
+  fill: none;
+  stroke: #a6bec2;
+  stroke-width: 0.55;
+  opacity: 0.7;
+}
+.rules .margin {
+  stroke: #dc9c91;
+}
+.writing {
+  fill: #192e35;
+  opacity: 0.8;
+  font: 500 10px var(--font-hand);
+}
+.signature {
+  fill: none;
+  stroke: #192e35;
+  stroke-width: 0.65;
+  opacity: 0.35;
+}
+.accentPanel {
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-width: 0.6;
+}
+.headerDetail {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.6;
+  opacity: 0.85;
+}
+.letterWriting {
+  font-size: 9px;
+}
+.memoBand {
+  fill: currentColor;
+}
+.fold {
+  fill: #fffdf7;
+  stroke: currentColor;
+  stroke-width: 0.5;
+}
+.kraft .fold {
+  fill: #e1c49d;
+}
+.foldShade {
+  fill: currentColor;
+  opacity: 0.18;
+}
+.noteTitle {
+  font-size: 10px;
+  font-weight: 600;
+}
+.noteMessage {
+  font-size: 8px;
+}
+.cardBorder {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.5;
+  opacity: 0.65;
+}
+.cardOrnament {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.55;
+}
+.cardTitle {
+  font-size: 10px;
+  font-weight: 600;
+}
+.cardMessage {
+  font-size: 6.5px;
+}

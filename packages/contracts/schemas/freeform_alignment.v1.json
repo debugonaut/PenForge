@@ -1,0 +1,662 @@
+{
+  "$defs": {
+    "CapturePixelBounds": {
+      "additionalProperties": false,
+      "properties": {
+        "x_max": {
+          "maximum": 32768,
+          "minimum": 0,
+          "title": "X Max",
+          "type": "number"
+        },
+        "x_min": {
+          "maximum": 32768,
+          "minimum": 0,
+          "title": "X Min",
+          "type": "number"
+        },
+        "y_max": {
+          "maximum": 32768,
+          "minimum": 0,
+          "title": "Y Max",
+          "type": "number"
+        },
+        "y_min": {
+          "maximum": 32768,
+          "minimum": 0,
+          "title": "Y Min",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x_min",
+        "y_min",
+        "x_max",
+        "y_max"
+      ],
+      "title": "CapturePixelBounds",
+      "type": "object"
+    },
+    "CaptureSize": {
+      "additionalProperties": false,
+      "properties": {
+        "height": {
+          "maximum": 32768,
+          "minimum": 1,
+          "title": "Height",
+          "type": "integer"
+        },
+        "width": {
+          "maximum": 32768,
+          "minimum": 1,
+          "title": "Width",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "width",
+        "height"
+      ],
+      "title": "CaptureSize",
+      "type": "object"
+    },
+    "FreeformAnalysisInput": {
+      "additionalProperties": false,
+      "properties": {
+        "quality_policy": {
+          "const": "accuracy_first",
+          "default": "accuracy_first",
+          "title": "Quality Policy",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "script_code": {
+          "const": "Latn",
+          "default": "Latn",
+          "title": "Script Code",
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/FreeformCanvasSource"
+        },
+        "transcription": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SuppliedTranscription"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "schema_version",
+        "source"
+      ],
+      "title": "FreeformAnalysisInput",
+      "type": "object"
+    },
+    "FreeformCanvasSource": {
+      "additionalProperties": false,
+      "properties": {
+        "asset_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Asset Id",
+          "type": "string"
+        },
+        "capture_size_px": {
+          "$ref": "#/$defs/CaptureSize"
+        },
+        "document_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Document Hash",
+          "type": "string"
+        },
+        "drawing_mode": {
+          "const": "fixed_round_v1",
+          "default": "fixed_round_v1",
+          "title": "Drawing Mode",
+          "type": "string"
+        },
+        "project_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "sample_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Sample Id",
+          "type": "string"
+        },
+        "source_sha256": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Source Sha256",
+          "type": "string"
+        },
+        "source_type": {
+          "const": "canvas_drawing",
+          "default": "canvas_drawing",
+          "title": "Source Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "project_id",
+        "sample_id",
+        "asset_id",
+        "source_sha256",
+        "document_hash",
+        "capture_size_px"
+      ],
+      "title": "FreeformCanvasSource",
+      "type": "object"
+    },
+    "FreeformInkRegion": {
+      "additionalProperties": false,
+      "properties": {
+        "assignment": {
+          "enum": [
+            "proposed_character",
+            "unresolved"
+          ],
+          "title": "Assignment",
+          "type": "string"
+        },
+        "bounds": {
+          "$ref": "#/$defs/CapturePixelBounds"
+        },
+        "region_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+          "title": "Region Id",
+          "type": "string"
+        },
+        "review_reasons": {
+          "items": {
+            "enum": [
+              "identity_ambiguous",
+              "alignment_ambiguous",
+              "connected_ink",
+              "clipped_ink",
+              "unassigned_ink"
+            ],
+            "type": "string"
+          },
+          "maxItems": 5,
+          "title": "Review Reasons",
+          "type": "array"
+        },
+        "segmentation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MeasuredFreeformScore"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "source_spans": {
+          "items": {
+            "$ref": "#/$defs/SourcePointSpan"
+          },
+          "maxItems": 2000,
+          "minItems": 1,
+          "title": "Source Spans",
+          "type": "array"
+        },
+        "text_span": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HypothesisSpan"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "word_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Word Id"
+        }
+      },
+      "required": [
+        "region_id",
+        "bounds",
+        "source_spans",
+        "assignment"
+      ],
+      "title": "FreeformInkRegion",
+      "type": "object"
+    },
+    "FreeformLine": {
+      "additionalProperties": false,
+      "properties": {
+        "baseline_y_px": {
+          "anyOf": [
+            {
+              "maximum": 32768,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Baseline Y Px"
+        },
+        "bounds": {
+          "$ref": "#/$defs/CapturePixelBounds"
+        },
+        "line_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+          "title": "Line Id",
+          "type": "string"
+        },
+        "text_span": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HypothesisSpan"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "line_id",
+        "bounds"
+      ],
+      "title": "FreeformLine",
+      "type": "object"
+    },
+    "FreeformMethod": {
+      "additionalProperties": false,
+      "properties": {
+        "component_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+          "title": "Component Id",
+          "type": "string"
+        },
+        "component_version": {
+          "maxLength": 100,
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+          "title": "Component Version",
+          "type": "string"
+        },
+        "implementation_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Implementation Hash",
+          "type": "string"
+        },
+        "model": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FreeformModelIdentity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "component_id",
+        "component_version",
+        "implementation_hash"
+      ],
+      "title": "FreeformMethod",
+      "type": "object"
+    },
+    "FreeformMethods": {
+      "additionalProperties": false,
+      "properties": {
+        "alignment": {
+          "$ref": "#/$defs/FreeformMethod"
+        },
+        "recognition": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FreeformMethod"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "recognition",
+        "alignment"
+      ],
+      "title": "FreeformMethods",
+      "type": "object"
+    },
+    "FreeformModelIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "model_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Model Hash",
+          "type": "string"
+        },
+        "model_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+          "title": "Model Id",
+          "type": "string"
+        },
+        "model_version": {
+          "maxLength": 100,
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+          "title": "Model Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model_id",
+        "model_version",
+        "model_hash"
+      ],
+      "title": "FreeformModelIdentity",
+      "type": "object"
+    },
+    "FreeformWord": {
+      "additionalProperties": false,
+      "properties": {
+        "bounds": {
+          "$ref": "#/$defs/CapturePixelBounds"
+        },
+        "line_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+          "title": "Line Id",
+          "type": "string"
+        },
+        "text_span": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HypothesisSpan"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "word_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+          "title": "Word Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "word_id",
+        "line_id",
+        "bounds"
+      ],
+      "title": "FreeformWord",
+      "type": "object"
+    },
+    "HypothesisSpan": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "maximum": 4096,
+          "minimum": 0,
+          "title": "End",
+          "type": "integer"
+        },
+        "hypothesis_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+          "title": "Hypothesis Id",
+          "type": "string"
+        },
+        "start": {
+          "maximum": 4096,
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "hypothesis_id",
+        "start",
+        "end"
+      ],
+      "title": "HypothesisSpan",
+      "type": "object"
+    },
+    "MeasuredFreeformScore": {
+      "additionalProperties": false,
+      "properties": {
+        "evaluation_record_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Evaluation Record Hash",
+          "type": "string"
+        },
+        "value": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Value",
+          "type": "number"
+        }
+      },
+      "required": [
+        "value",
+        "evaluation_record_hash"
+      ],
+      "title": "MeasuredFreeformScore",
+      "type": "object"
+    },
+    "RecognitionHypothesis": {
+      "additionalProperties": false,
+      "properties": {
+        "hypothesis_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+          "title": "Hypothesis Id",
+          "type": "string"
+        },
+        "recognition": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MeasuredFreeformScore"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "text": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "hypothesis_id",
+        "text"
+      ],
+      "title": "RecognitionHypothesis",
+      "type": "object"
+    },
+    "SourcePointSpan": {
+      "additionalProperties": false,
+      "description": "Inclusive point indices; not a connected-component/letter equivalence.",
+      "properties": {
+        "end_point": {
+          "maximum": 19999,
+          "minimum": 0,
+          "title": "End Point",
+          "type": "integer"
+        },
+        "start_point": {
+          "maximum": 19999,
+          "minimum": 0,
+          "title": "Start Point",
+          "type": "integer"
+        },
+        "stroke_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+          "title": "Stroke Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "stroke_id",
+        "start_point",
+        "end_point"
+      ],
+      "title": "SourcePointSpan",
+      "type": "object"
+    },
+    "SuppliedTranscription": {
+      "additionalProperties": false,
+      "properties": {
+        "origin": {
+          "const": "user_transcription",
+          "default": "user_transcription",
+          "title": "Origin",
+          "type": "string"
+        },
+        "prompt_is_ground_truth": {
+          "const": false,
+          "default": false,
+          "title": "Prompt Is Ground Truth",
+          "type": "boolean"
+        },
+        "text": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "title": "SuppliedTranscription",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "analysis_to_source_transform": {
+      "const": "identity",
+      "title": "Analysis To Source Transform",
+      "type": "string"
+    },
+    "artifact_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "title": "Artifact Hash",
+      "type": "string"
+    },
+    "artifact_type": {
+      "const": "penforge.freeform_alignment",
+      "title": "Artifact Type",
+      "type": "string"
+    },
+    "capability_status": {
+      "const": "research_only",
+      "default": "research_only",
+      "title": "Capability Status",
+      "type": "string"
+    },
+    "coordinate_frame": {
+      "const": "original_capture_pixels_top_left_y_down",
+      "title": "Coordinate Frame",
+      "type": "string"
+    },
+    "hypotheses": {
+      "items": {
+        "$ref": "#/$defs/RecognitionHypothesis"
+      },
+      "maxItems": 32,
+      "title": "Hypotheses",
+      "type": "array"
+    },
+    "input": {
+      "$ref": "#/$defs/FreeformAnalysisInput"
+    },
+    "lines": {
+      "items": {
+        "$ref": "#/$defs/FreeformLine"
+      },
+      "maxItems": 32,
+      "title": "Lines",
+      "type": "array"
+    },
+    "methods": {
+      "$ref": "#/$defs/FreeformMethods"
+    },
+    "regions": {
+      "items": {
+        "$ref": "#/$defs/FreeformInkRegion"
+      },
+      "maxItems": 512,
+      "minItems": 1,
+      "title": "Regions",
+      "type": "array"
+    },
+    "review_status": {
+      "const": "pending",
+      "default": "pending",
+      "title": "Review Status",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "text_offset_unit": {
+      "const": "unicode_scalar",
+      "default": "unicode_scalar",
+      "title": "Text Offset Unit",
+      "type": "string"
+    },
+    "words": {
+      "items": {
+        "$ref": "#/$defs/FreeformWord"
+      },
+      "maxItems": 256,
+      "title": "Words",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact_type",
+    "input",
+    "methods",
+    "coordinate_frame",
+    "analysis_to_source_transform",
+    "hypotheses",
+    "lines",
+    "words",
+    "regions",
+    "artifact_hash"
+  ],
+  "title": "FreeformAlignment",
+  "type": "object"
+}

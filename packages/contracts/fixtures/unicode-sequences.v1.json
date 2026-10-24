@@ -1,0 +1,699 @@
+[
+  {
+    "text": "\u0915\u094d\u0937",
+    "evidence": {
+      "schema_version": 1,
+      "unicode_version": "17.0.0",
+      "source_codepoints": [
+        2325,
+        2381,
+        2359
+      ],
+      "source_hash": "sha256:08acfd3a6b6efe4396350fd7b85418fcc38e4ff1800e4d571e39af632433915b",
+      "graphemes": [
+        [
+          2325,
+          2381,
+          2359
+        ]
+      ],
+      "derived": [
+        {
+          "mode": "NFC",
+          "codepoints": [
+            2325,
+            2381,
+            2359
+          ],
+          "sha256": "sha256:08acfd3a6b6efe4396350fd7b85418fcc38e4ff1800e4d571e39af632433915b"
+        },
+        {
+          "mode": "NFD",
+          "codepoints": [
+            2325,
+            2381,
+            2359
+          ],
+          "sha256": "sha256:08acfd3a6b6efe4396350fd7b85418fcc38e4ff1800e4d571e39af632433915b"
+        }
+      ]
+    }
+  },
+  {
+    "text": "\u0915\u093f",
+    "evidence": {
+      "schema_version": 1,
+      "unicode_version": "17.0.0",
+      "source_codepoints": [
+        2325,
+        2367
+      ],
+      "source_hash": "sha256:dc864095abd05c941587a5882466f6f10de5d52df20b3368df8353c08135620e",
+      "graphemes": [
+        [
+          2325,
+          2367
+        ]
+      ],
+      "derived": [
+        {
+          "mode": "NFC",
+          "codepoints": [
+            2325,
+            2367
+          ],
+          "sha256": "sha256:dc864095abd05c941587a5882466f6f10de5d52df20b3368df8353c08135620e"
+        },
+        {
+          "mode": "NFD",
+          "codepoints": [
+            2325,
+            2367
+          ],
+          "sha256": "sha256:dc864095abd05c941587a5882466f6f10de5d52df20b3368df8353c08135620e"
+        }
+      ]
+    }
+  },
+  {
+    "text": "\u0930\u094d\u0915",
+    "evidence": {
+      "schema_version": 1,
+      "unicode_version": "17.0.0",
+      "source_codepoints": [
+        2352,
+        2381,
+        2325
+      ],
+      "source_hash": "sha256:6a656cc588382f150fb38b9336b48b31eeb77444f1bda844139d044f3e6e9831",
+      "graphemes": [
+        [
+          2352,
+          2381,
+          2325
+        ]
+      ],
+      "derived": [
+        {
+          "mode": "NFC",
+          "codepoints": [
+            2352,
+            2381,
+            2325
+          ],
+          "sha256": "sha256:6a656cc588382f150fb38b9336b48b31eeb77444f1bda844139d044f3e6e9831"
+        },
+        {
+          "mode": "NFD",
+          "codepoints": [
+            2352,
+            2381,
+            2325
+          ],
+          "sha256": "sha256:6a656cc588382f150fb38b9336b48b31eeb77444f1bda844139d044f3e6e9831"
+        }
+      ]
+    }
+  },
+  {
+    "text": "\u0936\u094d\u0930",
+    "evidence": {
+      "schema_version": 1,
+      "unicode_version": "17.0.0",
+      "source_codepoints": [
+        2358,
+        2381,
+        2352
+      ],
+      "source_hash": "sha256:90695da33354dcc87955d0ae1ed13d9f727d8c87618ffe0902cf636336abf6c4",
+      "graphemes": [
+        [
+          2358,
+          2381,
+          2352
+        ]
+      ],
+      "derived": [
+        {
+          "mode": "NFC",
+          "codepoints": [
+            2358,
+            2381,
+            2352
+          ],
+          "sha256": "sha256:90695da33354dcc87955d0ae1ed13d9f727d8c87618ffe0902cf636336abf6c4"
+        },
+        {
+          "mode": "NFD",
+          "codepoints": [
+            2358,
+            2381,
+            2352
+          ],
+          "sha256": "sha256:90695da33354dcc87955d0ae1ed13d9f727d8c87618ffe0902cf636336abf6c4"
+        }
+      ]
+    }
+  },
+  {
+    "text": "\u0915\u094d\u0924",
+    "evidence": {
+      "schema_version": 1,
+      "unicode_version": "17.0.0",
+      "source_codepoints": [
+        2325,
+        2381,
+        2340
+      ],
+      "source_hash": "sha256:146f8d225cccdd9fa3835c18751157f25aee30c09d0090a6b0f2ebd1b06c71f1",
+      "graphemes": [
+        [
+          2325,
+          2381,
+          2340
+        ]
+      ],
+      "derived": [
+        {
+          "mode": "NFC",
+          "codepoints": [
+            2325,
+            2381,
+            2340
+          ],
+          "sha256": "sha256:146f8d225cccdd9fa3835c18751157f25aee30c09d0090a6b0f2ebd1b06c71f1"
+        },
+        {
+          "mode": "NFD",
+          "codepoints": [
+            2325,
+            2381,
+            2340
+          ],
+          "sha256": "sha256:146f8d225cccdd9fa3835c18751157f25aee30c09d0090a6b0f2ebd1b06c71f1"
+        }
+      ]
+    }
+  },
+  {
+    "text": "\u0915\u093c",
+    "evidence": {
+      "schema_version": 1,
+      "unicode_version": "17.0.0",
+      "source_codepoints": [
+        2325,
+        2364
+      ],
+      "source_hash": "sha256:ef1b61c62ace9bb77268c23b5c3970f7eb5f8d751d3e1b35ff1be12d181836b9",
+      "graphemes": [
+        [
+          2325,
+          2364
+        ]
+      ],
+      "derived": [
+        {
+          "mode": "NFC",
+          "codepoints": [
+            2325,
+            2364
+          ],
+          "sha256": "sha256:ef1b61c62ace9bb77268c23b5c3970f7eb5f8d751d3e1b35ff1be12d181836b9"
+        },
+        {
+          "mode": "NFD",
+          "codepoints": [
+            2325,
+            2364
+          ],
+          "sha256": "sha256:ef1b61c62ace9bb77268c23b5c3970f7eb5f8d751d3e1b35ff1be12d181836b9"
+        }
+      ]
+    }
+  },
+  {
+    "text": "\u0958",
+    "evidence": {
+      "schema_version": 1,
+      "unicode_version": "17.0.0",
+      "source_codepoints": [
+        2392
+      ],
+      "source_hash": "sha256:97f24e1dd02543cf4768975f498f51f06a0250ff30becec98993763a5135af4e",
+      "graphemes": [
+        [
+          2392
+        ]
+      ],
+      "derived": [
+        {
+          "mode": "NFC",
+          "codepoints": [
+            2325,
+            2364
+          ],
+          "sha256": "sha256:ef1b61c62ace9bb77268c23b5c3970f7eb5f8d751d3e1b35ff1be12d181836b9"
+        },
+        {
+          "mode": "NFD",
+          "codepoints": [
+            2325,
+            2364
+          ],
+          "sha256": "sha256:ef1b61c62ace9bb77268c23b5c3970f7eb5f8d751d3e1b35ff1be12d181836b9"
+        }
+      ]
+    }
+  },
+  {
+    "text": "\u0915\u0941",
+    "evidence": {
+      "schema_version": 1,
+      "unicode_version": "17.0.0",
+      "source_codepoints": [
+        2325,
+        2369
+      ],
+      "source_hash": "sha256:dae6949218d7ca32fed8d3fb59245a37fde6af1a53466fb8e4ed1a5906acf3e0",
+      "graphemes": [
+        [
+          2325,
+          2369
+        ]
+      ],
+      "derived": [
+        {
+          "mode": "NFC",
+          "codepoints": [
+            2325,
+            2369
+          ],
+          "sha256": "sha256:dae6949218d7ca32fed8d3fb59245a37fde6af1a53466fb8e4ed1a5906acf3e0"
+        },
+        {
+          "mode": "NFD",
+          "codepoints": [
+            2325,
+            2369
+          ],
+          "sha256": "sha256:dae6949218d7ca32fed8d3fb59245a37fde6af1a53466fb8e4ed1a5906acf3e0"
+        }
+      ]
+    }
+  },
+  {
+    "text": "\u0915\u0942",
+    "evidence": {
+      "schema_version": 1,
+      "unicode_version": "17.0.0",
+      "source_codepoints": [
+        2325,
+        2370
+      ],
+      "source_hash": "sha256:3f6da2bda35156762f721ea723c735f07606df35971ce3724be2307294be6901",
+      "graphemes": [
+        [
+          2325,
+          2370
+        ]
+      ],
+      "derived": [
+        {
+          "mode": "NFC",
+          "codepoints": [
+            2325,
+            2370
+          ],
+          "sha256": "sha256:3f6da2bda35156762f721ea723c735f07606df35971ce3724be2307294be6901"
+        },
+        {
+          "mode": "NFD",
+          "codepoints": [
+            2325,
+            2370
+          ],
+          "sha256": "sha256:3f6da2bda35156762f721ea723c735f07606df35971ce3724be2307294be6901"
+        }
+      ]
+    }
+  },
+  {
+    "text": "\u0915\u0943",
+    "evidence": {
+      "schema_version": 1,
+      "unicode_version": "17.0.0",
+      "source_codepoints": [
+        2325,
+        2371
+      ],
+      "source_hash": "sha256:f7be7a54e8d7c3bacb3728b0489dec2a717e6aebb80aa7dfcbb9a96937b1a2b6",
+      "graphemes": [
+        [
+          2325,
+          2371
+        ]
+      ],
+      "derived": [
+        {
+          "mode": "NFC",
+          "codepoints": [
+            2325,
+            2371
+          ],
+          "sha256": "sha256:f7be7a54e8d7c3bacb3728b0489dec2a717e6aebb80aa7dfcbb9a96937b1a2b6"
+        },
+        {
+          "mode": "NFD",
+          "codepoints": [
+            2325,
+            2371
+          ],
+          "sha256": "sha256:f7be7a54e8d7c3bacb3728b0489dec2a717e6aebb80aa7dfcbb9a96937b1a2b6"
+        }
+      ]
+    }
+  },
+  {
+    "text": "\u0939\u0942\u0901",
+    "evidence": {
+      "schema_version": 1,
+      "unicode_version": "17.0.0",
+      "source_codepoints": [
+        2361,
+        2370,
+        2305
+      ],
+      "source_hash": "sha256:5dd079a11382d090b58d1b77876152e5dad613ca5ef2ff5e6468f931f13bcee1",
+      "graphemes": [
+        [
+          2361,
+          2370,
+          2305
+        ]
+      ],
+      "derived": [
+        {
+          "mode": "NFC",
+          "codepoints": [
+            2361,
+            2370,
+            2305
+          ],
+          "sha256": "sha256:5dd079a11382d090b58d1b77876152e5dad613ca5ef2ff5e6468f931f13bcee1"
+        },
+        {
+          "mode": "NFD",
+          "codepoints": [
+            2361,
+            2370,
+            2305
+          ],
+          "sha256": "sha256:5dd079a11382d090b58d1b77876152e5dad613ca5ef2ff5e6468f931f13bcee1"
+        }
+      ]
+    }
+  },
+  {
+    "text": "\u0915\u094d\u200d\u0937",
+    "evidence": {
+      "schema_version": 1,
+      "unicode_version": "17.0.0",
+      "source_codepoints": [
+        2325,
+        2381,
+        8205,
+        2359
+      ],
+      "source_hash": "sha256:176682420e5fc1e00c23516bc4c66aef34404de3d99168511bfa2b848749b118",
+      "graphemes": [
+        [
+          2325,
+          2381,
+          8205,
+          2359
+        ]
+      ],
+      "derived": [
+        {
+          "mode": "NFC",
+          "codepoints": [
+            2325,
+            2381,
+            8205,
+            2359
+          ],
+          "sha256": "sha256:176682420e5fc1e00c23516bc4c66aef34404de3d99168511bfa2b848749b118"
+        },
+        {
+          "mode": "NFD",
+          "codepoints": [
+            2325,
+            2381,
+            8205,
+            2359
+          ],
+          "sha256": "sha256:176682420e5fc1e00c23516bc4c66aef34404de3d99168511bfa2b848749b118"
+        }
+      ]
+    }
+  },
+  {
+    "text": "\u0915\u094d\u200c\u0937",
+    "evidence": {
+      "schema_version": 1,
+      "unicode_version": "17.0.0",
+      "source_codepoints": [
+        2325,
+        2381,
+        8204,
+        2359
+      ],
+      "source_hash": "sha256:56f8fd5daeeb037ee5da2dfbaba55ad9c3bf519f38651ab55ccac4a6ec89dcd5",
+      "graphemes": [
+        [
+          2325,
+          2381,
+          8204
+        ],
+        [
+          2359
+        ]
+      ],
+      "derived": [
+        {
+          "mode": "NFC",
+          "codepoints": [
+            2325,
+            2381,
+            8204,
+            2359
+          ],
+          "sha256": "sha256:56f8fd5daeeb037ee5da2dfbaba55ad9c3bf519f38651ab55ccac4a6ec89dcd5"
+        },
+        {
+          "mode": "NFD",
+          "codepoints": [
+            2325,
+            2381,
+            8204,
+            2359
+          ],
+          "sha256": "sha256:56f8fd5daeeb037ee5da2dfbaba55ad9c3bf519f38651ab55ccac4a6ec89dcd5"
+        }
+      ]
+    }
+  },
+  {
+    "text": "\ud835\udcb6\ud83d\ude00\ud83d\udc69\u200d\ud83d\udcbb",
+    "evidence": {
+      "schema_version": 1,
+      "unicode_version": "17.0.0",
+      "source_codepoints": [
+        119990,
+        128512,
+        128105,
+        8205,
+        128187
+      ],
+      "source_hash": "sha256:c59dbfd1ce8b8804573fd33229eeef65ee005a8863a8462b6445620368247a3b",
+      "graphemes": [
+        [
+          119990
+        ],
+        [
+          128512
+        ],
+        [
+          128105,
+          8205,
+          128187
+        ]
+      ],
+      "derived": [
+        {
+          "mode": "NFC",
+          "codepoints": [
+            119990,
+            128512,
+            128105,
+            8205,
+            128187
+          ],
+          "sha256": "sha256:c59dbfd1ce8b8804573fd33229eeef65ee005a8863a8462b6445620368247a3b"
+        },
+        {
+          "mode": "NFD",
+          "codepoints": [
+            119990,
+            128512,
+            128105,
+            8205,
+            128187
+          ],
+          "sha256": "sha256:c59dbfd1ce8b8804573fd33229eeef65ee005a8863a8462b6445620368247a3b"
+        }
+      ]
+    }
+  },
+  {
+    "text": "a\u0301",
+    "evidence": {
+      "schema_version": 1,
+      "unicode_version": "17.0.0",
+      "source_codepoints": [
+        97,
+        769
+      ],
+      "source_hash": "sha256:be2e102f47f0c677b1df612c8430af37673effbf91b1d9615876350f79be4ab5",
+      "graphemes": [
+        [
+          97,
+          769
+        ]
+      ],
+      "derived": [
+        {
+          "mode": "NFC",
+          "codepoints": [
+            225
+          ],
+          "sha256": "sha256:968dc4e13d82e5707675a4afeee49deb66cbad518ebc49a30a9fbc8313e9f7bb"
+        },
+        {
+          "mode": "NFD",
+          "codepoints": [
+            97,
+            769
+          ],
+          "sha256": "sha256:be2e102f47f0c677b1df612c8430af37673effbf91b1d9615876350f79be4ab5"
+        }
+      ]
+    }
+  },
+  {
+    "text": "\r\n",
+    "evidence": {
+      "schema_version": 1,
+      "unicode_version": "17.0.0",
+      "source_codepoints": [
+        13,
+        10
+      ],
+      "source_hash": "sha256:09e0083d228656b19de1b529ac41956e1d0c199913ea85af9f0f052819b4df41",
+      "graphemes": [
+        [
+          13,
+          10
+        ]
+      ],
+      "derived": [
+        {
+          "mode": "NFC",
+          "codepoints": [
+            13,
+            10
+          ],
+          "sha256": "sha256:09e0083d228656b19de1b529ac41956e1d0c199913ea85af9f0f052819b4df41"
+        },
+        {
+          "mode": "NFD",
+          "codepoints": [
+            13,
+            10
+          ],
+          "sha256": "sha256:09e0083d228656b19de1b529ac41956e1d0c199913ea85af9f0f052819b4df41"
+        }
+      ]
+    }
+  },
+  {
+    "text": "\ud83c\uddee\ud83c\uddf3",
+    "evidence": {
+      "schema_version": 1,
+      "unicode_version": "17.0.0",
+      "source_codepoints": [
+        127470,
+        127475
+      ],
+      "source_hash": "sha256:7e5ac74fd3cc71b179b7d02405de9e78d75c101a1effdf63bb6be02030004c78",
+      "graphemes": [
+        [
+          127470,
+          127475
+        ]
+      ],
+      "derived": [
+        {
+          "mode": "NFC",
+          "codepoints": [
+            127470,
+            127475
+          ],
+          "sha256": "sha256:7e5ac74fd3cc71b179b7d02405de9e78d75c101a1effdf63bb6be02030004c78"
+        },
+        {
+          "mode": "NFD",
+          "codepoints": [
+            127470,
+            127475
+          ],
+          "sha256": "sha256:7e5ac74fd3cc71b179b7d02405de9e78d75c101a1effdf63bb6be02030004c78"
+        }
+      ]
+    }
+  },
+  {
+    "text": "\uac01",
+    "evidence": {
+      "schema_version": 1,
+      "unicode_version": "17.0.0",
+      "source_codepoints": [
+        44033
+      ],
+      "source_hash": "sha256:7eb953a0b818f349749821d5c4457b629f6bcca6dc75b1b3ef71e6b0b12a6deb",
+      "graphemes": [
+        [
+          44033
+        ]
+      ],
+      "derived": [
+        {
+          "mode": "NFC",
+          "codepoints": [
+            44033
+          ],
+          "sha256": "sha256:7eb953a0b818f349749821d5c4457b629f6bcca6dc75b1b3ef71e6b0b12a6deb"
+        },
+        {
+          "mode": "NFD",
+          "codepoints": [
+            4352,
+            4449,
+            4520
+          ],
+          "sha256": "sha256:39e5f3971f58e563187fab2adf461a45850e8d608f731141064017f9ea38ec9d"
+        }
+      ]
+    }
+  }
+]

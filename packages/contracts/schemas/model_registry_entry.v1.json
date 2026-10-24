@@ -1,0 +1,284 @@
+{
+  "$defs": {
+    "ChildArtifact": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Artifact Id",
+          "type": "string"
+        },
+        "media_type": {
+          "enum": [
+            "application/json",
+            "image/png",
+            "image/jpeg",
+            "image/webp",
+            "application/octet-stream",
+            "application/onnx",
+            "application/x-safetensors"
+          ],
+          "title": "Media Type",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "size_bytes": {
+          "maximum": 1099511627776,
+          "minimum": 1,
+          "title": "Size Bytes",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "sha256",
+        "size_bytes",
+        "media_type"
+      ],
+      "title": "ChildArtifact",
+      "type": "object"
+    },
+    "MeasuredResources": {
+      "additionalProperties": false,
+      "properties": {
+        "benchmark_record_hash": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Benchmark Record Hash"
+        },
+        "ms_per_unit_p95": {
+          "anyOf": [
+            {
+              "maximum": 1000000000000.0,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ms Per Unit P95"
+        },
+        "peak_mem_mb": {
+          "anyOf": [
+            {
+              "maximum": 1000000000000.0,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Peak Mem Mb"
+        }
+      },
+      "title": "MeasuredResources",
+      "type": "object"
+    },
+    "TensorContract": {
+      "additionalProperties": false,
+      "properties": {
+        "dtype": {
+          "enum": [
+            "float32",
+            "float16",
+            "int64",
+            "int32",
+            "uint8",
+            "json"
+          ],
+          "title": "Dtype",
+          "type": "string"
+        },
+        "name": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+          "title": "Name",
+          "type": "string"
+        },
+        "preprocessing_version": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+          "title": "Preprocessing Version",
+          "type": "string"
+        },
+        "shape": {
+          "items": {
+            "maximum": 2147483647,
+            "minimum": -1,
+            "type": "integer"
+          },
+          "maxItems": 8,
+          "title": "Shape",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "dtype",
+        "shape",
+        "preprocessing_version"
+      ],
+      "title": "TensorContract",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifact": {
+      "$ref": "#/$defs/ChildArtifact"
+    },
+    "benchmark_record_hashes": {
+      "items": {
+        "pattern": "^sha256:[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "maxItems": 1000,
+      "title": "Benchmark Record Hashes",
+      "type": "array"
+    },
+    "compatible_worker": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Compatible Worker",
+      "type": "string"
+    },
+    "dataset_manifest_hashes": {
+      "items": {
+        "pattern": "^sha256:[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "maxItems": 1000,
+      "title": "Dataset Manifest Hashes",
+      "type": "array"
+    },
+    "format": {
+      "enum": [
+        "onnx",
+        "safetensors",
+        "json_rules"
+      ],
+      "title": "Format",
+      "type": "string"
+    },
+    "input_contract": {
+      "$ref": "#/$defs/TensorContract"
+    },
+    "license_identifier": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "License Identifier",
+      "type": "string"
+    },
+    "name": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+      "title": "Name",
+      "type": "string"
+    },
+    "output_contract": {
+      "$ref": "#/$defs/TensorContract"
+    },
+    "release_label": {
+      "default": "research_only",
+      "enum": [
+        "research_only",
+        "experimental_opt_in",
+        "production_validated",
+        "temporarily_disabled"
+      ],
+      "title": "Release Label",
+      "type": "string"
+    },
+    "resource_profile": {
+      "$ref": "#/$defs/MeasuredResources"
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "script_codes": {
+      "items": {
+        "pattern": "^[A-Z][a-z]{3}$",
+        "type": "string"
+      },
+      "maxItems": 100,
+      "minItems": 1,
+      "title": "Script Codes",
+      "type": "array"
+    },
+    "status": {
+      "default": "candidate",
+      "enum": [
+        "candidate",
+        "approved",
+        "deprecated",
+        "revoked"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "task": {
+      "enum": [
+        "segmentation",
+        "recognition",
+        "generation",
+        "style_encoder",
+        "refiner",
+        "rules"
+      ],
+      "title": "Task",
+      "type": "string"
+    },
+    "training_run_id": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Training Run Id"
+    },
+    "version": {
+      "maxLength": 100,
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "name",
+    "version",
+    "task",
+    "script_codes",
+    "format",
+    "artifact",
+    "input_contract",
+    "output_contract",
+    "compatible_worker",
+    "resource_profile",
+    "license_identifier",
+    "dataset_manifest_hashes",
+    "benchmark_record_hashes"
+  ],
+  "title": "ModelRegistryEntry",
+  "type": "object"
+}

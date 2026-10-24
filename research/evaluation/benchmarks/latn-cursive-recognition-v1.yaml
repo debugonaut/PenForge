@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "record_type": "benchmark_record",
+  "record_id": "latn-cursive-recognition-unmeasured-v1",
+  "created_on": "2026-10-19",
+  "status": "unmeasured",
+  "measured_on": null,
+  "dimension": "recognition",
+  "script_code": "Latn",
+  "style": "cursive",
+  "stage": "baseline-recognition",
+  "input_class": "licensed-heldout-handwriting",
+  "split": "test",
+  "dataset_manifests": [],
+  "split_registry_hash": null,
+  "model_ref": null,
+  "config_hash": null,
+  "code_ref": null,
+  "tool_versions": {},
+  "provider": null,
+  "runtime": null,
+  "cpu": null,
+  "ram_mb": null,
+  "n": null,
+  "p50_ms": null,
+  "p95_ms": null,
+  "peak_rss_mb": null,
+  "bytes_in": null,
+  "bytes_out": null,
+  "metrics": [
+    {
+      "schema_version": 1,
+      "name": "cer",
+      "unit": "ratio",
+      "value": null,
+      "n": null,
+      "confidence_interval": null
+    },
+    {
+      "schema_version": 1,
+      "name": "top-k-accuracy",
+      "unit": "ratio",
+      "value": null,
+      "n": null,
+      "confidence_interval": null
+    },
+    {
+      "schema_version": 1,
+      "name": "ece",
+      "unit": "ratio",
+      "value": null,
+      "n": null,
+      "confidence_interval": null
+    }
+  ],
+  "limitations": [
+    "No eligible real corpus or recognizer selected; no run has occurred.",
+    "Recognition results do not establish writer fidelity, segmentation, joining, shaping or font validity."
+  ]
+}

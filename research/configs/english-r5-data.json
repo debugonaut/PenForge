@@ -1,0 +1,12 @@
+{
+  "version": "english-r5-data-v1",
+  "seed": 20261023,
+  "class_order": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+  "per_class_caps": {"train": 128, "validation": 32, "test": 32, "school_test": 16},
+  "minimum_evaluation_per_class": 16,
+  "writer_policy": "historical_train_stays_train_validation_stays_validation_all_untouched_reserved_for_test",
+  "duplicate_policy": "quarantine_cross_writer_or_label_byte_gray_and_normalized_ink_identity",
+  "image_policy": "unchanged_publisher_128_square_png_no_tight_crop_no_invented_baseline",
+  "normalized_pixel_policy": "binary_ink_bbox_fit_56_centered_64_nearest_v1",
+  "final_test_policy": "separate_invocation_after_validation_winner_freeze_no_automatic_retry"
+}

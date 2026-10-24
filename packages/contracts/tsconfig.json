@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": { "incremental": false, "plugins": [] },
+  "include": [
+    "src/**/*.ts",
+    "../../src/lib/api-boundary.ts",
+    "../../src/lib/contracts.ts"
+  ],
+  "exclude": ["../../node_modules"]
+}

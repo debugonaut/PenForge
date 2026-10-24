@@ -1,0 +1,108 @@
+name: Penforge deployment and operations gates
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.13.1"
+          enable-cache: true
+      - run: uv sync --locked --group dev
+      - name: Credential and env-file leak scan
+        run: .venv/bin/python scripts/check_secrets.py
+      - name: Configuration and secret-redaction guards
+        env:
+          PYTHONPATH: apps/api:packages/contracts:packages/font-engine:.
+          APP_ENV: test
+        run: .venv/bin/python -m pytest -q tests/backend/test_foundation.py
+
+  postgres-acceptance:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16.6-bookworm
+        env:
+          POSTGRES_DB: penforge_test
+          POSTGRES_USER: penforge
+          POSTGRES_PASSWORD: penforge
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd 'pg_isready -U penforge -d penforge_test'
+          --health-interval 2s --health-timeout 2s --health-retries 15
+    env:
+      PYTHONPATH: apps/api:packages/contracts:packages/font-engine:.
+      APP_ENV: test
+      TEST_DATABASE_URL: postgresql+psycopg://penforge:penforge@127.0.0.1:5432/penforge_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.13.1"
+          enable-cache: true
+      - run: uv sync --locked --group dev --group worker --group research
+      - name: Migration apply, drift and guard checks against empty schema
+        run: make test-integration
+      - name: Storage conformance suite
+        run: .venv/bin/python -m pytest -q tests/backend/test_storage_conformance.py
+      - name: Observability endpoint and bounded metrics
+        run: .venv/bin/python -m pytest -q tests/backend/test_observability.py
+
+  benchmarks:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: apps/api:packages/contracts:packages/font-engine:.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.13.1"
+          enable-cache: true
+      - run: uv sync --locked --group dev --group worker --group research --group local-postgres
+      - name: PostgreSQL benchmark and restore drill (local cluster)
+        run: .venv/bin/python scripts/phase11_pg_benchmark.py --jobs 30 --owners 10 --samples 20 --provider ci-local
+      - name: Font compile and validation benchmark
+        run: .venv/bin/python scripts/phase11_worker_benchmark.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phase11-benchmarks
+          path: research/evaluation/benchmarks/*.json
+
+  image-budget:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build API and worker images
+        run: |
+          docker build -f infrastructure/docker/api.Dockerfile -t penforge-api:ci .
+          docker build -f infrastructure/docker/worker.Dockerfile -t penforge-worker:ci .
+      - name: Enforce recorded image-size budgets
+        run: |
+          api_mb=$(docker image inspect penforge-api:ci --format '{{.Size}}' | awk '{print int($1/1024/1024)}')
+          worker_mb=$(docker image inspect penforge-worker:ci --format '{{.Size}}' | awk '{print int($1/1024/1024)}')
+          echo "api=${api_mb}MB worker=${worker_mb}MB"
+          test "$api_mb" -lt 600
+          test "$worker_mb" -lt 1800
+      - name: Exercise packaged contracts and capped font pipeline
+        run: |
+          docker run --rm --network none --memory 256m --entrypoint .venv/bin/python penforge-api:ci image_smoke.py
+          docker run --rm --network none --memory 768m --cpus 1 --entrypoint .venv/bin/python penforge-worker:ci image_smoke.py --worker
+      - name: Scan API image for known vulnerabilities
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: penforge-api:ci
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+      - name: Scan worker image for known vulnerabilities
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: penforge-worker:ci
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+          skip-setup-trivy: true

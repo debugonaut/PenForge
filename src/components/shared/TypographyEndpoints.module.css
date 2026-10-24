@@ -1,0 +1,45 @@
+.endpoints {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  min-height: 24px;
+  color: #4c6264;
+  font: 500 22px/1 var(--font-hand);
+  pointer-events: none;
+  padding-inline: 2px;
+}
+.weight > :first-child {
+  font-weight: 400;
+}
+.weight > :last-child {
+  font-weight: 700;
+}
+.spacing > :first-child {
+  letter-spacing: -1px;
+}
+.spacing > :last-child {
+  letter-spacing: 3px;
+}
+.slant > :first-child {
+  transform: skewX(15deg);
+}
+.slant > :last-child {
+  transform: skewX(-15deg);
+}
+.size > :first-child {
+  font-size: 16px;
+}
+.size > :last-child {
+  font-size: 27px;
+}
+.lineHeight {
+  min-height: 36px;
+  font-size: 15px;
+}
+.lineHeight > :first-child {
+  line-height: 0.8;
+}
+.lineHeight > :last-child {
+  line-height: 1.4;
+}

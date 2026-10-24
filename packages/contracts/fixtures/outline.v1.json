@@ -1,0 +1,99 @@
+{
+  "codepoints": [
+    119990
+  ],
+  "contours": [
+    {
+      "closed": true,
+      "segments": [
+        {
+          "c1": {
+            "x": -25.0,
+            "y": 50.0
+          },
+          "c2": {
+            "x": 80.0,
+            "y": 780.0
+          },
+          "to": {
+            "x": 300.0,
+            "y": 720.0
+          },
+          "type": "cubic"
+        },
+        {
+          "c": {
+            "x": 590.0,
+            "y": 700.0
+          },
+          "to": {
+            "x": 570.0,
+            "y": -180.0
+          },
+          "type": "quadratic"
+        },
+        {
+          "to": {
+            "x": 20.0,
+            "y": -180.0
+          },
+          "type": "line"
+        }
+      ],
+      "start": {
+        "x": 20.0,
+        "y": -180.0
+      }
+    },
+    {
+      "closed": true,
+      "segments": [
+        {
+          "to": {
+            "x": 380.0,
+            "y": 80.0
+          },
+          "type": "line"
+        },
+        {
+          "to": {
+            "x": 380.0,
+            "y": 400.0
+          },
+          "type": "line"
+        },
+        {
+          "to": {
+            "x": 180.0,
+            "y": 400.0
+          },
+          "type": "line"
+        },
+        {
+          "to": {
+            "x": 180.0,
+            "y": 80.0
+          },
+          "type": "line"
+        }
+      ],
+      "start": {
+        "x": 180.0,
+        "y": 80.0
+      }
+    }
+  ],
+  "coordinate_system": {
+    "origin": "baseline",
+    "x_positive": "right",
+    "y_positive": "up"
+  },
+  "fill_rule": "evenodd",
+  "mapping": "cmap",
+  "metrics": {
+    "advance_width": 620.0,
+    "left_side_bearing": 20.0
+  },
+  "schema_version": 1,
+  "units_per_em": 1000
+}

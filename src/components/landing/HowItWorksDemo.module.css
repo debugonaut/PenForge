@@ -1,0 +1,610 @@
+.grid {
+  --demo-ink: var(--forge-ink, #192e35);
+  --demo-white: var(--forge-white, #fffcf4);
+  border: 1.6px solid var(--demo-ink);
+  border-radius: 15px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+}
+.card {
+  position: relative;
+  min-width: 0;
+  border-right: 1.6px solid var(--demo-ink);
+  padding: 25px 25px 22px;
+  color: var(--demo-ink);
+}
+.card:first-child {
+  border-radius: 13px 0 0 13px;
+}
+.card:last-child {
+  border-right: 0;
+  border-radius: 0 13px 13px 0;
+}
+.writeCard {
+  background: var(--forge-yellow, #f4d16e);
+}
+.refineCard {
+  background: var(--forge-coral, #f0a18c);
+}
+.typeCard {
+  background: var(--forge-mint, #a3c9b4);
+}
+.heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 800;
+}
+.heading > svg {
+  width: 20px;
+  height: 20px;
+}
+.art {
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 13px 0 22px;
+}
+.sourcePaper {
+  position: relative;
+  width: 92%;
+  padding: 20px 16px 13px;
+  border: 1.3px solid var(--demo-ink);
+  background: var(--demo-white);
+  transform: rotate(-3deg);
+  box-shadow: 3px 4px 0 #192e3521;
+}
+.sourcePaper > span {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+}
+.sourcePaper > p {
+  font: 550 clamp(30px, 3.5vw, 44px)/1.1 var(--font-hand);
+  margin: 17px 0 0;
+  border-bottom: 1px solid #192e3521;
+}
+.sourceWord {
+  height: 81px;
+  width: 75%;
+  border-bottom: 1px solid #192e3521;
+}
+.sourceWord > svg {
+  height: 100%;
+  width: auto;
+  max-width: 100%;
+}
+.processHand {
+  position: absolute;
+  width: 76%;
+  height: auto;
+  right: -3%;
+  bottom: -20%;
+  pointer-events: none;
+}
+.refineArt {
+  flex-direction: column;
+  gap: 10px;
+}
+.glyphGrid {
+  width: 86%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+.glyph {
+  position: relative;
+  aspect-ratio: 1.08;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1.3px solid var(--demo-ink);
+  border-radius: 2px;
+  background: var(--demo-white);
+  color: var(--demo-ink);
+  font: 550 clamp(32px, 3.8vw, 48px)/1 var(--font-hand);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-quick, 140ms) ease,
+    box-shadow var(--motion-standard, 280ms) var(--motion-ease);
+}
+.glyph > svg {
+  height: 84%;
+  width: 65%;
+}
+.glyph[aria-pressed="true"] {
+  background: var(--forge-yellow, #f4d16e);
+  box-shadow: inset 0 0 0 1px var(--demo-ink);
+}
+.glyph.uncertain {
+  border-style: dashed;
+}
+.glyph > i {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  min-width: 13px;
+  min-height: 13px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--demo-ink);
+  color: var(--demo-white);
+  font: 700 9px/1 var(--font-sans);
+  animation: stamp var(--motion-standard, 280ms) var(--motion-ease);
+}
+.choiceArea {
+  width: 100%;
+  min-height: 62px;
+}
+.choices {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+.choices > button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 90px;
+  min-height: 34px;
+  padding: 3px 9px;
+  border: 1px solid #192e3575;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--demo-ink);
+  font: 500 10px var(--font-sans);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-quick, 140ms) ease,
+    box-shadow var(--motion-standard, 280ms) var(--motion-ease);
+}
+.glyph:hover,
+.choices > button:hover {
+  box-shadow:
+    inset 0 0 0 1px var(--demo-ink),
+    0 2px 0 #192e3520;
+}
+@keyframes stamp {
+  from {
+    opacity: 0.3;
+    transform: scale(0.82);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes softStamp {
+  from {
+    opacity: 0.4;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .glyph > i {
+    animation-name: softStamp;
+  }
+}
+.choices > button[aria-pressed="true"] {
+  background: #fffcf4b8;
+  border-color: var(--demo-ink);
+  box-shadow: inset 0 0 0 0.5px var(--demo-ink);
+}
+.choices svg {
+  width: 15px;
+  height: 28px;
+}
+.status {
+  margin: 7px 0 0;
+  min-height: 13px;
+  text-align: center;
+  font: 400 9px/1.4 var(--font-sans);
+}
+.readyLetter {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 8px;
+  min-height: 34px;
+  font: 500 30px var(--font-hand);
+}
+.readyLetter > span {
+  font: 400 10px var(--font-sans);
+}
+.typeArt {
+  align-items: center;
+}
+.browser {
+  width: 96%;
+  border: 1.3px solid var(--demo-ink);
+  background: var(--demo-white);
+  transform: rotate(-1deg);
+}
+.browserBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--demo-ink);
+  padding: 8px 10px;
+  font-size: 8px;
+  font-weight: 700;
+}
+.browserBar > span:first-child {
+  letter-spacing: 3px;
+}
+.browserBar > span:last-child {
+  font-size: 6px;
+  letter-spacing: 0.6px;
+}
+.phrase {
+  padding: 7px 7px 0;
+}
+.phrase > svg {
+  width: 100%;
+  height: auto;
+}
+.phraseText {
+  font: 500 44px var(--font-hand);
+  fill: var(--demo-ink);
+}
+.comparison {
+  padding: 0 11px 8px;
+}
+.comparisonSurface {
+  position: relative;
+  height: 72px;
+  overflow: hidden;
+  border: 1px solid #192e3526;
+  background: #fffcf4;
+}
+.cleanSample,
+.rawSample {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.rawSample {
+  background-color: #eee7d8;
+  background-image:
+    linear-gradient(#8faca524 1px, transparent 1px),
+    linear-gradient(90deg, #8faca524 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+.cleanSample > svg,
+.rawSample > svg {
+  width: auto;
+  height: 69px;
+  margin-top: -8px;
+}
+.comparisonDivider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: #192e355e;
+}
+.beforeLabel,
+.afterLabel {
+  position: absolute;
+  bottom: 4px;
+  font-size: 6px;
+  line-height: 1;
+  color: #5d685e;
+}
+.beforeLabel {
+  left: 6px;
+}
+.afterLabel {
+  right: 6px;
+}
+.compareControl {
+  margin-top: 6px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 7px;
+}
+.compareControl > span {
+  flex-shrink: 0;
+}
+.compareControl > input {
+  margin: 0;
+  min-width: 0;
+  flex: 1;
+  height: 14px;
+  accent-color: var(--demo-ink);
+  cursor: ew-resize;
+}
+.card h3 {
+  margin: 0;
+  font-size: 31px;
+  font-weight: 500;
+  letter-spacing: -1.3px;
+  line-height: 1.05;
+}
+.card > p {
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 9px 0 0;
+}
+.arrow {
+  position: absolute;
+  right: -15px;
+  top: 49%;
+  z-index: 1;
+  background: var(--forge-paper, #f8f1e3);
+  border: 1.4px solid var(--demo-ink);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+}
+.glyph:focus-visible,
+.choices > button:focus-visible,
+.compareControl > input:focus-visible {
+  outline: 2px solid var(--demo-ink);
+  outline-offset: 3px;
+}
+@media (max-width: 900px) {
+  .card {
+    padding: 18px 13px;
+  }
+  .art {
+    min-height: 195px;
+    margin-bottom: 17px;
+  }
+  .sourcePaper {
+    width: 98%;
+    padding: 17px 10px 12px;
+  }
+  .sourcePaper > span {
+    font-size: 7px;
+  }
+  .sourcePaper > p {
+    font-size: 30px;
+  }
+  .sourceWord {
+    height: 68px;
+  }
+  .glyphGrid {
+    width: 98%;
+    gap: 5px;
+  }
+  .glyph {
+    font-size: 35px;
+  }
+  .choices > button {
+    min-width: 0;
+    flex: 1;
+    padding-inline: 5px;
+    font-size: 9px;
+    gap: 4px;
+  }
+  .status {
+    font-size: 8px;
+  }
+  .browserBar {
+    padding: 7px;
+  }
+  .browserBar > span:last-child {
+    font-size: 5px;
+    letter-spacing: 0.3px;
+  }
+  .comparison {
+    padding-inline: 7px;
+  }
+  .comparisonSurface {
+    height: 62px;
+  }
+  .cleanSample > svg,
+  .rawSample > svg {
+    height: 60px;
+  }
+  .compareControl {
+    font-size: 6px;
+    gap: 4px;
+  }
+  .card h3 {
+    font-size: 27px;
+  }
+  .card > p {
+    font-size: 10px;
+  }
+}
+@media (max-width: 620px) {
+  .grid {
+    grid-template-columns: 1fr;
+    border-radius: 12px;
+  }
+  .card {
+    border-right: 0;
+    border-bottom: 1.6px solid var(--demo-ink);
+    padding: 13px 16px;
+    min-height: 162px;
+    display: grid;
+    grid-template-columns: 0.83fr 1.17fr;
+    grid-template-rows: auto auto auto;
+    gap: 0 12px;
+  }
+  .card:first-child {
+    border-radius: 10px 10px 0 0;
+  }
+  .card:last-child {
+    border-bottom: 0;
+    border-radius: 0 0 10px 10px;
+  }
+  .heading {
+    grid-column: 1;
+    align-self: end;
+    font-size: 9px;
+  }
+  .heading > svg {
+    display: none;
+  }
+  .art {
+    grid-column: 2;
+    grid-row: 1/4;
+    min-height: 130px;
+    margin: 0;
+  }
+  .sourcePaper {
+    padding: 12px 8px 9px;
+  }
+  .sourcePaper > span {
+    font-size: 6px;
+  }
+  .sourcePaper > p {
+    margin-top: 10px;
+    font-size: 27px;
+  }
+  .sourceWord {
+    height: 53px;
+  }
+  .processHand {
+    width: 72%;
+    bottom: -19%;
+  }
+  .refineArt {
+    gap: 6px;
+  }
+  .glyphGrid {
+    width: 100%;
+    gap: 4px;
+    max-width: 165px;
+  }
+  .glyph {
+    aspect-ratio: 1.2;
+    font-size: 26px;
+    min-height: 42px;
+  }
+  .glyph > i {
+    min-width: 10px;
+    min-height: 10px;
+    font-size: 8px;
+    right: 2px;
+    bottom: 2px;
+  }
+  .choiceArea {
+    min-height: 45px;
+  }
+  .choices {
+    gap: 4px;
+  }
+  .choices > button {
+    min-height: 38px;
+    padding: 2px 4px;
+    font-size: 10px;
+    gap: 3px;
+  }
+  .choices svg {
+    width: 12px;
+    height: 21px;
+  }
+  .status {
+    margin-top: 4px;
+    min-height: 10px;
+    font-size: 7px;
+  }
+  .readyLetter {
+    min-height: 26px;
+    font-size: 24px;
+  }
+  .readyLetter > span {
+    font-size: 9px;
+  }
+  .browser {
+    width: 100%;
+  }
+  .browserBar {
+    padding: 5px;
+  }
+  .browserBar > span:last-child {
+    font-size: 4px;
+  }
+  .phrase {
+    padding: 3px 4px 0;
+  }
+  .comparison {
+    padding: 0 6px 5px;
+  }
+  .comparisonSurface {
+    height: 48px;
+  }
+  .cleanSample > svg,
+  .rawSample > svg {
+    height: 47px;
+    margin-top: -5px;
+  }
+  .beforeLabel,
+  .afterLabel {
+    font-size: 8px;
+    bottom: 3px;
+  }
+  .compareControl {
+    gap: 4px;
+    margin-top: 4px;
+    font-size: 8px;
+  }
+  .compareControl > input {
+    height: 28px;
+  }
+  .card h3 {
+    grid-column: 1;
+    align-self: center;
+    font-size: 27px;
+  }
+  .card > p {
+    grid-column: 1;
+    margin-top: 0;
+    font-size: 10px;
+    align-self: start;
+  }
+  .arrow {
+    top: auto;
+    bottom: -13px;
+    right: calc(50% - 12px);
+    transform: rotate(90deg);
+    width: 25px;
+    height: 25px;
+    font-size: 15px;
+  }
+}
+@media (max-height: 820px) and (min-width: 901px) {
+  .art {
+    min-height: 195px;
+    margin: 10px 0 16px;
+  }
+  .glyphGrid {
+    width: 66%;
+  }
+  .refineArt {
+    gap: 8px;
+  }
+  .choiceArea {
+    min-height: 54px;
+  }
+  .phrase > svg {
+    max-height: 78px;
+  }
+  .comparisonSurface {
+    height: 60px;
+  }
+  .cleanSample > svg,
+  .rawSample > svg {
+    height: 57px;
+  }
+  .browserBar {
+    padding-block: 6px;
+  }
+}

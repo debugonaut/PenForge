@@ -1,0 +1,206 @@
+{
+  "$defs": {
+    "JobETA": {
+      "additionalProperties": false,
+      "properties": {
+        "benchmark_profile_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Benchmark Profile Id"
+        },
+        "lower_seconds": {
+          "anyOf": [
+            {
+              "maximum": 1000000000000.0,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower Seconds"
+        },
+        "upper_seconds": {
+          "anyOf": [
+            {
+              "maximum": 1000000000000.0,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Upper Seconds"
+        }
+      },
+      "title": "JobETA",
+      "type": "object"
+    },
+    "WorkProgress": {
+      "additionalProperties": false,
+      "properties": {
+        "basis": {
+          "const": "validated_units",
+          "default": "validated_units",
+          "title": "Basis",
+          "type": "string"
+        },
+        "completed_units": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "title": "Completed Units",
+          "type": "integer"
+        },
+        "denominator_change_reason": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Denominator Change Reason"
+        },
+        "plan_revision": {
+          "default": 1,
+          "maximum": 2147483647,
+          "minimum": 1,
+          "title": "Plan Revision",
+          "type": "integer"
+        },
+        "total_units": {
+          "anyOf": [
+            {
+              "maximum": 9007199254740991,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Total Units"
+        }
+      },
+      "required": [
+        "completed_units",
+        "total_units"
+      ],
+      "title": "WorkProgress",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "error_code": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Error Code"
+    },
+    "eta": {
+      "$ref": "#/$defs/JobETA"
+    },
+    "id": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "job_type": {
+      "enum": [
+        "asset_verify",
+        "analyze_samples",
+        "infer_style_generate",
+        "compile_export",
+        "purge_project",
+        "purge_account",
+        "maintenance_reconcile"
+      ],
+      "title": "Job Type",
+      "type": "string"
+    },
+    "progress": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/WorkProgress"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "requires_user_action": {
+      "default": false,
+      "title": "Requires User Action",
+      "type": "boolean"
+    },
+    "result_artifact_id": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Result Artifact Id"
+    },
+    "stage": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Stage"
+    },
+    "state": {
+      "enum": [
+        "queued",
+        "running",
+        "cancel_requested",
+        "succeeded",
+        "failed",
+        "canceled"
+      ],
+      "title": "State",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "job_type",
+    "state"
+  ],
+  "title": "JobDTO",
+  "type": "object"
+}

@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "tiers": {
+    "free_guest": {
+      "storage_bytes": {"window_kind": "lifetime", "limit_amount": 26214400},
+      "compute_seconds": {"window_kind": "day", "limit_amount": 600}
+    },
+    "free_user": {
+      "storage_bytes": {"window_kind": "lifetime", "limit_amount": 52428800},
+      "compute_seconds": {"window_kind": "day", "limit_amount": 1200}
+    }
+  },
+  "global": {
+    "storage_bytes": {"window_kind": "lifetime", "limit_amount": 700000000},
+    "compute_seconds": {"window_kind": "day", "limit_amount": 3600}
+  }
+}

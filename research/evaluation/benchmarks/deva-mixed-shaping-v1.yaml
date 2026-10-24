@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "record_type": "benchmark_record",
+  "record_id": "deva-mixed-shaping-unmeasured-v1",
+  "created_on": "2026-10-19",
+  "status": "unmeasured",
+  "measured_on": null,
+  "dimension": "script_shaping",
+  "script_code": "Deva",
+  "style": "mixed",
+  "stage": "opentype-shaping",
+  "input_class": "source-starter-text-runs",
+  "split": "test",
+  "dataset_manifests": [],
+  "split_registry_hash": null,
+  "model_ref": null,
+  "config_hash": null,
+  "code_ref": null,
+  "tool_versions": {},
+  "provider": null,
+  "runtime": null,
+  "cpu": null,
+  "ram_mb": null,
+  "n": null,
+  "p50_ms": null,
+  "p95_ms": null,
+  "peak_rss_mb": null,
+  "bytes_in": null,
+  "bytes_out": null,
+  "metrics": [
+    {
+      "schema_version": 1,
+      "name": "required-case-pass-rate",
+      "unit": "ratio",
+      "value": null,
+      "n": null,
+      "confidence_interval": null
+    }
+  ],
+  "limitations": [
+    "Starter sequences only; no font, HarfBuzz run, corpus-derived word list or golden outputs.",
+    "Shaping is independent from recognition and glyph-shape fidelity."
+  ]
+}

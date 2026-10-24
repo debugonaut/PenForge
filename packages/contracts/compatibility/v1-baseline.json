@@ -1,0 +1,4260 @@
+{
+  "implemented_http_surface": {
+    "components": {
+      "schemas": {
+        "AnalyzeOptions": {
+          "additionalProperties": false,
+          "properties": {
+            "enhance": {
+              "default": true,
+              "title": "Enhance",
+              "type": "boolean"
+            },
+            "fuse_samples": {
+              "default": false,
+              "title": "Fuse Samples",
+              "type": "boolean"
+            },
+            "quality_policy": {
+              "const": "accuracy_first",
+              "default": "accuracy_first",
+              "title": "Quality Policy",
+              "type": "string"
+            }
+          },
+          "title": "AnalyzeOptions",
+          "type": "object"
+        },
+        "AnalyzeSamplesJob": {
+          "additionalProperties": false,
+          "properties": {
+            "job_type": {
+              "const": "analyze_samples",
+              "title": "Job Type",
+              "type": "string"
+            },
+            "options": {
+              "$ref": "#/components/schemas/AnalyzeOptions"
+            },
+            "project_id": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "title": "Project Id",
+              "type": "string"
+            },
+            "sample_ids": {
+              "items": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              "maxItems": 200,
+              "minItems": 1,
+              "title": "Sample Ids",
+              "type": "array"
+            },
+            "schema_version": {
+              "const": 1,
+              "title": "Schema Version",
+              "type": "integer"
+            },
+            "script_code": {
+              "pattern": "^[A-Z][a-z]{3}$",
+              "title": "Script Code",
+              "type": "string"
+            },
+            "template_manifest_hash": {
+              "anyOf": [
+                {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Template Manifest Hash"
+            }
+          },
+          "required": [
+            "schema_version",
+            "job_type",
+            "project_id",
+            "sample_ids",
+            "script_code"
+          ],
+          "title": "AnalyzeSamplesJob",
+          "type": "object"
+        },
+        "CalibrationDefinition": {
+          "additionalProperties": false,
+          "properties": {
+            "calibration_id": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+              "title": "Calibration Id",
+              "type": "string"
+            },
+            "evaluation_record_hash": {
+              "anyOf": [
+                {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Evaluation Record Hash"
+            },
+            "expected_regions": {
+              "items": {
+                "$ref": "#/components/schemas/CalibrationRegion"
+              },
+              "maxItems": 100,
+              "title": "Expected Regions",
+              "type": "array"
+            },
+            "optimization_status": {
+              "default": "unmeasured",
+              "enum": [
+                "unmeasured",
+                "evaluated"
+              ],
+              "title": "Optimization Status",
+              "type": "string"
+            },
+            "prompt_is_ground_truth": {
+              "const": false,
+              "default": false,
+              "title": "Prompt Is Ground Truth",
+              "type": "boolean"
+            },
+            "prompt_text": {
+              "maxLength": 10000,
+              "minLength": 1,
+              "title": "Prompt Text",
+              "type": "string"
+            },
+            "schema_version": {
+              "const": 1,
+              "title": "Schema Version",
+              "type": "integer"
+            },
+            "script_code": {
+              "pattern": "^[A-Z][a-z]{3}$",
+              "title": "Script Code",
+              "type": "string"
+            },
+            "target_codepoints": {
+              "items": {
+                "maximum": 1114111,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "maxItems": 4096,
+              "minItems": 1,
+              "title": "Target Codepoints",
+              "type": "array"
+            },
+            "version": {
+              "maxLength": 100,
+              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+              "title": "Version",
+              "type": "string"
+            }
+          },
+          "required": [
+            "schema_version",
+            "calibration_id",
+            "version",
+            "script_code",
+            "prompt_text",
+            "target_codepoints",
+            "expected_regions"
+          ],
+          "title": "CalibrationDefinition",
+          "type": "object"
+        },
+        "CalibrationRegion": {
+          "additionalProperties": false,
+          "properties": {
+            "expected_codepoints": {
+              "items": {
+                "maximum": 1114111,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "maxItems": 4096,
+              "minItems": 1,
+              "title": "Expected Codepoints",
+              "type": "array"
+            },
+            "region_id": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+              "title": "Region Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "region_id",
+            "expected_codepoints"
+          ],
+          "title": "CalibrationRegion",
+          "type": "object"
+        },
+        "CandidateEvidence": {
+          "additionalProperties": false,
+          "properties": {
+            "evaluation_record_hash": {
+              "anyOf": [
+                {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Evaluation Record Hash"
+            },
+            "model_uncertainty": {
+              "anyOf": [
+                {
+                  "maximum": 1,
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Model Uncertainty"
+            },
+            "outline_validity": {
+              "enum": [
+                "pass",
+                "fail",
+                "unmeasured"
+              ],
+              "title": "Outline Validity",
+              "type": "string"
+            },
+            "recognition": {
+              "anyOf": [
+                {
+                  "maximum": 1,
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Recognition"
+            },
+            "segmentation": {
+              "anyOf": [
+                {
+                  "maximum": 1,
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Segmentation"
+            },
+            "style_fidelity": {
+              "anyOf": [
+                {
+                  "maximum": 1,
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Style Fidelity"
+            }
+          },
+          "required": [
+            "outline_validity"
+          ],
+          "title": "CandidateEvidence",
+          "type": "object"
+        },
+        "CanvasCoordinates": {
+          "additionalProperties": false,
+          "properties": {
+            "normalized": {
+              "const": true,
+              "default": true,
+              "title": "Normalized",
+              "type": "boolean"
+            },
+            "origin": {
+              "const": "top_left",
+              "default": "top_left",
+              "title": "Origin",
+              "type": "string"
+            },
+            "x_positive": {
+              "const": "right",
+              "default": "right",
+              "title": "X Positive",
+              "type": "string"
+            },
+            "y_positive": {
+              "const": "down",
+              "default": "down",
+              "title": "Y Positive",
+              "type": "string"
+            }
+          },
+          "title": "CanvasCoordinates",
+          "type": "object"
+        },
+        "CaptureSize": {
+          "additionalProperties": false,
+          "properties": {
+            "height": {
+              "maximum": 32768,
+              "minimum": 1,
+              "title": "Height",
+              "type": "integer"
+            },
+            "width": {
+              "maximum": 32768,
+              "minimum": 1,
+              "title": "Width",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "width",
+            "height"
+          ],
+          "title": "CaptureSize",
+          "type": "object"
+        },
+        "ChildArtifact": {
+          "additionalProperties": false,
+          "properties": {
+            "artifact_id": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "title": "Artifact Id",
+              "type": "string"
+            },
+            "media_type": {
+              "enum": [
+                "application/json",
+                "image/png",
+                "image/jpeg",
+                "image/webp",
+                "application/octet-stream",
+                "application/onnx",
+                "application/x-safetensors"
+              ],
+              "title": "Media Type",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "title": "Sha256",
+              "type": "string"
+            },
+            "size_bytes": {
+              "maximum": 1099511627776,
+              "minimum": 1,
+              "title": "Size Bytes",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "artifact_id",
+            "sha256",
+            "size_bytes",
+            "media_type"
+          ],
+          "title": "ChildArtifact",
+          "type": "object"
+        },
+        "CompileExportJob": {
+          "additionalProperties": false,
+          "properties": {
+            "export_ids": {
+              "items": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              "maxItems": 3,
+              "minItems": 1,
+              "title": "Export Ids",
+              "type": "array"
+            },
+            "formats": {
+              "items": {
+                "enum": [
+                  "ttf",
+                  "otf",
+                  "woff2"
+                ],
+                "type": "string"
+              },
+              "maxItems": 3,
+              "minItems": 1,
+              "title": "Formats",
+              "type": "array"
+            },
+            "job_type": {
+              "const": "compile_export",
+              "title": "Job Type",
+              "type": "string"
+            },
+            "schema_version": {
+              "const": 1,
+              "title": "Schema Version",
+              "type": "integer"
+            },
+            "snapshot_id": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "title": "Snapshot Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "schema_version",
+            "job_type",
+            "export_ids",
+            "snapshot_id",
+            "formats"
+          ],
+          "title": "CompileExportJob",
+          "type": "object"
+        },
+        "Contour": {
+          "additionalProperties": false,
+          "properties": {
+            "closed": {
+              "const": true,
+              "title": "Closed",
+              "type": "boolean"
+            },
+            "segments": {
+              "items": {
+                "discriminator": {
+                  "mapping": {
+                    "cubic": "#/components/schemas/CubicSegment",
+                    "line": "#/components/schemas/LineSegment",
+                    "quadratic": "#/components/schemas/QuadraticSegment"
+                  },
+                  "propertyName": "type"
+                },
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/LineSegment"
+                  },
+                  {
+                    "$ref": "#/components/schemas/QuadraticSegment"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CubicSegment"
+                  }
+                ]
+              },
+              "maxItems": 4096,
+              "minItems": 1,
+              "title": "Segments",
+              "type": "array"
+            },
+            "start": {
+              "$ref": "#/components/schemas/Point"
+            }
+          },
+          "required": [
+            "closed",
+            "start",
+            "segments"
+          ],
+          "title": "Contour",
+          "type": "object"
+        },
+        "ContractRegistry": {
+          "additionalProperties": false,
+          "properties": {
+            "contracts": {
+              "items": {
+                "$ref": "#/components/schemas/ContractVersion"
+              },
+              "title": "Contracts",
+              "type": "array"
+            },
+            "hash_encoding": {
+              "const": "penforge-tagged-json-ieee754-v1",
+              "default": "penforge-tagged-json-ieee754-v1",
+              "title": "Hash Encoding",
+              "type": "string"
+            },
+            "rest_api_version": {
+              "const": "v1",
+              "default": "v1",
+              "title": "Rest Api Version",
+              "type": "string"
+            }
+          },
+          "required": [
+            "contracts"
+          ],
+          "title": "ContractRegistry",
+          "type": "object"
+        },
+        "ContractVersion": {
+          "additionalProperties": false,
+          "properties": {
+            "capability": {
+              "enum": [
+                "foundation_only",
+                "future_contract"
+              ],
+              "title": "Capability",
+              "type": "string"
+            },
+            "current_version": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "title": "Current Version",
+              "type": "integer"
+            },
+            "name": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+              "title": "Name",
+              "type": "string"
+            },
+            "schema_name": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+              "title": "Schema Name",
+              "type": "string"
+            },
+            "supported_versions": {
+              "items": {
+                "maximum": 2147483647,
+                "minimum": 1,
+                "type": "integer"
+              },
+              "maxItems": 2,
+              "minItems": 1,
+              "title": "Supported Versions",
+              "type": "array"
+            }
+          },
+          "required": [
+            "name",
+            "current_version",
+            "supported_versions",
+            "schema_name",
+            "capability"
+          ],
+          "title": "ContractVersion",
+          "type": "object"
+        },
+        "CubicSegment": {
+          "additionalProperties": false,
+          "properties": {
+            "c1": {
+              "$ref": "#/components/schemas/Point"
+            },
+            "c2": {
+              "$ref": "#/components/schemas/Point"
+            },
+            "to": {
+              "$ref": "#/components/schemas/Point"
+            },
+            "type": {
+              "const": "cubic",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "c1",
+            "c2",
+            "to"
+          ],
+          "title": "CubicSegment",
+          "type": "object"
+        },
+        "ErrorBody": {
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "title": "Code",
+              "type": "string"
+            },
+            "details": {
+              "additionalProperties": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "default": {},
+              "title": "Details",
+              "type": "object"
+            },
+            "message": {
+              "title": "Message",
+              "type": "string"
+            },
+            "request_id": {
+              "title": "Request Id",
+              "type": "string"
+            },
+            "retryable": {
+              "default": false,
+              "title": "Retryable",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "request_id"
+          ],
+          "title": "ErrorBody",
+          "type": "object"
+        },
+        "ErrorEnvelope": {
+          "properties": {
+            "error": {
+              "$ref": "#/components/schemas/ErrorBody"
+            }
+          },
+          "required": [
+            "error"
+          ],
+          "title": "ErrorEnvelope",
+          "type": "object"
+        },
+        "ExtractionPolicy": {
+          "additionalProperties": false,
+          "properties": {
+            "margin_mm": {
+              "maximum": 50,
+              "minimum": 0,
+              "title": "Margin Mm",
+              "type": "number"
+            },
+            "min_markers": {
+              "maximum": 50,
+              "minimum": 3,
+              "title": "Min Markers",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "margin_mm",
+            "min_markers"
+          ],
+          "title": "ExtractionPolicy",
+          "type": "object"
+        },
+        "FontCoordinates": {
+          "additionalProperties": false,
+          "properties": {
+            "origin": {
+              "const": "baseline",
+              "default": "baseline",
+              "title": "Origin",
+              "type": "string"
+            },
+            "x_positive": {
+              "const": "right",
+              "default": "right",
+              "title": "X Positive",
+              "type": "string"
+            },
+            "y_positive": {
+              "const": "up",
+              "default": "up",
+              "title": "Y Positive",
+              "type": "string"
+            }
+          },
+          "title": "FontCoordinates",
+          "type": "object"
+        },
+        "GlyphCandidate": {
+          "additionalProperties": false,
+          "properties": {
+            "candidate_id": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "title": "Candidate Id",
+              "type": "string"
+            },
+            "codepoints": {
+              "items": {
+                "maximum": 1114111,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "maxItems": 16,
+              "minItems": 1,
+              "title": "Codepoints",
+              "type": "array"
+            },
+            "evidence": {
+              "$ref": "#/components/schemas/CandidateEvidence"
+            },
+            "origin": {
+              "enum": [
+                "authentic_extraction",
+                "geometric_reconstruction",
+                "style_conditioned_generation",
+                "manual_drawing"
+              ],
+              "title": "Origin",
+              "type": "string"
+            },
+            "outline": {
+              "$ref": "#/components/schemas/ChildArtifact"
+            },
+            "rank": {
+              "maximum": 10000,
+              "minimum": 1,
+              "title": "Rank",
+              "type": "integer"
+            },
+            "review_status": {
+              "const": "pending",
+              "default": "pending",
+              "title": "Review Status",
+              "type": "string"
+            }
+          },
+          "required": [
+            "candidate_id",
+            "codepoints",
+            "rank",
+            "origin",
+            "outline",
+            "evidence"
+          ],
+          "title": "GlyphCandidate",
+          "type": "object"
+        },
+        "GlyphMetrics": {
+          "additionalProperties": false,
+          "properties": {
+            "advance_width": {
+              "maximum": 131072,
+              "minimum": 0,
+              "title": "Advance Width",
+              "type": "number"
+            },
+            "left_side_bearing": {
+              "title": "Left Side Bearing",
+              "type": "number"
+            }
+          },
+          "required": [
+            "advance_width",
+            "left_side_bearing"
+          ],
+          "title": "GlyphMetrics",
+          "type": "object"
+        },
+        "GlyphOutline": {
+          "additionalProperties": false,
+          "properties": {
+            "codepoints": {
+              "items": {
+                "maximum": 1114111,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "maxItems": 16,
+              "minItems": 1,
+              "title": "Codepoints",
+              "type": "array"
+            },
+            "contours": {
+              "items": {
+                "$ref": "#/components/schemas/Contour"
+              },
+              "maxItems": 128,
+              "title": "Contours",
+              "type": "array"
+            },
+            "coordinate_system": {
+              "$ref": "#/components/schemas/FontCoordinates"
+            },
+            "fill_rule": {
+              "const": "evenodd",
+              "default": "evenodd",
+              "title": "Fill Rule",
+              "type": "string"
+            },
+            "mapping": {
+              "default": "cmap",
+              "enum": [
+                "cmap",
+                "gsub_only"
+              ],
+              "title": "Mapping",
+              "type": "string"
+            },
+            "metrics": {
+              "$ref": "#/components/schemas/GlyphMetrics"
+            },
+            "schema_version": {
+              "const": 1,
+              "title": "Schema Version",
+              "type": "integer"
+            },
+            "units_per_em": {
+              "maximum": 16384,
+              "minimum": 16,
+              "title": "Units Per Em",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "schema_version",
+            "units_per_em",
+            "coordinate_system",
+            "codepoints",
+            "metrics",
+            "contours"
+          ],
+          "title": "GlyphOutline",
+          "type": "object"
+        },
+        "Guide": {
+          "additionalProperties": false,
+          "properties": {
+            "baseline_offset_mm": {
+              "maximum": 1000000000000.0,
+              "minimum": 0,
+              "title": "Baseline Offset Mm",
+              "type": "number"
+            },
+            "guide_id": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+              "title": "Guide Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "guide_id",
+            "baseline_offset_mm"
+          ],
+          "title": "Guide",
+          "type": "object"
+        },
+        "HealthResponse": {
+          "additionalProperties": false,
+          "properties": {
+            "status": {
+              "const": "ok",
+              "default": "ok",
+              "title": "Status",
+              "type": "string"
+            }
+          },
+          "title": "HealthResponse",
+          "type": "object"
+        },
+        "JobDTO": {
+          "additionalProperties": false,
+          "properties": {
+            "error_code": {
+              "anyOf": [
+                {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Error Code"
+            },
+            "eta": {
+              "$ref": "#/components/schemas/JobETA"
+            },
+            "id": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "title": "Id",
+              "type": "string"
+            },
+            "job_type": {
+              "enum": [
+                "asset_verify",
+                "analyze_samples",
+                "infer_style_generate",
+                "compile_export",
+                "purge_project",
+                "purge_account",
+                "maintenance_reconcile"
+              ],
+              "title": "Job Type",
+              "type": "string"
+            },
+            "progress": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/WorkProgress"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "requires_user_action": {
+              "default": false,
+              "title": "Requires User Action",
+              "type": "boolean"
+            },
+            "result_artifact_id": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Result Artifact Id"
+            },
+            "stage": {
+              "anyOf": [
+                {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Stage"
+            },
+            "state": {
+              "enum": [
+                "queued",
+                "running",
+                "cancel_requested",
+                "succeeded",
+                "failed",
+                "canceled"
+              ],
+              "title": "State",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "job_type",
+            "state"
+          ],
+          "title": "JobDTO",
+          "type": "object"
+        },
+        "JobETA": {
+          "additionalProperties": false,
+          "properties": {
+            "benchmark_profile_id": {
+              "anyOf": [
+                {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Benchmark Profile Id"
+            },
+            "lower_seconds": {
+              "anyOf": [
+                {
+                  "maximum": 1000000000000.0,
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Lower Seconds"
+            },
+            "upper_seconds": {
+              "anyOf": [
+                {
+                  "maximum": 1000000000000.0,
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Upper Seconds"
+            }
+          },
+          "title": "JobETA",
+          "type": "object"
+        },
+        "LineSegment": {
+          "additionalProperties": false,
+          "properties": {
+            "to": {
+              "$ref": "#/components/schemas/Point"
+            },
+            "type": {
+              "const": "line",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "to"
+          ],
+          "title": "LineSegment",
+          "type": "object"
+        },
+        "MLResultManifest": {
+          "additionalProperties": false,
+          "properties": {
+            "artifact_hash": {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "title": "Artifact Hash",
+              "type": "string"
+            },
+            "artifact_type": {
+              "const": "penforge.ml_result",
+              "title": "Artifact Type",
+              "type": "string"
+            },
+            "attempt_id": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "title": "Attempt Id",
+              "type": "string"
+            },
+            "candidates": {
+              "items": {
+                "$ref": "#/components/schemas/GlyphCandidate"
+              },
+              "maxItems": 10000,
+              "title": "Candidates",
+              "type": "array"
+            },
+            "fencing_token": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "title": "Fencing Token",
+              "type": "integer"
+            },
+            "input": {
+              "$ref": "#/components/schemas/ResultInput"
+            },
+            "job_id": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "title": "Job Id",
+              "type": "string"
+            },
+            "pipeline": {
+              "$ref": "#/components/schemas/PipelineProvenance"
+            },
+            "quality_report": {
+              "$ref": "#/components/schemas/ChildArtifact"
+            },
+            "schema_version": {
+              "const": 1,
+              "title": "Schema Version",
+              "type": "integer"
+            },
+            "stage": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+              "title": "Stage",
+              "type": "string"
+            }
+          },
+          "required": [
+            "schema_version",
+            "artifact_type",
+            "job_id",
+            "attempt_id",
+            "fencing_token",
+            "stage",
+            "input",
+            "pipeline",
+            "candidates",
+            "quality_report",
+            "artifact_hash"
+          ],
+          "title": "MLResultManifest",
+          "type": "object"
+        },
+        "Marker": {
+          "additionalProperties": false,
+          "properties": {
+            "marker_id": {
+              "maximum": 49,
+              "minimum": 0,
+              "title": "Marker Id",
+              "type": "integer"
+            },
+            "rect_mm": {
+              "$ref": "#/components/schemas/Rect"
+            }
+          },
+          "required": [
+            "marker_id",
+            "rect_mm"
+          ],
+          "title": "Marker",
+          "type": "object"
+        },
+        "Markers": {
+          "additionalProperties": false,
+          "properties": {
+            "dictionary": {
+              "const": "DICT_4X4_50",
+              "title": "Dictionary",
+              "type": "string"
+            },
+            "items": {
+              "items": {
+                "$ref": "#/components/schemas/Marker"
+              },
+              "maxItems": 50,
+              "minItems": 3,
+              "title": "Items",
+              "type": "array"
+            },
+            "type": {
+              "const": "aruco",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "dictionary",
+            "items"
+          ],
+          "title": "Markers",
+          "type": "object"
+        },
+        "MeasuredResources": {
+          "additionalProperties": false,
+          "properties": {
+            "benchmark_record_hash": {
+              "anyOf": [
+                {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Benchmark Record Hash"
+            },
+            "ms_per_unit_p95": {
+              "anyOf": [
+                {
+                  "maximum": 1000000000000.0,
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Ms Per Unit P95"
+            },
+            "peak_mem_mb": {
+              "anyOf": [
+                {
+                  "maximum": 1000000000000.0,
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Peak Mem Mb"
+            }
+          },
+          "title": "MeasuredResources",
+          "type": "object"
+        },
+        "ModelRegistryEntry": {
+          "additionalProperties": false,
+          "properties": {
+            "artifact": {
+              "$ref": "#/components/schemas/ChildArtifact"
+            },
+            "benchmark_record_hashes": {
+              "items": {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "maxItems": 1000,
+              "title": "Benchmark Record Hashes",
+              "type": "array"
+            },
+            "compatible_worker": {
+              "maxLength": 100,
+              "minLength": 1,
+              "title": "Compatible Worker",
+              "type": "string"
+            },
+            "dataset_manifest_hashes": {
+              "items": {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "maxItems": 1000,
+              "title": "Dataset Manifest Hashes",
+              "type": "array"
+            },
+            "format": {
+              "enum": [
+                "onnx",
+                "safetensors",
+                "json_rules"
+              ],
+              "title": "Format",
+              "type": "string"
+            },
+            "input_contract": {
+              "$ref": "#/components/schemas/TensorContract"
+            },
+            "license_identifier": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "License Identifier",
+              "type": "string"
+            },
+            "name": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+              "title": "Name",
+              "type": "string"
+            },
+            "output_contract": {
+              "$ref": "#/components/schemas/TensorContract"
+            },
+            "release_label": {
+              "default": "research_only",
+              "enum": [
+                "research_only",
+                "experimental_opt_in",
+                "production_validated",
+                "temporarily_disabled"
+              ],
+              "title": "Release Label",
+              "type": "string"
+            },
+            "resource_profile": {
+              "$ref": "#/components/schemas/MeasuredResources"
+            },
+            "schema_version": {
+              "const": 1,
+              "title": "Schema Version",
+              "type": "integer"
+            },
+            "script_codes": {
+              "items": {
+                "pattern": "^[A-Z][a-z]{3}$",
+                "type": "string"
+              },
+              "maxItems": 100,
+              "minItems": 1,
+              "title": "Script Codes",
+              "type": "array"
+            },
+            "status": {
+              "default": "candidate",
+              "enum": [
+                "candidate",
+                "approved",
+                "deprecated",
+                "revoked"
+              ],
+              "title": "Status",
+              "type": "string"
+            },
+            "task": {
+              "enum": [
+                "segmentation",
+                "recognition",
+                "generation",
+                "style_encoder",
+                "refiner",
+                "rules"
+              ],
+              "title": "Task",
+              "type": "string"
+            },
+            "training_run_id": {
+              "anyOf": [
+                {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Training Run Id"
+            },
+            "version": {
+              "maxLength": 100,
+              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+              "title": "Version",
+              "type": "string"
+            }
+          },
+          "required": [
+            "schema_version",
+            "name",
+            "version",
+            "task",
+            "script_codes",
+            "format",
+            "artifact",
+            "input_contract",
+            "output_contract",
+            "compatible_worker",
+            "resource_profile",
+            "license_identifier",
+            "dataset_manifest_hashes",
+            "benchmark_record_hashes"
+          ],
+          "title": "ModelRegistryEntry",
+          "type": "object"
+        },
+        "Page": {
+          "additionalProperties": false,
+          "properties": {
+            "height_mm": {
+              "exclusiveMinimum": 0,
+              "maximum": 2000,
+              "title": "Height Mm",
+              "type": "number"
+            },
+            "index": {
+              "maximum": 999,
+              "minimum": 0,
+              "title": "Index",
+              "type": "integer"
+            },
+            "width_mm": {
+              "exclusiveMinimum": 0,
+              "maximum": 2000,
+              "title": "Width Mm",
+              "type": "number"
+            }
+          },
+          "required": [
+            "width_mm",
+            "height_mm",
+            "index"
+          ],
+          "title": "Page",
+          "type": "object"
+        },
+        "PipelineProvenance": {
+          "additionalProperties": false,
+          "properties": {
+            "algorithm_version": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+              "title": "Algorithm Version",
+              "type": "string"
+            },
+            "model_hash": {
+              "anyOf": [
+                {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Model Hash"
+            },
+            "model_id": {
+              "anyOf": [
+                {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Model Id"
+            },
+            "model_version": {
+              "anyOf": [
+                {
+                  "maxLength": 100,
+                  "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Model Version"
+            },
+            "preprocessing_version": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+              "title": "Preprocessing Version",
+              "type": "string"
+            },
+            "script_code": {
+              "pattern": "^[A-Z][a-z]{3}$",
+              "title": "Script Code",
+              "type": "string"
+            },
+            "style": {
+              "enum": [
+                "print",
+                "cursive",
+                "mixed",
+                "unknown"
+              ],
+              "title": "Style",
+              "type": "string"
+            }
+          },
+          "required": [
+            "script_code",
+            "style",
+            "model_id",
+            "model_version",
+            "model_hash",
+            "algorithm_version",
+            "preprocessing_version"
+          ],
+          "title": "PipelineProvenance",
+          "type": "object"
+        },
+        "Point": {
+          "additionalProperties": false,
+          "properties": {
+            "x": {
+              "title": "X",
+              "type": "number"
+            },
+            "y": {
+              "title": "Y",
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "y"
+          ],
+          "title": "Point",
+          "type": "object"
+        },
+        "ProjectDTO": {
+          "additionalProperties": false,
+          "description": "Future metadata only. Its presence in the registry does not implement project routes.",
+          "properties": {
+            "active_snapshot_id": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Active Snapshot Id"
+            },
+            "id": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "title": "Id",
+              "type": "string"
+            },
+            "name": {
+              "maxLength": 120,
+              "minLength": 1,
+              "title": "Name",
+              "type": "string"
+            },
+            "row_version": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "title": "Row Version",
+              "type": "integer"
+            },
+            "script_code": {
+              "pattern": "^[A-Z][a-z]{3}$",
+              "title": "Script Code",
+              "type": "string"
+            },
+            "status": {
+              "enum": [
+                "draft",
+                "processing",
+                "ready",
+                "archived",
+                "deleting"
+              ],
+              "title": "Status",
+              "type": "string"
+            },
+            "updated_at": {
+              "format": "date-time",
+              "title": "Updated At",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "script_code",
+            "status",
+            "row_version",
+            "updated_at"
+          ],
+          "title": "ProjectDTO",
+          "type": "object"
+        },
+        "PublicPageIdentity": {
+          "additionalProperties": false,
+          "properties": {
+            "encoding": {
+              "const": "qr",
+              "title": "Encoding",
+              "type": "string"
+            },
+            "public_payload": {
+              "maxLength": 180,
+              "title": "Public Payload",
+              "type": "string"
+            }
+          },
+          "required": [
+            "encoding",
+            "public_payload"
+          ],
+          "title": "PublicPageIdentity",
+          "type": "object"
+        },
+        "QuadraticSegment": {
+          "additionalProperties": false,
+          "properties": {
+            "c": {
+              "$ref": "#/components/schemas/Point"
+            },
+            "to": {
+              "$ref": "#/components/schemas/Point"
+            },
+            "type": {
+              "const": "quadratic",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "c",
+            "to"
+          ],
+          "title": "QuadraticSegment",
+          "type": "object"
+        },
+        "Rect": {
+          "additionalProperties": false,
+          "properties": {
+            "height": {
+              "exclusiveMinimum": 0,
+              "maximum": 2000,
+              "title": "Height",
+              "type": "number"
+            },
+            "width": {
+              "exclusiveMinimum": 0,
+              "maximum": 2000,
+              "title": "Width",
+              "type": "number"
+            },
+            "x": {
+              "maximum": 1000000000000.0,
+              "minimum": 0,
+              "title": "X",
+              "type": "number"
+            },
+            "y": {
+              "maximum": 1000000000000.0,
+              "minimum": 0,
+              "title": "Y",
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "y",
+            "width",
+            "height"
+          ],
+          "title": "Rect",
+          "type": "object"
+        },
+        "ResultInput": {
+          "additionalProperties": false,
+          "properties": {
+            "sample_ids": {
+              "items": {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              "maxItems": 200,
+              "minItems": 1,
+              "title": "Sample Ids",
+              "type": "array"
+            },
+            "source_hashes": {
+              "items": {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "maxItems": 200,
+              "minItems": 1,
+              "title": "Source Hashes",
+              "type": "array"
+            },
+            "template_manifest_hash": {
+              "anyOf": [
+                {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Template Manifest Hash"
+            }
+          },
+          "required": [
+            "sample_ids",
+            "source_hashes"
+          ],
+          "title": "ResultInput",
+          "type": "object"
+        },
+        "Stroke": {
+          "additionalProperties": false,
+          "properties": {
+            "pointer_type": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "pen",
+                    "mouse",
+                    "touch",
+                    "keyboard"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Pointer Type"
+            },
+            "points": {
+              "items": {
+                "$ref": "#/components/schemas/StrokePoint"
+              },
+              "maxItems": 20000,
+              "minItems": 1,
+              "title": "Points",
+              "type": "array"
+            },
+            "stroke_id": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+              "title": "Stroke Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "stroke_id",
+            "points"
+          ],
+          "title": "Stroke",
+          "type": "object"
+        },
+        "StrokeDocument": {
+          "additionalProperties": false,
+          "properties": {
+            "capture_size_px": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/CaptureSize"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "coordinate_system": {
+              "$ref": "#/components/schemas/CanvasCoordinates"
+            },
+            "operations": {
+              "items": {
+                "$ref": "#/components/schemas/TranslateOperation"
+              },
+              "maxItems": 1000,
+              "title": "Operations",
+              "type": "array"
+            },
+            "parent_source_hash": {
+              "anyOf": [
+                {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Parent Source Hash"
+            },
+            "schema_version": {
+              "const": 1,
+              "title": "Schema Version",
+              "type": "integer"
+            },
+            "strokes": {
+              "items": {
+                "$ref": "#/components/schemas/Stroke"
+              },
+              "maxItems": 2000,
+              "minItems": 1,
+              "title": "Strokes",
+              "type": "array"
+            },
+            "timing": {
+              "enum": [
+                "observed",
+                "unavailable_legacy"
+              ],
+              "title": "Timing",
+              "type": "string"
+            }
+          },
+          "required": [
+            "schema_version",
+            "coordinate_system",
+            "capture_size_px",
+            "timing",
+            "strokes"
+          ],
+          "title": "StrokeDocument",
+          "type": "object"
+        },
+        "StrokePoint": {
+          "additionalProperties": false,
+          "properties": {
+            "pressure": {
+              "anyOf": [
+                {
+                  "maximum": 1,
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Pressure"
+            },
+            "t_ms": {
+              "anyOf": [
+                {
+                  "maximum": 1000000000000.0,
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "T Ms"
+            },
+            "tilt_x": {
+              "anyOf": [
+                {
+                  "maximum": 90,
+                  "minimum": -90,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Tilt X"
+            },
+            "tilt_y": {
+              "anyOf": [
+                {
+                  "maximum": 90,
+                  "minimum": -90,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Tilt Y"
+            },
+            "twist": {
+              "anyOf": [
+                {
+                  "exclusiveMaximum": 360,
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Twist"
+            },
+            "x": {
+              "maximum": 1,
+              "minimum": 0,
+              "title": "X",
+              "type": "number"
+            },
+            "y": {
+              "maximum": 1,
+              "minimum": 0,
+              "title": "Y",
+              "type": "number"
+            }
+          },
+          "required": [
+            "x",
+            "y"
+          ],
+          "title": "StrokePoint",
+          "type": "object"
+        },
+        "TemplateCell": {
+          "additionalProperties": false,
+          "properties": {
+            "cell_id": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+              "title": "Cell Id",
+              "type": "string"
+            },
+            "codepoints": {
+              "items": {
+                "maximum": 1114111,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "maxItems": 16,
+              "minItems": 1,
+              "title": "Codepoints",
+              "type": "array"
+            },
+            "guide_id": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+              "title": "Guide Id",
+              "type": "string"
+            },
+            "rect_mm": {
+              "$ref": "#/components/schemas/Rect"
+            }
+          },
+          "required": [
+            "cell_id",
+            "codepoints",
+            "rect_mm",
+            "guide_id"
+          ],
+          "title": "TemplateCell",
+          "type": "object"
+        },
+        "TemplateManifest": {
+          "additionalProperties": false,
+          "properties": {
+            "cells": {
+              "items": {
+                "$ref": "#/components/schemas/TemplateCell"
+              },
+              "maxItems": 1000,
+              "minItems": 1,
+              "title": "Cells",
+              "type": "array"
+            },
+            "extraction": {
+              "$ref": "#/components/schemas/ExtractionPolicy"
+            },
+            "guides": {
+              "items": {
+                "$ref": "#/components/schemas/Guide"
+              },
+              "maxItems": 100,
+              "minItems": 1,
+              "title": "Guides",
+              "type": "array"
+            },
+            "markers": {
+              "$ref": "#/components/schemas/Markers"
+            },
+            "page": {
+              "$ref": "#/components/schemas/Page"
+            },
+            "page_identity": {
+              "$ref": "#/components/schemas/PublicPageIdentity"
+            },
+            "schema_version": {
+              "const": 1,
+              "title": "Schema Version",
+              "type": "integer"
+            },
+            "script_code": {
+              "pattern": "^[A-Z][a-z]{3}$",
+              "title": "Script Code",
+              "type": "string"
+            },
+            "template_id": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+              "title": "Template Id",
+              "type": "string"
+            },
+            "template_version": {
+              "maxLength": 100,
+              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+              "title": "Template Version",
+              "type": "string"
+            }
+          },
+          "required": [
+            "schema_version",
+            "template_id",
+            "template_version",
+            "script_code",
+            "page",
+            "markers",
+            "page_identity",
+            "cells",
+            "guides",
+            "extraction"
+          ],
+          "title": "TemplateManifest",
+          "type": "object"
+        },
+        "TensorContract": {
+          "additionalProperties": false,
+          "properties": {
+            "dtype": {
+              "enum": [
+                "float32",
+                "float16",
+                "int64",
+                "int32",
+                "uint8",
+                "json"
+              ],
+              "title": "Dtype",
+              "type": "string"
+            },
+            "name": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+              "title": "Name",
+              "type": "string"
+            },
+            "preprocessing_version": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+              "title": "Preprocessing Version",
+              "type": "string"
+            },
+            "shape": {
+              "items": {
+                "maximum": 2147483647,
+                "minimum": -1,
+                "type": "integer"
+              },
+              "maxItems": 8,
+              "title": "Shape",
+              "type": "array"
+            }
+          },
+          "required": [
+            "name",
+            "dtype",
+            "shape",
+            "preprocessing_version"
+          ],
+          "title": "TensorContract",
+          "type": "object"
+        },
+        "TranslateOperation": {
+          "additionalProperties": false,
+          "properties": {
+            "dx": {
+              "maximum": 1,
+              "minimum": -1,
+              "title": "Dx",
+              "type": "number"
+            },
+            "dy": {
+              "maximum": 1,
+              "minimum": -1,
+              "title": "Dy",
+              "type": "number"
+            },
+            "stroke_ids": {
+              "items": {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+                "type": "string"
+              },
+              "maxItems": 2000,
+              "minItems": 1,
+              "title": "Stroke Ids",
+              "type": "array"
+            },
+            "type": {
+              "const": "translate",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "stroke_ids",
+            "dx",
+            "dy"
+          ],
+          "title": "TranslateOperation",
+          "type": "object"
+        },
+        "WorkProgress": {
+          "additionalProperties": false,
+          "properties": {
+            "basis": {
+              "const": "validated_units",
+              "default": "validated_units",
+              "title": "Basis",
+              "type": "string"
+            },
+            "completed_units": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "title": "Completed Units",
+              "type": "integer"
+            },
+            "denominator_change_reason": {
+              "anyOf": [
+                {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Denominator Change Reason"
+            },
+            "plan_revision": {
+              "default": 1,
+              "maximum": 2147483647,
+              "minimum": 1,
+              "title": "Plan Revision",
+              "type": "integer"
+            },
+            "total_units": {
+              "anyOf": [
+                {
+                  "maximum": 9007199254740991,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Total Units"
+            }
+          },
+          "required": [
+            "completed_units",
+            "total_units"
+          ],
+          "title": "WorkProgress",
+          "type": "object"
+        }
+      }
+    },
+    "openapi": "3.1.0",
+    "paths": {
+      "/api/v1/contracts": {
+        "get": {
+          "operationId": "getContracts",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ContractRegistry"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "400": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorEnvelope"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "500": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorEnvelope"
+                  }
+                }
+              },
+              "description": "Internal Server Error"
+            }
+          },
+          "summary": "Contracts"
+        }
+      },
+      "/api/v1/health": {
+        "get": {
+          "operationId": "getHealth",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HealthResponse"
+                  }
+                }
+              },
+              "description": "Successful Response"
+            },
+            "400": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorEnvelope"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "500": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorEnvelope"
+                  }
+                }
+              },
+              "description": "Internal Server Error"
+            }
+          },
+          "summary": "Health"
+        }
+      }
+    }
+  },
+  "jobs/analyze_samples_job.v1.json": {
+    "$defs": {
+      "AnalyzeOptions": {
+        "additionalProperties": false,
+        "properties": {
+          "enhance": {
+            "default": true,
+            "title": "Enhance",
+            "type": "boolean"
+          },
+          "fuse_samples": {
+            "default": false,
+            "title": "Fuse Samples",
+            "type": "boolean"
+          },
+          "quality_policy": {
+            "const": "accuracy_first",
+            "default": "accuracy_first",
+            "title": "Quality Policy",
+            "type": "string"
+          }
+        },
+        "title": "AnalyzeOptions",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "job_type": {
+        "const": "analyze_samples",
+        "title": "Job Type",
+        "type": "string"
+      },
+      "options": {
+        "$ref": "#/$defs/AnalyzeOptions"
+      },
+      "project_id": {
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+        "title": "Project Id",
+        "type": "string"
+      },
+      "sample_ids": {
+        "items": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "maxItems": 200,
+        "minItems": 1,
+        "title": "Sample Ids",
+        "type": "array"
+      },
+      "schema_version": {
+        "const": 1,
+        "title": "Schema Version",
+        "type": "integer"
+      },
+      "script_code": {
+        "pattern": "^[A-Z][a-z]{3}$",
+        "title": "Script Code",
+        "type": "string"
+      },
+      "template_manifest_hash": {
+        "anyOf": [
+          {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Template Manifest Hash"
+      }
+    },
+    "required": [
+      "schema_version",
+      "job_type",
+      "project_id",
+      "sample_ids",
+      "script_code"
+    ],
+    "title": "AnalyzeSamplesJob",
+    "type": "object"
+  },
+  "jobs/compile_export_job.v1.json": {
+    "additionalProperties": false,
+    "properties": {
+      "export_ids": {
+        "items": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "maxItems": 3,
+        "minItems": 1,
+        "title": "Export Ids",
+        "type": "array"
+      },
+      "formats": {
+        "items": {
+          "enum": [
+            "ttf",
+            "otf",
+            "woff2"
+          ],
+          "type": "string"
+        },
+        "maxItems": 3,
+        "minItems": 1,
+        "title": "Formats",
+        "type": "array"
+      },
+      "job_type": {
+        "const": "compile_export",
+        "title": "Job Type",
+        "type": "string"
+      },
+      "schema_version": {
+        "const": 1,
+        "title": "Schema Version",
+        "type": "integer"
+      },
+      "snapshot_id": {
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+        "title": "Snapshot Id",
+        "type": "string"
+      }
+    },
+    "required": [
+      "schema_version",
+      "job_type",
+      "export_ids",
+      "snapshot_id",
+      "formats"
+    ],
+    "title": "CompileExportJob",
+    "type": "object"
+  },
+  "schemas/calibration_definition.v1.json": {
+    "$defs": {
+      "CalibrationRegion": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_codepoints": {
+            "items": {
+              "maximum": 1114111,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "maxItems": 4096,
+            "minItems": 1,
+            "title": "Expected Codepoints",
+            "type": "array"
+          },
+          "region_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+            "title": "Region Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "region_id",
+          "expected_codepoints"
+        ],
+        "title": "CalibrationRegion",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "calibration_id": {
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+        "title": "Calibration Id",
+        "type": "string"
+      },
+      "evaluation_record_hash": {
+        "anyOf": [
+          {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Evaluation Record Hash"
+      },
+      "expected_regions": {
+        "items": {
+          "$ref": "#/$defs/CalibrationRegion"
+        },
+        "maxItems": 100,
+        "title": "Expected Regions",
+        "type": "array"
+      },
+      "optimization_status": {
+        "default": "unmeasured",
+        "enum": [
+          "unmeasured",
+          "evaluated"
+        ],
+        "title": "Optimization Status",
+        "type": "string"
+      },
+      "prompt_is_ground_truth": {
+        "const": false,
+        "default": false,
+        "title": "Prompt Is Ground Truth",
+        "type": "boolean"
+      },
+      "prompt_text": {
+        "maxLength": 10000,
+        "minLength": 1,
+        "title": "Prompt Text",
+        "type": "string"
+      },
+      "schema_version": {
+        "const": 1,
+        "title": "Schema Version",
+        "type": "integer"
+      },
+      "script_code": {
+        "pattern": "^[A-Z][a-z]{3}$",
+        "title": "Script Code",
+        "type": "string"
+      },
+      "target_codepoints": {
+        "items": {
+          "maximum": 1114111,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "maxItems": 4096,
+        "minItems": 1,
+        "title": "Target Codepoints",
+        "type": "array"
+      },
+      "version": {
+        "maxLength": 100,
+        "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+        "title": "Version",
+        "type": "string"
+      }
+    },
+    "required": [
+      "schema_version",
+      "calibration_id",
+      "version",
+      "script_code",
+      "prompt_text",
+      "target_codepoints",
+      "expected_regions"
+    ],
+    "title": "CalibrationDefinition",
+    "type": "object"
+  },
+  "schemas/glyph_outline.v1.json": {
+    "$defs": {
+      "Contour": {
+        "additionalProperties": false,
+        "properties": {
+          "closed": {
+            "const": true,
+            "title": "Closed",
+            "type": "boolean"
+          },
+          "segments": {
+            "items": {
+              "discriminator": {
+                "mapping": {
+                  "cubic": "#/$defs/CubicSegment",
+                  "line": "#/$defs/LineSegment",
+                  "quadratic": "#/$defs/QuadraticSegment"
+                },
+                "propertyName": "type"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/LineSegment"
+                },
+                {
+                  "$ref": "#/$defs/QuadraticSegment"
+                },
+                {
+                  "$ref": "#/$defs/CubicSegment"
+                }
+              ]
+            },
+            "maxItems": 4096,
+            "minItems": 1,
+            "title": "Segments",
+            "type": "array"
+          },
+          "start": {
+            "$ref": "#/$defs/Point"
+          }
+        },
+        "required": [
+          "closed",
+          "start",
+          "segments"
+        ],
+        "title": "Contour",
+        "type": "object"
+      },
+      "CubicSegment": {
+        "additionalProperties": false,
+        "properties": {
+          "c1": {
+            "$ref": "#/$defs/Point"
+          },
+          "c2": {
+            "$ref": "#/$defs/Point"
+          },
+          "to": {
+            "$ref": "#/$defs/Point"
+          },
+          "type": {
+            "const": "cubic",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "c1",
+          "c2",
+          "to"
+        ],
+        "title": "CubicSegment",
+        "type": "object"
+      },
+      "FontCoordinates": {
+        "additionalProperties": false,
+        "properties": {
+          "origin": {
+            "const": "baseline",
+            "default": "baseline",
+            "title": "Origin",
+            "type": "string"
+          },
+          "x_positive": {
+            "const": "right",
+            "default": "right",
+            "title": "X Positive",
+            "type": "string"
+          },
+          "y_positive": {
+            "const": "up",
+            "default": "up",
+            "title": "Y Positive",
+            "type": "string"
+          }
+        },
+        "title": "FontCoordinates",
+        "type": "object"
+      },
+      "GlyphMetrics": {
+        "additionalProperties": false,
+        "properties": {
+          "advance_width": {
+            "maximum": 131072,
+            "minimum": 0,
+            "title": "Advance Width",
+            "type": "number"
+          },
+          "left_side_bearing": {
+            "title": "Left Side Bearing",
+            "type": "number"
+          }
+        },
+        "required": [
+          "advance_width",
+          "left_side_bearing"
+        ],
+        "title": "GlyphMetrics",
+        "type": "object"
+      },
+      "LineSegment": {
+        "additionalProperties": false,
+        "properties": {
+          "to": {
+            "$ref": "#/$defs/Point"
+          },
+          "type": {
+            "const": "line",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "to"
+        ],
+        "title": "LineSegment",
+        "type": "object"
+      },
+      "Point": {
+        "additionalProperties": false,
+        "properties": {
+          "x": {
+            "title": "X",
+            "type": "number"
+          },
+          "y": {
+            "title": "Y",
+            "type": "number"
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ],
+        "title": "Point",
+        "type": "object"
+      },
+      "QuadraticSegment": {
+        "additionalProperties": false,
+        "properties": {
+          "c": {
+            "$ref": "#/$defs/Point"
+          },
+          "to": {
+            "$ref": "#/$defs/Point"
+          },
+          "type": {
+            "const": "quadratic",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "c",
+          "to"
+        ],
+        "title": "QuadraticSegment",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "codepoints": {
+        "items": {
+          "maximum": 1114111,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "maxItems": 16,
+        "minItems": 1,
+        "title": "Codepoints",
+        "type": "array"
+      },
+      "contours": {
+        "items": {
+          "$ref": "#/$defs/Contour"
+        },
+        "maxItems": 128,
+        "title": "Contours",
+        "type": "array"
+      },
+      "coordinate_system": {
+        "$ref": "#/$defs/FontCoordinates"
+      },
+      "fill_rule": {
+        "const": "evenodd",
+        "default": "evenodd",
+        "title": "Fill Rule",
+        "type": "string"
+      },
+      "mapping": {
+        "default": "cmap",
+        "enum": [
+          "cmap",
+          "gsub_only"
+        ],
+        "title": "Mapping",
+        "type": "string"
+      },
+      "metrics": {
+        "$ref": "#/$defs/GlyphMetrics"
+      },
+      "schema_version": {
+        "const": 1,
+        "title": "Schema Version",
+        "type": "integer"
+      },
+      "units_per_em": {
+        "maximum": 16384,
+        "minimum": 16,
+        "title": "Units Per Em",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "schema_version",
+      "units_per_em",
+      "coordinate_system",
+      "codepoints",
+      "metrics",
+      "contours"
+    ],
+    "title": "GlyphOutline",
+    "type": "object"
+  },
+  "schemas/job_dto.v1.json": {
+    "$defs": {
+      "JobETA": {
+        "additionalProperties": false,
+        "properties": {
+          "benchmark_profile_id": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Benchmark Profile Id"
+          },
+          "lower_seconds": {
+            "anyOf": [
+              {
+                "maximum": 1000000000000.0,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Lower Seconds"
+          },
+          "upper_seconds": {
+            "anyOf": [
+              {
+                "maximum": 1000000000000.0,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Upper Seconds"
+          }
+        },
+        "title": "JobETA",
+        "type": "object"
+      },
+      "WorkProgress": {
+        "additionalProperties": false,
+        "properties": {
+          "basis": {
+            "const": "validated_units",
+            "default": "validated_units",
+            "title": "Basis",
+            "type": "string"
+          },
+          "completed_units": {
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "title": "Completed Units",
+            "type": "integer"
+          },
+          "denominator_change_reason": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Denominator Change Reason"
+          },
+          "plan_revision": {
+            "default": 1,
+            "maximum": 2147483647,
+            "minimum": 1,
+            "title": "Plan Revision",
+            "type": "integer"
+          },
+          "total_units": {
+            "anyOf": [
+              {
+                "maximum": 9007199254740991,
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Units"
+          }
+        },
+        "required": [
+          "completed_units",
+          "total_units"
+        ],
+        "title": "WorkProgress",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "error_code": {
+        "anyOf": [
+          {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Error Code"
+      },
+      "eta": {
+        "$ref": "#/$defs/JobETA"
+      },
+      "id": {
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+        "title": "Id",
+        "type": "string"
+      },
+      "job_type": {
+        "enum": [
+          "asset_verify",
+          "analyze_samples",
+          "infer_style_generate",
+          "compile_export",
+          "purge_project",
+          "purge_account",
+          "maintenance_reconcile"
+        ],
+        "title": "Job Type",
+        "type": "string"
+      },
+      "progress": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/WorkProgress"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "requires_user_action": {
+        "default": false,
+        "title": "Requires User Action",
+        "type": "boolean"
+      },
+      "result_artifact_id": {
+        "anyOf": [
+          {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Result Artifact Id"
+      },
+      "stage": {
+        "anyOf": [
+          {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Stage"
+      },
+      "state": {
+        "enum": [
+          "queued",
+          "running",
+          "cancel_requested",
+          "succeeded",
+          "failed",
+          "canceled"
+        ],
+        "title": "State",
+        "type": "string"
+      }
+    },
+    "required": [
+      "id",
+      "job_type",
+      "state"
+    ],
+    "title": "JobDTO",
+    "type": "object"
+  },
+  "schemas/ml_result_manifest.v1.json": {
+    "$defs": {
+      "CandidateEvidence": {
+        "additionalProperties": false,
+        "properties": {
+          "evaluation_record_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Evaluation Record Hash"
+          },
+          "model_uncertainty": {
+            "anyOf": [
+              {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Model Uncertainty"
+          },
+          "outline_validity": {
+            "enum": [
+              "pass",
+              "fail",
+              "unmeasured"
+            ],
+            "title": "Outline Validity",
+            "type": "string"
+          },
+          "recognition": {
+            "anyOf": [
+              {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Recognition"
+          },
+          "segmentation": {
+            "anyOf": [
+              {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Segmentation"
+          },
+          "style_fidelity": {
+            "anyOf": [
+              {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Style Fidelity"
+          }
+        },
+        "required": [
+          "outline_validity"
+        ],
+        "title": "CandidateEvidence",
+        "type": "object"
+      },
+      "ChildArtifact": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Artifact Id",
+            "type": "string"
+          },
+          "media_type": {
+            "enum": [
+              "application/json",
+              "image/png",
+              "image/jpeg",
+              "image/webp",
+              "application/octet-stream",
+              "application/onnx",
+              "application/x-safetensors"
+            ],
+            "title": "Media Type",
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Sha256",
+            "type": "string"
+          },
+          "size_bytes": {
+            "maximum": 1099511627776,
+            "minimum": 1,
+            "title": "Size Bytes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "artifact_id",
+          "sha256",
+          "size_bytes",
+          "media_type"
+        ],
+        "title": "ChildArtifact",
+        "type": "object"
+      },
+      "GlyphCandidate": {
+        "additionalProperties": false,
+        "properties": {
+          "candidate_id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Candidate Id",
+            "type": "string"
+          },
+          "codepoints": {
+            "items": {
+              "maximum": 1114111,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "maxItems": 16,
+            "minItems": 1,
+            "title": "Codepoints",
+            "type": "array"
+          },
+          "evidence": {
+            "$ref": "#/$defs/CandidateEvidence"
+          },
+          "origin": {
+            "enum": [
+              "authentic_extraction",
+              "geometric_reconstruction",
+              "style_conditioned_generation",
+              "manual_drawing"
+            ],
+            "title": "Origin",
+            "type": "string"
+          },
+          "outline": {
+            "$ref": "#/$defs/ChildArtifact"
+          },
+          "rank": {
+            "maximum": 10000,
+            "minimum": 1,
+            "title": "Rank",
+            "type": "integer"
+          },
+          "review_status": {
+            "const": "pending",
+            "default": "pending",
+            "title": "Review Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "candidate_id",
+          "codepoints",
+          "rank",
+          "origin",
+          "outline",
+          "evidence"
+        ],
+        "title": "GlyphCandidate",
+        "type": "object"
+      },
+      "PipelineProvenance": {
+        "additionalProperties": false,
+        "properties": {
+          "algorithm_version": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+            "title": "Algorithm Version",
+            "type": "string"
+          },
+          "model_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Hash"
+          },
+          "model_id": {
+            "anyOf": [
+              {
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Id"
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Version"
+          },
+          "preprocessing_version": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+            "title": "Preprocessing Version",
+            "type": "string"
+          },
+          "script_code": {
+            "pattern": "^[A-Z][a-z]{3}$",
+            "title": "Script Code",
+            "type": "string"
+          },
+          "style": {
+            "enum": [
+              "print",
+              "cursive",
+              "mixed",
+              "unknown"
+            ],
+            "title": "Style",
+            "type": "string"
+          }
+        },
+        "required": [
+          "script_code",
+          "style",
+          "model_id",
+          "model_version",
+          "model_hash",
+          "algorithm_version",
+          "preprocessing_version"
+        ],
+        "title": "PipelineProvenance",
+        "type": "object"
+      },
+      "ResultInput": {
+        "additionalProperties": false,
+        "properties": {
+          "sample_ids": {
+            "items": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Sample Ids",
+            "type": "array"
+          },
+          "source_hashes": {
+            "items": {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Source Hashes",
+            "type": "array"
+          },
+          "template_manifest_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Template Manifest Hash"
+          }
+        },
+        "required": [
+          "sample_ids",
+          "source_hashes"
+        ],
+        "title": "ResultInput",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "artifact_hash": {
+        "pattern": "^sha256:[0-9a-f]{64}$",
+        "title": "Artifact Hash",
+        "type": "string"
+      },
+      "artifact_type": {
+        "const": "penforge.ml_result",
+        "title": "Artifact Type",
+        "type": "string"
+      },
+      "attempt_id": {
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+        "title": "Attempt Id",
+        "type": "string"
+      },
+      "candidates": {
+        "items": {
+          "$ref": "#/$defs/GlyphCandidate"
+        },
+        "maxItems": 10000,
+        "title": "Candidates",
+        "type": "array"
+      },
+      "fencing_token": {
+        "maximum": 2147483647,
+        "minimum": 1,
+        "title": "Fencing Token",
+        "type": "integer"
+      },
+      "input": {
+        "$ref": "#/$defs/ResultInput"
+      },
+      "job_id": {
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+        "title": "Job Id",
+        "type": "string"
+      },
+      "pipeline": {
+        "$ref": "#/$defs/PipelineProvenance"
+      },
+      "quality_report": {
+        "$ref": "#/$defs/ChildArtifact"
+      },
+      "schema_version": {
+        "const": 1,
+        "title": "Schema Version",
+        "type": "integer"
+      },
+      "stage": {
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+        "title": "Stage",
+        "type": "string"
+      }
+    },
+    "required": [
+      "schema_version",
+      "artifact_type",
+      "job_id",
+      "attempt_id",
+      "fencing_token",
+      "stage",
+      "input",
+      "pipeline",
+      "candidates",
+      "quality_report",
+      "artifact_hash"
+    ],
+    "title": "MLResultManifest",
+    "type": "object"
+  },
+  "schemas/model_registry_entry.v1.json": {
+    "$defs": {
+      "ChildArtifact": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Artifact Id",
+            "type": "string"
+          },
+          "media_type": {
+            "enum": [
+              "application/json",
+              "image/png",
+              "image/jpeg",
+              "image/webp",
+              "application/octet-stream",
+              "application/onnx",
+              "application/x-safetensors"
+            ],
+            "title": "Media Type",
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Sha256",
+            "type": "string"
+          },
+          "size_bytes": {
+            "maximum": 1099511627776,
+            "minimum": 1,
+            "title": "Size Bytes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "artifact_id",
+          "sha256",
+          "size_bytes",
+          "media_type"
+        ],
+        "title": "ChildArtifact",
+        "type": "object"
+      },
+      "MeasuredResources": {
+        "additionalProperties": false,
+        "properties": {
+          "benchmark_record_hash": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Benchmark Record Hash"
+          },
+          "ms_per_unit_p95": {
+            "anyOf": [
+              {
+                "maximum": 1000000000000.0,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Ms Per Unit P95"
+          },
+          "peak_mem_mb": {
+            "anyOf": [
+              {
+                "maximum": 1000000000000.0,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Peak Mem Mb"
+          }
+        },
+        "title": "MeasuredResources",
+        "type": "object"
+      },
+      "TensorContract": {
+        "additionalProperties": false,
+        "properties": {
+          "dtype": {
+            "enum": [
+              "float32",
+              "float16",
+              "int64",
+              "int32",
+              "uint8",
+              "json"
+            ],
+            "title": "Dtype",
+            "type": "string"
+          },
+          "name": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+            "title": "Name",
+            "type": "string"
+          },
+          "preprocessing_version": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+            "title": "Preprocessing Version",
+            "type": "string"
+          },
+          "shape": {
+            "items": {
+              "maximum": 2147483647,
+              "minimum": -1,
+              "type": "integer"
+            },
+            "maxItems": 8,
+            "title": "Shape",
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "dtype",
+          "shape",
+          "preprocessing_version"
+        ],
+        "title": "TensorContract",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "artifact": {
+        "$ref": "#/$defs/ChildArtifact"
+      },
+      "benchmark_record_hashes": {
+        "items": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "maxItems": 1000,
+        "title": "Benchmark Record Hashes",
+        "type": "array"
+      },
+      "compatible_worker": {
+        "maxLength": 100,
+        "minLength": 1,
+        "title": "Compatible Worker",
+        "type": "string"
+      },
+      "dataset_manifest_hashes": {
+        "items": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "maxItems": 1000,
+        "title": "Dataset Manifest Hashes",
+        "type": "array"
+      },
+      "format": {
+        "enum": [
+          "onnx",
+          "safetensors",
+          "json_rules"
+        ],
+        "title": "Format",
+        "type": "string"
+      },
+      "input_contract": {
+        "$ref": "#/$defs/TensorContract"
+      },
+      "license_identifier": {
+        "maxLength": 200,
+        "minLength": 1,
+        "title": "License Identifier",
+        "type": "string"
+      },
+      "name": {
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+        "title": "Name",
+        "type": "string"
+      },
+      "output_contract": {
+        "$ref": "#/$defs/TensorContract"
+      },
+      "release_label": {
+        "default": "research_only",
+        "enum": [
+          "research_only",
+          "experimental_opt_in",
+          "production_validated",
+          "temporarily_disabled"
+        ],
+        "title": "Release Label",
+        "type": "string"
+      },
+      "resource_profile": {
+        "$ref": "#/$defs/MeasuredResources"
+      },
+      "schema_version": {
+        "const": 1,
+        "title": "Schema Version",
+        "type": "integer"
+      },
+      "script_codes": {
+        "items": {
+          "pattern": "^[A-Z][a-z]{3}$",
+          "type": "string"
+        },
+        "maxItems": 100,
+        "minItems": 1,
+        "title": "Script Codes",
+        "type": "array"
+      },
+      "status": {
+        "default": "candidate",
+        "enum": [
+          "candidate",
+          "approved",
+          "deprecated",
+          "revoked"
+        ],
+        "title": "Status",
+        "type": "string"
+      },
+      "task": {
+        "enum": [
+          "segmentation",
+          "recognition",
+          "generation",
+          "style_encoder",
+          "refiner",
+          "rules"
+        ],
+        "title": "Task",
+        "type": "string"
+      },
+      "training_run_id": {
+        "anyOf": [
+          {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Training Run Id"
+      },
+      "version": {
+        "maxLength": 100,
+        "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+        "title": "Version",
+        "type": "string"
+      }
+    },
+    "required": [
+      "schema_version",
+      "name",
+      "version",
+      "task",
+      "script_codes",
+      "format",
+      "artifact",
+      "input_contract",
+      "output_contract",
+      "compatible_worker",
+      "resource_profile",
+      "license_identifier",
+      "dataset_manifest_hashes",
+      "benchmark_record_hashes"
+    ],
+    "title": "ModelRegistryEntry",
+    "type": "object"
+  },
+  "schemas/project_dto.v1.json": {
+    "additionalProperties": false,
+    "description": "Future metadata only. Its presence in the registry does not implement project routes.",
+    "properties": {
+      "active_snapshot_id": {
+        "anyOf": [
+          {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Active Snapshot Id"
+      },
+      "id": {
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+        "title": "Id",
+        "type": "string"
+      },
+      "name": {
+        "maxLength": 120,
+        "minLength": 1,
+        "title": "Name",
+        "type": "string"
+      },
+      "row_version": {
+        "maximum": 2147483647,
+        "minimum": 1,
+        "title": "Row Version",
+        "type": "integer"
+      },
+      "script_code": {
+        "pattern": "^[A-Z][a-z]{3}$",
+        "title": "Script Code",
+        "type": "string"
+      },
+      "status": {
+        "enum": [
+          "draft",
+          "processing",
+          "ready",
+          "archived",
+          "deleting"
+        ],
+        "title": "Status",
+        "type": "string"
+      },
+      "updated_at": {
+        "format": "date-time",
+        "title": "Updated At",
+        "type": "string"
+      }
+    },
+    "required": [
+      "id",
+      "name",
+      "script_code",
+      "status",
+      "row_version",
+      "updated_at"
+    ],
+    "title": "ProjectDTO",
+    "type": "object"
+  },
+  "schemas/stroke_document.v1.json": {
+    "$defs": {
+      "CanvasCoordinates": {
+        "additionalProperties": false,
+        "properties": {
+          "normalized": {
+            "const": true,
+            "default": true,
+            "title": "Normalized",
+            "type": "boolean"
+          },
+          "origin": {
+            "const": "top_left",
+            "default": "top_left",
+            "title": "Origin",
+            "type": "string"
+          },
+          "x_positive": {
+            "const": "right",
+            "default": "right",
+            "title": "X Positive",
+            "type": "string"
+          },
+          "y_positive": {
+            "const": "down",
+            "default": "down",
+            "title": "Y Positive",
+            "type": "string"
+          }
+        },
+        "title": "CanvasCoordinates",
+        "type": "object"
+      },
+      "CaptureSize": {
+        "additionalProperties": false,
+        "properties": {
+          "height": {
+            "maximum": 32768,
+            "minimum": 1,
+            "title": "Height",
+            "type": "integer"
+          },
+          "width": {
+            "maximum": 32768,
+            "minimum": 1,
+            "title": "Width",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "width",
+          "height"
+        ],
+        "title": "CaptureSize",
+        "type": "object"
+      },
+      "Stroke": {
+        "additionalProperties": false,
+        "properties": {
+          "pointer_type": {
+            "anyOf": [
+              {
+                "enum": [
+                  "pen",
+                  "mouse",
+                  "touch",
+                  "keyboard"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Pointer Type"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/$defs/StrokePoint"
+            },
+            "maxItems": 20000,
+            "minItems": 1,
+            "title": "Points",
+            "type": "array"
+          },
+          "stroke_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+            "title": "Stroke Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "stroke_id",
+          "points"
+        ],
+        "title": "Stroke",
+        "type": "object"
+      },
+      "StrokePoint": {
+        "additionalProperties": false,
+        "properties": {
+          "pressure": {
+            "anyOf": [
+              {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Pressure"
+          },
+          "t_ms": {
+            "anyOf": [
+              {
+                "maximum": 1000000000000.0,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "T Ms"
+          },
+          "tilt_x": {
+            "anyOf": [
+              {
+                "maximum": 90,
+                "minimum": -90,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Tilt X"
+          },
+          "tilt_y": {
+            "anyOf": [
+              {
+                "maximum": 90,
+                "minimum": -90,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Tilt Y"
+          },
+          "twist": {
+            "anyOf": [
+              {
+                "exclusiveMaximum": 360,
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Twist"
+          },
+          "x": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "X",
+            "type": "number"
+          },
+          "y": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "Y",
+            "type": "number"
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ],
+        "title": "StrokePoint",
+        "type": "object"
+      },
+      "TranslateOperation": {
+        "additionalProperties": false,
+        "properties": {
+          "dx": {
+            "maximum": 1,
+            "minimum": -1,
+            "title": "Dx",
+            "type": "number"
+          },
+          "dy": {
+            "maximum": 1,
+            "minimum": -1,
+            "title": "Dy",
+            "type": "number"
+          },
+          "stroke_ids": {
+            "items": {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+              "type": "string"
+            },
+            "maxItems": 2000,
+            "minItems": 1,
+            "title": "Stroke Ids",
+            "type": "array"
+          },
+          "type": {
+            "const": "translate",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "stroke_ids",
+          "dx",
+          "dy"
+        ],
+        "title": "TranslateOperation",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "capture_size_px": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/CaptureSize"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "coordinate_system": {
+        "$ref": "#/$defs/CanvasCoordinates"
+      },
+      "operations": {
+        "items": {
+          "$ref": "#/$defs/TranslateOperation"
+        },
+        "maxItems": 1000,
+        "title": "Operations",
+        "type": "array"
+      },
+      "parent_source_hash": {
+        "anyOf": [
+          {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Parent Source Hash"
+      },
+      "schema_version": {
+        "const": 1,
+        "title": "Schema Version",
+        "type": "integer"
+      },
+      "strokes": {
+        "items": {
+          "$ref": "#/$defs/Stroke"
+        },
+        "maxItems": 2000,
+        "minItems": 1,
+        "title": "Strokes",
+        "type": "array"
+      },
+      "timing": {
+        "enum": [
+          "observed",
+          "unavailable_legacy"
+        ],
+        "title": "Timing",
+        "type": "string"
+      }
+    },
+    "required": [
+      "schema_version",
+      "coordinate_system",
+      "capture_size_px",
+      "timing",
+      "strokes"
+    ],
+    "title": "StrokeDocument",
+    "type": "object"
+  },
+  "schemas/template_manifest.v1.json": {
+    "$defs": {
+      "ExtractionPolicy": {
+        "additionalProperties": false,
+        "properties": {
+          "margin_mm": {
+            "maximum": 50,
+            "minimum": 0,
+            "title": "Margin Mm",
+            "type": "number"
+          },
+          "min_markers": {
+            "maximum": 50,
+            "minimum": 3,
+            "title": "Min Markers",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "margin_mm",
+          "min_markers"
+        ],
+        "title": "ExtractionPolicy",
+        "type": "object"
+      },
+      "Guide": {
+        "additionalProperties": false,
+        "properties": {
+          "baseline_offset_mm": {
+            "maximum": 1000000000000.0,
+            "minimum": 0,
+            "title": "Baseline Offset Mm",
+            "type": "number"
+          },
+          "guide_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+            "title": "Guide Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "guide_id",
+          "baseline_offset_mm"
+        ],
+        "title": "Guide",
+        "type": "object"
+      },
+      "Marker": {
+        "additionalProperties": false,
+        "properties": {
+          "marker_id": {
+            "maximum": 49,
+            "minimum": 0,
+            "title": "Marker Id",
+            "type": "integer"
+          },
+          "rect_mm": {
+            "$ref": "#/$defs/Rect"
+          }
+        },
+        "required": [
+          "marker_id",
+          "rect_mm"
+        ],
+        "title": "Marker",
+        "type": "object"
+      },
+      "Markers": {
+        "additionalProperties": false,
+        "properties": {
+          "dictionary": {
+            "const": "DICT_4X4_50",
+            "title": "Dictionary",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/$defs/Marker"
+            },
+            "maxItems": 50,
+            "minItems": 3,
+            "title": "Items",
+            "type": "array"
+          },
+          "type": {
+            "const": "aruco",
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "dictionary",
+          "items"
+        ],
+        "title": "Markers",
+        "type": "object"
+      },
+      "Page": {
+        "additionalProperties": false,
+        "properties": {
+          "height_mm": {
+            "exclusiveMinimum": 0,
+            "maximum": 2000,
+            "title": "Height Mm",
+            "type": "number"
+          },
+          "index": {
+            "maximum": 999,
+            "minimum": 0,
+            "title": "Index",
+            "type": "integer"
+          },
+          "width_mm": {
+            "exclusiveMinimum": 0,
+            "maximum": 2000,
+            "title": "Width Mm",
+            "type": "number"
+          }
+        },
+        "required": [
+          "width_mm",
+          "height_mm",
+          "index"
+        ],
+        "title": "Page",
+        "type": "object"
+      },
+      "PublicPageIdentity": {
+        "additionalProperties": false,
+        "properties": {
+          "encoding": {
+            "const": "qr",
+            "title": "Encoding",
+            "type": "string"
+          },
+          "public_payload": {
+            "maxLength": 180,
+            "title": "Public Payload",
+            "type": "string"
+          }
+        },
+        "required": [
+          "encoding",
+          "public_payload"
+        ],
+        "title": "PublicPageIdentity",
+        "type": "object"
+      },
+      "Rect": {
+        "additionalProperties": false,
+        "properties": {
+          "height": {
+            "exclusiveMinimum": 0,
+            "maximum": 2000,
+            "title": "Height",
+            "type": "number"
+          },
+          "width": {
+            "exclusiveMinimum": 0,
+            "maximum": 2000,
+            "title": "Width",
+            "type": "number"
+          },
+          "x": {
+            "maximum": 1000000000000.0,
+            "minimum": 0,
+            "title": "X",
+            "type": "number"
+          },
+          "y": {
+            "maximum": 1000000000000.0,
+            "minimum": 0,
+            "title": "Y",
+            "type": "number"
+          }
+        },
+        "required": [
+          "x",
+          "y",
+          "width",
+          "height"
+        ],
+        "title": "Rect",
+        "type": "object"
+      },
+      "TemplateCell": {
+        "additionalProperties": false,
+        "properties": {
+          "cell_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+            "title": "Cell Id",
+            "type": "string"
+          },
+          "codepoints": {
+            "items": {
+              "maximum": 1114111,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "maxItems": 16,
+            "minItems": 1,
+            "title": "Codepoints",
+            "type": "array"
+          },
+          "guide_id": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+            "title": "Guide Id",
+            "type": "string"
+          },
+          "rect_mm": {
+            "$ref": "#/$defs/Rect"
+          }
+        },
+        "required": [
+          "cell_id",
+          "codepoints",
+          "rect_mm",
+          "guide_id"
+        ],
+        "title": "TemplateCell",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "cells": {
+        "items": {
+          "$ref": "#/$defs/TemplateCell"
+        },
+        "maxItems": 1000,
+        "minItems": 1,
+        "title": "Cells",
+        "type": "array"
+      },
+      "extraction": {
+        "$ref": "#/$defs/ExtractionPolicy"
+      },
+      "guides": {
+        "items": {
+          "$ref": "#/$defs/Guide"
+        },
+        "maxItems": 100,
+        "minItems": 1,
+        "title": "Guides",
+        "type": "array"
+      },
+      "markers": {
+        "$ref": "#/$defs/Markers"
+      },
+      "page": {
+        "$ref": "#/$defs/Page"
+      },
+      "page_identity": {
+        "$ref": "#/$defs/PublicPageIdentity"
+      },
+      "schema_version": {
+        "const": 1,
+        "title": "Schema Version",
+        "type": "integer"
+      },
+      "script_code": {
+        "pattern": "^[A-Z][a-z]{3}$",
+        "title": "Script Code",
+        "type": "string"
+      },
+      "template_id": {
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+        "title": "Template Id",
+        "type": "string"
+      },
+      "template_version": {
+        "maxLength": 100,
+        "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+        "title": "Template Version",
+        "type": "string"
+      }
+    },
+    "required": [
+      "schema_version",
+      "template_id",
+      "template_version",
+      "script_code",
+      "page",
+      "markers",
+      "page_identity",
+      "cells",
+      "guides",
+      "extraction"
+    ],
+    "title": "TemplateManifest",
+    "type": "object"
+  }
+}

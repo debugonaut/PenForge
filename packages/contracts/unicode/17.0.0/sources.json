@@ -1,0 +1,69 @@
+{
+  "unicode_version": "17.0.0",
+  "uax29_revision": 47,
+  "checked_on": "2026-10-20",
+  "sources": [
+    {
+      "url": "https://www.unicode.org/Public/17.0.0/ucd/DerivedCoreProperties.txt",
+      "path": "DerivedCoreProperties.txt",
+      "sha256": "24c7fed1195c482faaefd5c1e7eb821c5ee1fb6de07ecdbaa64b56a99da22c08"
+    },
+    {
+      "url": "https://www.unicode.org/Public/17.0.0/ucd/DerivedNormalizationProps.txt",
+      "path": "DerivedNormalizationProps.txt",
+      "sha256": "71fd6a206a2c0cdd41feb6b7f656aa31091db45e9cedc926985d718397f9e488"
+    },
+    {
+      "url": "https://www.unicode.org/Public/17.0.0/ucd/auxiliary/GraphemeBreakProperty.txt",
+      "path": "GraphemeBreakProperty.txt",
+      "sha256": "d6b51d1d2ae5c33b451b7ed994b48f1f4dc62b2272a5831e7fd418514a6bae89"
+    },
+    {
+      "url": "https://www.unicode.org/Public/17.0.0/ucd/auxiliary/GraphemeBreakTest.txt",
+      "path": "GraphemeBreakTest.txt",
+      "sha256": "e2d134d2c52919bace503ebb6a551c1855fe1a1faec18478c78fff254a1793ec"
+    },
+    {
+      "url": "https://www.unicode.org/Public/17.0.0/ucd/IndicPositionalCategory.txt",
+      "path": "IndicPositionalCategory.txt",
+      "sha256": "68cedc29a7e57f984d90fe2c7712f2e6d0c717e253db219607daea8997d6c480"
+    },
+    {
+      "url": "https://www.unicode.org/Public/17.0.0/ucd/IndicSyllabicCategory.txt",
+      "path": "IndicSyllabicCategory.txt",
+      "sha256": "3fc122f4cf58b0c19268d5f810263b04ab4e1e67743386ec0e0ada9c76aec5be"
+    },
+    {
+      "url": "https://www.unicode.org/Public/17.0.0/ucd/NormalizationTest.txt",
+      "path": "NormalizationTest.txt",
+      "sha256": "5019ffd530751a741900c849c0e010332f142a3612234639bd200b82138a87db"
+    },
+    {
+      "url": "https://www.unicode.org/Public/17.0.0/ucd/ReadMe.txt",
+      "path": "ReadMe.txt",
+      "sha256": "9fe1a90bd32659d7953616283dc2bffaa165518aae9ace026040c42c559ba606"
+    },
+    {
+      "url": "https://www.unicode.org/Public/17.0.0/ucd/Scripts.txt",
+      "path": "Scripts.txt",
+      "sha256": "9f5e50d3abaee7d6ce09480f325c706f485ae3240912527e651954d2d6b035bf"
+    },
+    {
+      "url": "https://www.unicode.org/Public/17.0.0/ucd/UnicodeData.txt",
+      "path": "UnicodeData.txt",
+      "sha256": "2e1efc1dcb59c575eedf5ccae60f95229f706ee6d031835247d843c11d96470c"
+    },
+    {
+      "url": "https://www.unicode.org/Public/17.0.0/ucd/emoji/emoji-data.txt",
+      "path": "emoji-data.txt",
+      "sha256": "2cb2bb9455cda83e8481541ecf5b6dfda66a3bb89efa3fa7c5297eccf607b72b"
+    },
+    {
+      "url": "https://www.unicode.org/license.txt",
+      "path": "LICENSE.txt",
+      "sha256": "e7a93b009565cfce55919a381437ac4db883e9da2126fa28b91d12732bc53d96"
+    }
+  ],
+  "generator_sha256": "d24738ff0e941938d4f562f05b2a838224c949dc59270fb7cbc202bb1c15f67b",
+  "tables_sha256": "4b53740a3915ad0164990fff5e82a41d1348bbe7773ec8bd85dd13993a758aaa"
+}

@@ -1,0 +1,19 @@
+{
+  "codepoints": [
+    32
+  ],
+  "contours": [],
+  "coordinate_system": {
+    "origin": "baseline",
+    "x_positive": "right",
+    "y_positive": "up"
+  },
+  "fill_rule": "evenodd",
+  "mapping": "cmap",
+  "metrics": {
+    "advance_width": 250.0,
+    "left_side_bearing": 0.0
+  },
+  "schema_version": 1,
+  "units_per_em": 1000
+}

@@ -1,0 +1,100 @@
+.item {
+  min-width: 0;
+}
+.header {
+  display: flex;
+  margin: 0;
+  font: inherit;
+}
+.trigger {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.trigger:focus-visible {
+  outline: 2px solid var(--forge-ink, var(--ink));
+  outline-offset: -4px;
+}
+.trigger:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+.chevron {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  transition: transform 100ms ease-out;
+}
+.trigger[data-state="open"] .chevron {
+  transform: rotate(180deg);
+}
+.content {
+  overflow: hidden;
+}
+.content[data-state="open"] {
+  animation: expand 100ms ease-out;
+}
+.content[data-state="closed"] {
+  animation: collapse 100ms ease-out;
+}
+@keyframes expand {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+@keyframes collapse {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+:global(html[data-motion-variant="gentle"]) .content[data-state="open"] {
+  animation: fadeIn 80ms ease-out;
+}
+:global(html[data-motion-variant="gentle"]) .content[data-state="closed"] {
+  animation: fadeOut 60ms ease-out;
+}
+:global(html[data-motion-variant="gentle"]) .chevron {
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .content[data-state="open"] {
+    animation: fadeIn 80ms ease-out;
+  }
+  .content[data-state="closed"] {
+    animation: fadeOut 60ms ease-out;
+  }
+  .chevron {
+    transition: none;
+  }
+}

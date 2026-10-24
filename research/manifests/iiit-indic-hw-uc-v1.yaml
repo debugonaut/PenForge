@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "record_type": "dataset_manifest",
+  "dataset_id": "iiit-indic-hw-uc",
+  "version": "1.0.0",
+  "status": "candidate",
+  "source_kind": "licensed_public",
+  "source": [
+    {
+      "schema_version": 1,
+      "uri": "https://cvit.iiit.ac.in/images/datasets/indic_handwritten/hindi.zip",
+      "content_hash": "sha256:6ede4205ae0f2242adf3effbefbe73070623db250c584b63735d02092f13e09f",
+      "checked_on": "2026-10-21",
+      "finding": "Local R1 verification: 3576032718 bytes match recorded expected size; SHA-256 and full archive integrity/image inspection recorded in the derived verification report. Permission scope is unchanged."
+    },
+    {
+      "schema_version": 1,
+      "uri": "https://cvit.iiit.ac.in/images/datasets/indic_handwritten/marathi.zip",
+      "content_hash": "sha256:9654c2f427e38794a32f0f9f2ed0549c0ea6892f0a38e931f097a73f4601c0e8",
+      "checked_on": "2026-10-21",
+      "finding": "Local R1 verification: 3009421257 bytes match recorded expected size; SHA-256 and full archive integrity/image inspection recorded in the derived verification report. Permission scope is unchanged."
+    },
+    {
+      "schema_version": 1,
+      "uri": "https://cvit.iiit.ac.in/usodi/ucciohd.php",
+      "content_hash": null,
+      "checked_on": "2026-10-20",
+      "finding": "Dataset landing page describes page-level collection for 13 Indic scripts with per-word bounding boxes, reading order and JSON transcriptions. No licence, terms or permission statement appears on the page."
+    }
+  ],
+  "script_codes": [
+    "Deva"
+  ],
+  "style_partitions": [
+    "print",
+    "cursive",
+    "mixed"
+  ],
+  "license": {
+    "schema_version": 1,
+    "status": "pending",
+    "identifier": null,
+    "evidence": [],
+    "permitted_uses": [],
+    "restrictions": [
+      "No public licence or independently reviewable authorization for PenForge use is asserted in this manifest.",
+      "Do not infer permission to train, generate font derivatives, or redistribute source data from public source availability."
+    ]
+  },
+  "consent": {
+    "schema_version": 1,
+    "status": "not_applicable",
+    "policy_version": null,
+    "consent_ref": null,
+    "evidence": [
+      {
+        "schema_version": 1,
+        "uri": "https://cvit.iiit.ac.in/usodi/ucciohd.php",
+        "content_hash": null,
+        "checked_on": "2026-10-20",
+        "finding": "Collection was run by the publishing institution with paid and volunteer writers. No participant consent record, policy version or withdrawal route is published, so Penforge records provider-asserted participation and does not claim an independent opt-in."
+      }
+    ],
+    "withdrawal_exclusion": true
+  },
+  "writer_resolution": "pending",
+  "writer_registry_ref": null,
+  "raw_data_in_repository": false,
+  "content_hash": "sha256:950e409e30da44c75e13e6a7be7cd9bc93a9b1f7661a6103c2b01f7c30d82ed8",
+  "samples": [],
+  "limitations": [
+    "Both Hindi and Marathi ZIPs pass CRC/size/type/image inspection. Actual releases contain cropped word JPEGs and text labels, not the page JSON described by the landing page.",
+    "Collection folders occur across published train/validation/test lists; those lists cannot establish writer-disjoint evaluation.",
+    "Folder-to-human identities and cross-corpus aliases remain unadjudicated; all samples stay excluded from R1 training and writer-generalization claims.",
+    "Unused/manual annotations and label correctness need separate curation; no glyph alignment or production font evidence exists.",
+    "Public evidence does not establish provider authorization or participant opt-in; no use is admitted."
+  ]
+}

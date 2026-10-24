@@ -1,0 +1,306 @@
+.panel {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  margin-top: 8px;
+  padding-top: 20px;
+  border-top: 1px dashed var(--line);
+}
+.heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.heading span {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--ink-muted);
+}
+.panel p {
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+}
+.panel label {
+  display: grid;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 0;
+}
+.panel input,
+.panel select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 9px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--paper-raised);
+  color: var(--ink);
+}
+.panel button {
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--ink);
+  border-radius: 7px;
+  background: var(--paper-raised);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  justify-self: start;
+  max-width: 100%;
+}
+.panel button[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--paper-raised);
+}
+.fields {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.quietFields {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  margin: 0 0 12px;
+  padding: 0;
+  border: 0;
+}
+.quietFields legend {
+  margin-bottom: 6px;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.quietFields small {
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+.quietNote {
+  max-width: 62ch;
+  margin: 0 0 14px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.fields legend {
+  padding: 0 5px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.fields small,
+.candidates small {
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.notice,
+.coverage {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+.notice span,
+.coverage strong {
+  font-size: 12px;
+  line-height: 1.6;
+}
+.notice progress {
+  width: 100%;
+  accent-color: var(--ink);
+}
+.workspace {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.glyphs {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: start;
+  gap: 7px;
+  min-width: 0;
+}
+.glyphs button {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  min-width: 60px;
+  flex: 0 1 auto;
+}
+.glyphs strong {
+  font: 700 18px var(--font-sans);
+}
+.glyphs small {
+  font: 500 9px var(--font-sans);
+}
+.inspector {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+.inspector h3,
+.inspector h4 {
+  margin: 0;
+}
+.geometry {
+  display: block;
+  width: 100%;
+  max-height: 300px;
+  min-height: 150px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  background: #fffcf4;
+}
+.baseline {
+  fill: none;
+  stroke: #b7c5bd;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 5 4;
+}
+.candidates {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+  gap: 12px;
+  min-width: 0;
+}
+.candidates article {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper-raised);
+  min-width: 0;
+}
+.candidates strong,
+.candidates span {
+  font-size: 12px;
+  line-height: 1.4;
+}
+.candidates .geometry {
+  min-height: 120px;
+  max-height: 180px;
+}
+@media (min-width: 1100px) {
+  .workspace {
+    grid-template-columns: minmax(120px, 0.6fr) minmax(0, 2fr);
+    align-items: start;
+  }
+}
+@media (max-width: 380px) {
+  .fields {
+    padding: 10px;
+  }
+  .panel button {
+    justify-self: stretch;
+  }
+  .actions > button {
+    width: 100%;
+  }
+}
+
+.evidence figure {
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+.evidence img {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+}
+.evidence figcaption {
+  font-size: 11px;
+  line-height: 1.5;
+}
+.panel :focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+.panel button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.fields input[type="checkbox"] {
+  width: 20px;
+  min-height: 20px;
+  accent-color: var(--ink);
+}
+.measurements {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr));
+  gap: 12px;
+}
+.measurements > div {
+  display: grid;
+  gap: 6px;
+}
+.measurements b {
+  font-size: 20px;
+}
+.proportions {
+  width: 100%;
+  max-width: 480px;
+  fill: var(--ink);
+}
+.proportions rect {
+  fill: #a3c9b4;
+  stroke: var(--ink);
+}
+.proportions text {
+  font: 12px sans-serif;
+}
+.widths {
+  display: grid;
+  gap: 10px;
+  padding-top: 12px;
+}
+.widths > div {
+  display: grid;
+  grid-template-columns: 28px minmax(40px, 1fr);
+  align-items: center;
+  gap: 5px 10px;
+}
+.widths small {
+  grid-column: 2;
+}
+.widths meter {
+  width: 100%;
+  accent-color: var(--ink);
+}
+.fontPreview {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.fontPreview textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  color: var(--ink);
+}

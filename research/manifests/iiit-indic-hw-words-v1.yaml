@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "record_type": "dataset_manifest",
+  "dataset_id": "iiit-indic-hw-words",
+  "version": "1.0.0",
+  "status": "candidate",
+  "source_kind": "licensed_public",
+  "source": [
+    {
+      "schema_version": 1,
+      "uri": "https://cvit.iiit.ac.in/images/Projects/wordlevel-Indicscripts/IIIT-HW-Hindi_v1.tar.gz",
+      "content_hash": "sha256:3118a5585bdf8b9b84a66f784a9e711edf15ae446266fec972f0eb935d1d64ff",
+      "checked_on": "2026-10-21",
+      "finding": "Local R1 verification: 1822862305 bytes match recorded expected size; SHA-256 and full archive integrity/image inspection recorded in the derived verification report. Permission scope is unchanged."
+    },
+    {
+      "schema_version": 1,
+      "uri": "https://huggingface.co/datasets/c3rl/IIIT-INDIC-HW-WORDS-Hindi",
+      "content_hash": null,
+      "checked_on": "2026-10-20",
+      "finding": "Third-party mirror exposing 69,853 / 12,708 / 12,869 rows with fields image and text only: no writer field, no licence tag, no provenance statement. Usable as a viewer, not as the archive of record."
+    }
+  ],
+  "script_codes": [
+    "Deva"
+  ],
+  "style_partitions": [
+    "print",
+    "cursive",
+    "mixed"
+  ],
+  "license": {
+    "schema_version": 1,
+    "status": "pending",
+    "identifier": null,
+    "evidence": [],
+    "permitted_uses": [],
+    "restrictions": [
+      "No public licence or independently reviewable authorization for PenForge use is asserted in this manifest.",
+      "Do not infer permission to train, generate font derivatives, or redistribute source data from public source availability."
+    ]
+  },
+  "consent": {
+    "schema_version": 1,
+    "status": "not_applicable",
+    "policy_version": null,
+    "consent_ref": null,
+    "evidence": [
+      {
+        "schema_version": 1,
+        "uri": "https://cvit.iiit.ac.in/research/projects/cvit-projects/indic-hw-data",
+        "content_hash": null,
+        "checked_on": "2026-10-20",
+        "finding": "Writers were recruited by the publishing institution across a multi-script campaign. No participant consent record or withdrawal route is published, so Penforge records provider-asserted participation only."
+      }
+    ],
+    "withdrawal_exclusion": true
+  },
+  "writer_resolution": "pending",
+  "writer_registry_ref": null,
+  "raw_data_in_repository": false,
+  "content_hash": "sha256:3118a5585bdf8b9b84a66f784a9e711edf15ae446266fec972f0eb935d1d64ff",
+  "samples": [],
+  "limitations": [
+    "Outer and nested TAR gzip streams, members and images verify; no scripts were executed.",
+    "This source substantially overlaps HW-Dev and is excluded as a second training corpus in R1.",
+    "Documented writer paths support namespace aliases only with matching path and image-byte evidence.",
+    "No personal-font or production recognition qualification follows from archive verification.",
+    "Public evidence does not establish provider authorization or participant opt-in; no use is admitted."
+  ]
+}

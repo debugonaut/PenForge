@@ -1,0 +1,80 @@
+[project]
+name = "penforge-backend"
+version = "0.1.0"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "fastapi==0.135.1",
+  "pydantic==2.12.5",
+  "pydantic-settings==2.13.1",
+  "sqlalchemy[asyncio]==2.0.48",
+  "psycopg[binary]==3.3.3",
+  "alembic==1.18.4",
+  "uvicorn==0.41.0",
+  "firebase-admin==7.7.0",
+  "cryptography==50.0.2",
+]
+
+[dependency-groups]
+dev = ["httpx==0.28.1", "pytest==9.0.2", "ruff==0.15.6", "mypy==1.19.1"]
+worker = [
+    "fontbakery==1.1.0",
+    "fonttools[woff]==4.61.1",
+    "numpy==2.4.2",
+    "opencv-python-headless==4.13.0.92",
+    "opentype-sanitizer==9.2.0",
+    "pillow==13.0.0",
+    "skia-pathops==0.9.2",
+    "uharfbuzz==0.53.3",
+]
+research = [
+    "fonttools[woff]==4.61.1",
+    "numpy==2.4.2",
+    "opencv-python-headless==4.13.0.92",
+    "pillow==13.0.0",
+]
+recognition = [
+    {include-group = "research"},
+    "torch==2.9.1",
+    "transformers==4.57.6",
+    "safetensors==0.6.2",
+]
+local-postgres = ["pgserver==0.1.4"]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.pytest.ini_options]
+pythonpath = ["apps/api", "packages/contracts", "packages/font-engine", "."]
+testpaths = ["tests/backend"]
+markers = ["integration: requires real PostgreSQL TEST_DATABASE_URL", "emulator: requires real Firebase Auth emulator"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+exclude = [".python", ".venv", ".bootstrap-venv", ".cache", "node_modules", ".next", ".next-dev"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
+
+[tool.mypy]
+python_version = "3.12"
+mypy_path = ["apps/api", "packages/contracts", "packages/font-engine"]
+# Resolve namespace packages consistently whether a package directory or a
+# `packages.*` import is passed, avoiding duplicate module names.
+explicit_package_bases = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_unused_ignores = true
+exclude = ["infrastructure/migrations/versions"]
+
+[[tool.mypy.overrides]]
+module = ["fontTools.*", "pathops", "ots", "uharfbuzz", "freetype"]
+ignore_missing_imports = true

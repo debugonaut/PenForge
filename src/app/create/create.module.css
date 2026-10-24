@@ -1,0 +1,154 @@
+/* Same paper tag geometry as the accepted .demo-tag in studio.css. */
+.accountTag {
+  display: inline-flex;
+  align-items: center;
+  background: #dbe8d8;
+  color: #4f6f5c;
+  font: 700 9px var(--font-sans);
+  letter-spacing: 0.13em;
+  padding: 8px 9px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Saving is a quiet line of copy, not a badge. */
+.saveChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 230px;
+  overflow: hidden;
+  font-size: 0.74rem;
+  letter-spacing: 0.02em;
+  color: #8a7c6d;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.saveChip :global(svg) {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+@media (max-width: 767px) {
+  .accountHeader:global(.studio-header-right) {
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .accountHeader .accountTag {
+    display: none;
+  }
+
+  .accountHeader .saveChip {
+    min-width: 0;
+    white-space: normal;
+    line-height: 1.25;
+  }
+}
+
+.save-saved {
+  color: #507662;
+}
+
+.save-offline,
+.save-error,
+.save-conflict {
+  color: #b4573f;
+}
+
+.accountBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  font-size: 0.78rem;
+  color: #56605d;
+}
+
+.accountContext {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.02em;
+}
+
+.saveAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.conflict {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  border: 1.5px solid #b4573f;
+  border-radius: 12px;
+  background: #fbeee8;
+  color: #7c3b28;
+}
+
+.signIn {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  max-width: 760px;
+  margin: 48px auto;
+  padding: 32px 36px;
+  border: 2px solid #192e35;
+  border-radius: 22px;
+  background: #fdf6e6;
+  box-shadow: 8px 9px 0 rgba(25, 46, 53, 0.12);
+}
+
+.signIn > :global(svg) {
+  width: 132px;
+  height: 132px;
+  flex: none;
+}
+
+.signIn h1 {
+  margin: 6px 0 10px;
+  font-size: clamp(1.9rem, 3vw, 2.6rem);
+}
+
+.signIn p {
+  max-width: 46ch;
+  margin: 0 0 18px;
+}
+
+.signInActions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.muted {
+  margin-top: 16px;
+  color: #6b6255;
+  font-size: 0.82rem;
+}
+
+@media (max-width: 720px) {
+  .signIn {
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 24px 0;
+    padding: 24px 20px;
+  }
+
+  .signIn > :global(svg) {
+    display: none;
+  }
+
+  .saveChip {
+    max-width: 150px;
+  }
+}

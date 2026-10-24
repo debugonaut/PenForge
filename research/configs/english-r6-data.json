@@ -1,0 +1,15 @@
+{
+  "version": "english-r6-data-v1",
+  "contract": "english-r6-contract-v1",
+  "class_order": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+  "policy": "exact_r5_train_validation_reuse_no_test_tuning",
+  "seed": 20261023,
+  "training_samples": 6656,
+  "validation_samples": 1664,
+  "minimum_final_writers_per_class": 16,
+  "r5_selected_delta_sha256": "9a39a24f4056f054f1deba42ef972b5a8747401dfd4ea21c21cb5e238aa74e65",
+  "r5_winner_sha256": "c0ce6b49aba6478c6e35730c43635490046007e6ac4c3265edb7de4b3f83244a",
+  "budget": {"wall_seconds": 16200, "cpu_seconds": 32400, "rss_mb": 6000, "output_bytes": 3000000000, "total_passes": 3},
+  "final_policy": "unavailable_until_metadata_proves_untouched_52_class_coverage",
+  "audit": {"per_validation_stratum": 12, "training_controls": 24, "blind_first": true}
+}

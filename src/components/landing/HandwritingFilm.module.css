@@ -1,0 +1,139 @@
+.film {
+  --film-ink: #192e35;
+  background: #f8f1e3;
+  color: var(--film-ink);
+  overflow: hidden;
+  isolation: isolate;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  flex-direction: column;
+}
+
+.canvas {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+  background: #e99a82;
+}
+
+.canvas > svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.temporary,
+.hidden {
+  opacity: 0;
+}
+.handwriting {
+  font: 500 77px var(--font-hand, "Caveat Variable", cursive);
+  fill: var(--film-ink);
+  letter-spacing: -1.5px;
+}
+.phoneHandwriting {
+  font: 500 25px var(--font-hand, "Caveat Variable", cursive);
+  fill: var(--film-ink);
+  letter-spacing: -0.5px;
+}
+.microLabel {
+  font: 500 9px var(--font-sans, sans-serif);
+  letter-spacing: 1.6px;
+  fill: #65736a;
+}
+.windowLabel {
+  font: 500 12px var(--font-sans, sans-serif);
+  fill: var(--film-ink);
+}
+.noteText {
+  font: 400 29px var(--font-hand, "Caveat Variable", cursive);
+  fill: var(--film-ink);
+}
+.stampLabel {
+  font: 500 10.5px var(--font-sans, sans-serif);
+  fill: var(--film-ink);
+}
+
+.footer {
+  flex: 0 0 42px;
+  min-height: 42px;
+  padding: 4px 14px;
+  border-top: 1.5px solid var(--film-ink);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #192e35;
+  color: #fffcf4;
+}
+.phase {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 11px;
+  font-weight: 500;
+}
+.phase > span {
+  color: #b9cec7;
+}
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.controls button {
+  min-width: 30px;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 5px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #fffcf4;
+  cursor: pointer;
+  font: 500 11px var(--font-sans, sans-serif);
+}
+.controls button:hover {
+  background: #35505a;
+}
+.controls button:focus-visible {
+  outline: 2px solid #f4d16e;
+  outline-offset: 2px;
+}
+.controls button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.controls button svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+}
+.transportStatus {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 580px) {
+  .film {
+    aspect-ratio: 700 / 470;
+  }
+  .footer {
+    padding: 4px 10px;
+    gap: 5px;
+    min-height: 42px;
+  }
+  .controls button > span {
+    display: none;
+  }
+}

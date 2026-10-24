@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "run_id": "phase04-synthetic-baseline-v4",
+  "seed": 4104,
+  "font_family_surrogate": "caveat-all-weights-global",
+  "font_hash": "sha256:891951df5e8b5b0f0bc760d31375405e795c666b5add70437de12d4a6482b33f",
+  "license_hash": "sha256:163a2b400e16916ad3196296c946c526d0efce6baf22a2164269ffc62fb9f671",
+  "license": "OFL-1.1",
+  "permitted_use": "development_fixture_and_research_evaluation_only",
+  "splits": {
+    "train": [],
+    "validation": [
+      "caveat-all-weights-global"
+    ],
+    "test": []
+  },
+  "held_out_real_handwriting": "unavailable_separate_capture_consent_required",
+  "style_partition": "synthetic_isolated_font_glyphs",
+  "conditions": [
+    {
+      "name": "clean"
+    },
+    {
+      "name": "perspective",
+      "perspective_fraction": 0.04
+    },
+    {
+      "name": "rotation",
+      "rotation_degrees": 3.0
+    },
+    {
+      "name": "lighting",
+      "lighting_gradient": 0.35
+    },
+    {
+      "name": "blur",
+      "blur_sigma_px": 0.8
+    },
+    {
+      "name": "noise",
+      "noise_sigma": 5.0
+    },
+    {
+      "name": "combined",
+      "perspective_fraction": 0.025,
+      "rotation_degrees": 2.0,
+      "lighting_gradient": 0.2,
+      "blur_sigma_px": 0.5,
+      "noise_sigma": 2.0
+    },
+    {
+      "name": "missing",
+      "missing_codepoints": [
+        33,
+        65,
+        97
+      ]
+    },
+    {
+      "name": "low_resolution",
+      "scale": 0.25
+    },
+    {
+      "name": "severe_blur",
+      "blur_sigma_px": 5.0
+    }
+  ],
+  "methods": [
+    {
+      "id": "exact_polyline",
+      "trace_tolerance_px": 0.0,
+      "curve_tolerance_px": 0.0
+    },
+    {
+      "id": "bounded_cubic",
+      "trace_tolerance_px": 0.25,
+      "curve_tolerance_px": 0.15
+    }
+  ],
+  "limitations": [
+    "One synthetic font family is a validation-only engineering fixture, not writer-disjoint scientific model selection.",
+    "No OCR/identity accuracy is measured; expected cells supply assignment context only.",
+    "No real handwriting production accuracy, human correction time, hosted cost or throughput is inferred."
+  ],
+  "repetitions": 3,
+  "template_status": "finalized-public-1.0.0",
+  "preprocessing_change": "background division normalizes paper luminance rather than amplifying shadows as ink",
+  "selected_method": "exact_polyline",
+  "selection_evidence_hash": "sha256:1078c1e20cde53e4d4c98277978a2205104bc657bd7e3c7fc3f66a2346cbff35",
+  "quality_gates": {
+    "evidence_hash": "sha256:1078c1e20cde53e4d4c98277978a2205104bc657bd7e3c7fc3f66a2346cbff35",
+    "minimum_pixels_per_mm": 7.521792,
+    "minimum_laplacian_variance": 113.184402
+  },
+  "geometry_change": "pixel-square union and even-odd pixel-centre reference instead of centerline contours and inclusive integer fills"
+}

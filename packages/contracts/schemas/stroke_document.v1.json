@@ -1,0 +1,302 @@
+{
+  "$defs": {
+    "CanvasCoordinates": {
+      "additionalProperties": false,
+      "properties": {
+        "normalized": {
+          "const": true,
+          "default": true,
+          "title": "Normalized",
+          "type": "boolean"
+        },
+        "origin": {
+          "const": "top_left",
+          "default": "top_left",
+          "title": "Origin",
+          "type": "string"
+        },
+        "x_positive": {
+          "const": "right",
+          "default": "right",
+          "title": "X Positive",
+          "type": "string"
+        },
+        "y_positive": {
+          "const": "down",
+          "default": "down",
+          "title": "Y Positive",
+          "type": "string"
+        }
+      },
+      "title": "CanvasCoordinates",
+      "type": "object"
+    },
+    "CaptureSize": {
+      "additionalProperties": false,
+      "properties": {
+        "height": {
+          "maximum": 32768,
+          "minimum": 1,
+          "title": "Height",
+          "type": "integer"
+        },
+        "width": {
+          "maximum": 32768,
+          "minimum": 1,
+          "title": "Width",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "width",
+        "height"
+      ],
+      "title": "CaptureSize",
+      "type": "object"
+    },
+    "Stroke": {
+      "additionalProperties": false,
+      "properties": {
+        "pointer_type": {
+          "anyOf": [
+            {
+              "enum": [
+                "pen",
+                "mouse",
+                "touch",
+                "keyboard"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pointer Type"
+        },
+        "points": {
+          "items": {
+            "$ref": "#/$defs/StrokePoint"
+          },
+          "maxItems": 20000,
+          "minItems": 1,
+          "title": "Points",
+          "type": "array"
+        },
+        "stroke_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+          "title": "Stroke Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "stroke_id",
+        "points"
+      ],
+      "title": "Stroke",
+      "type": "object"
+    },
+    "StrokePoint": {
+      "additionalProperties": false,
+      "properties": {
+        "pressure": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pressure"
+        },
+        "t_ms": {
+          "anyOf": [
+            {
+              "maximum": 1000000000000.0,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "T Ms"
+        },
+        "tilt_x": {
+          "anyOf": [
+            {
+              "maximum": 90,
+              "minimum": -90,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tilt X"
+        },
+        "tilt_y": {
+          "anyOf": [
+            {
+              "maximum": 90,
+              "minimum": -90,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tilt Y"
+        },
+        "twist": {
+          "anyOf": [
+            {
+              "exclusiveMaximum": 360,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Twist"
+        },
+        "x": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Y",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ],
+      "title": "StrokePoint",
+      "type": "object"
+    },
+    "TranslateOperation": {
+      "additionalProperties": false,
+      "properties": {
+        "dx": {
+          "maximum": 1,
+          "minimum": -1,
+          "title": "Dx",
+          "type": "number"
+        },
+        "dy": {
+          "maximum": 1,
+          "minimum": -1,
+          "title": "Dy",
+          "type": "number"
+        },
+        "stroke_ids": {
+          "items": {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+            "type": "string"
+          },
+          "maxItems": 2000,
+          "minItems": 1,
+          "title": "Stroke Ids",
+          "type": "array"
+        },
+        "type": {
+          "const": "translate",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "stroke_ids",
+        "dx",
+        "dy"
+      ],
+      "title": "TranslateOperation",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "capture_size_px": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CaptureSize"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "coordinate_system": {
+      "$ref": "#/$defs/CanvasCoordinates"
+    },
+    "operations": {
+      "items": {
+        "$ref": "#/$defs/TranslateOperation"
+      },
+      "maxItems": 1000,
+      "title": "Operations",
+      "type": "array"
+    },
+    "parent_source_hash": {
+      "anyOf": [
+        {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Parent Source Hash"
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "strokes": {
+      "items": {
+        "$ref": "#/$defs/Stroke"
+      },
+      "maxItems": 2000,
+      "minItems": 1,
+      "title": "Strokes",
+      "type": "array"
+    },
+    "timing": {
+      "enum": [
+        "observed",
+        "unavailable_legacy"
+      ],
+      "title": "Timing",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "coordinate_system",
+    "capture_size_px",
+    "timing",
+    "strokes"
+  ],
+  "title": "StrokeDocument",
+  "type": "object"
+}

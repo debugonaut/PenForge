@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "domain": "synthetic_template_engineering_validation",
+  "release_status": "experimental_opt_in",
+  "selected_method": "exact_polyline",
+  "evidence_hash": "sha256:1078c1e20cde53e4d4c98277978a2205104bc657bd7e3c7fc3f66a2346cbff35",
+  "minimum_pixels_per_mm": 7.521792,
+  "minimum_laplacian_variance": 113.184402,
+  "trace_tolerance_px": 0.0,
+  "curve_tolerance_px": 0.0,
+  "selection_reason": "Both methods extracted the same cells; exact polylines had the higher worst-case vector-raster IoU. Fidelity took precedence over smoothing.",
+  "real_handwriting_quality": "unmeasured",
+  "identity_recognition": "unavailable",
+  "review_required_for_every_candidate": true
+}

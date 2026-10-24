@@ -1,0 +1,17 @@
+# Version manifests and evaluation records, never private inputs or model bytes.
+data/
+raw/
+private/
+runs/
+checkpoints/
+models/
+.ipynb_checkpoints/
+*.onnx
+*.safetensors
+*.pt
+*.pth
+*.pkl
+*.pickle
+*.h5
+*.npz
+*.npy

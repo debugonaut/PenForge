@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "record_type": "dataset_manifest",
+  "dataset_id": "dhcd-candidate",
+  "version": "0.1.0",
+  "status": "candidate",
+  "source_kind": "licensed_public",
+  "source": [
+    {
+      "schema_version": 1,
+      "uri": "https://archive.ics.uci.edu/dataset/389/devanagari+handwritten+character+dataset",
+      "content_hash": null,
+      "checked_on": "2026-10-19",
+      "finding": "UCI lists CC BY 4.0 for this isolated-character dataset. Repository metadata does not establish writer-disjoint partitions, consent scope or text-run shaping coverage."
+    }
+  ],
+  "script_codes": [
+    "Deva"
+  ],
+  "style_partitions": [
+    "print",
+    "cursive",
+    "mixed"
+  ],
+  "license": {
+    "schema_version": 1,
+    "status": "pending",
+    "identifier": "CC-BY-4.0",
+    "evidence": [
+      {
+        "schema_version": 1,
+        "uri": "https://archive.ics.uci.edu/dataset/389/devanagari+handwritten+character+dataset",
+        "content_hash": null,
+        "checked_on": "2026-10-19",
+        "finding": "UCI lists CC BY 4.0 for this isolated-character dataset. Repository metadata does not establish writer-disjoint partitions, consent scope or text-run shaping coverage."
+      }
+    ],
+    "permitted_uses": [],
+    "restrictions": [
+      "Attribution is required by the repository-listed license; complete provenance and use review remain pending."
+    ]
+  },
+  "consent": {
+    "schema_version": 1,
+    "status": "pending",
+    "policy_version": null,
+    "consent_ref": null,
+    "evidence": [],
+    "withdrawal_exclusion": true
+  },
+  "writer_resolution": "pending",
+  "writer_registry_ref": null,
+  "raw_data_in_repository": false,
+  "content_hash": "sha256:752e6a2e6b0d1b475375e6a9db937918bbbf7c6b7d137dbe234264029fd3b88d",
+  "samples": [],
+  "limitations": [
+    "The archive fully verifies: 92,000 32x32 images, 46 classes, published 78,200/13,800 image split.",
+    "No annotation or writer-map file exists in this archive. Numeric image IDs do not establish writer identities.",
+    "License/provenance review remains pending and no trustworthy writer-disjoint build is possible from current evidence; excluded from training and evaluation.",
+    "Isolated glyph classification cannot validate personal style, word recognition or Indic font shaping.",
+    "Public evidence does not establish provider authorization or participant opt-in; no use is admitted."
+  ]
+}

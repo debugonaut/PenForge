@@ -1,0 +1,33 @@
+{
+  "pages": [
+    {
+      "file": "penforge-deva-tier1-1.0.0-page-0.json",
+      "png": "penforge-deva-tier1-1.0.0-page-0.png",
+      "svg": "penforge-deva-tier1-1.0.0-page-0.svg",
+      "pdf": "penforge-deva-tier1-1.0.0-page-0.pdf",
+      "manifest_hash": "sha256:ba4e7ce0d420a979c91f9c497edb93afb25fa4e00815b1f7814fa081a23ed38e"
+    },
+    {
+      "file": "penforge-deva-tier1-1.0.0-page-1.json",
+      "png": "penforge-deva-tier1-1.0.0-page-1.png",
+      "svg": "penforge-deva-tier1-1.0.0-page-1.svg",
+      "pdf": "penforge-deva-tier1-1.0.0-page-1.pdf",
+      "manifest_hash": "sha256:09635e03b592ff58bb1666c47256b26c190d9a1c472de68c3ddb2c4eb20a546e"
+    },
+    {
+      "file": "penforge-deva-tier1-1.0.0-page-2.json",
+      "png": "penforge-deva-tier1-1.0.0-page-2.png",
+      "svg": "penforge-deva-tier1-1.0.0-page-2.svg",
+      "pdf": "penforge-deva-tier1-1.0.0-page-2.pdf",
+      "manifest_hash": "sha256:4c0735ef51d5d7ce0b8f38c398df3335bc0a0745abfbe26be67156024168407a"
+    }
+  ],
+  "label_provenance": {
+    "reference_font_sha256": "14ec4af41f27482216d1c2229f417ff9b1425e1babb014e57d1d40d03229853e",
+    "reference_font_version": "Version 2.007",
+    "license": "OFL-1.1",
+    "harfbuzz": "12.3.2",
+    "generator_sha256": "2b7b1b66f02f6fb9970da466211cdd2597757677bc628efdb9aaa85b716f10a0",
+    "renderer_sha256": "6d3f873b2ced77a04af1a99da2eab8f15c1fa01bae51118038a0cb11e6ca8c72"
+  }
+}

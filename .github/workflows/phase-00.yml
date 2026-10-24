@@ -1,0 +1,40 @@
+name: Penforge foundations and identity
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16.6-bookworm
+        env:
+          POSTGRES_DB: penforge_test
+          POSTGRES_USER: penforge
+          POSTGRES_PASSWORD: penforge
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd 'pg_isready -U penforge -d penforge_test'
+          --health-interval 2s --health-timeout 2s --health-retries 15
+    env:
+      PYTHONPATH: apps/api:packages/contracts:packages/font-engine:.
+      APP_ENV: test
+      TEST_DATABASE_URL: postgresql+psycopg://penforge:penforge@127.0.0.1:5432/penforge_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.13.1"
+          enable-cache: true
+      - run: make setup
+      - run: make check
+      - name: Firebase Auth emulator and PostgreSQL acceptance
+        env:
+          PENFORGE_TEST_AUTH_EMULATOR_HOST: 127.0.0.1:9099
+        run: npx --yes --package firebase-tools@15.34.0 firebase emulators:exec --only auth --project demo-penforge-identity --config infrastructure/firebase/firebase.json "make test-identity-emulator"
+      - run: docker build -f infrastructure/docker/api.Dockerfile -t penforge-api:ci .
+      - run: docker build -f infrastructure/docker/worker.Dockerfile -t penforge-worker-foundation:ci .

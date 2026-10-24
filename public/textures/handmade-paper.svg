@@ -1,0 +1,22 @@
+<!-- Original procedural paper texture for PenForge. MIT; see /LICENSE. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400" viewBox="0 0 640 400">
+  <defs>
+    <filter id="mottle" x="0" y="0" width="640" height="400" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency=".018 .035" numOctaves="4" seed="19" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer>
+        <feFuncR type="table" tableValues=".48 .92"/>
+        <feFuncG type="table" tableValues=".30 .80"/>
+        <feFuncB type="table" tableValues=".14 .58"/>
+        <feFuncA type="table" tableValues=".42 .42"/>
+      </feComponentTransfer>
+    </filter>
+    <filter id="fibres" x="0" y="0" width="640" height="400" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency=".55 .8" numOctaves="3" seed="41" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+  </defs>
+  <path fill="#d9b989" d="M0 0h640v400H0z"/>
+  <path d="M0 0h640v400H0z" filter="url(#mottle)"/>
+  <path d="M0 0h640v400H0z" filter="url(#fibres)" opacity=".09"/>
+</svg>

@@ -1,0 +1,95 @@
+{
+  "cells": [
+    {
+      "cell_id": "A-001",
+      "codepoints": [
+        65
+      ],
+      "guide_id": "latin-cap",
+      "rect_mm": {
+        "height": 28.0,
+        "width": 24.0,
+        "x": 20.0,
+        "y": 40.0
+      }
+    },
+    {
+      "cell_id": "a-001",
+      "codepoints": [
+        97
+      ],
+      "guide_id": "latin-cap",
+      "rect_mm": {
+        "height": 28.0,
+        "width": 24.0,
+        "x": 48.0,
+        "y": 40.0
+      }
+    }
+  ],
+  "extraction": {
+    "margin_mm": 1.5,
+    "min_markers": 3
+  },
+  "guides": [
+    {
+      "baseline_offset_mm": 22.0,
+      "guide_id": "latin-cap"
+    }
+  ],
+  "markers": {
+    "dictionary": "DICT_4X4_50",
+    "items": [
+      {
+        "marker_id": 0,
+        "rect_mm": {
+          "height": 8.0,
+          "width": 8.0,
+          "x": 8.0,
+          "y": 8.0
+        }
+      },
+      {
+        "marker_id": 1,
+        "rect_mm": {
+          "height": 8.0,
+          "width": 8.0,
+          "x": 194.0,
+          "y": 8.0
+        }
+      },
+      {
+        "marker_id": 2,
+        "rect_mm": {
+          "height": 8.0,
+          "width": 8.0,
+          "x": 194.0,
+          "y": 281.0
+        }
+      },
+      {
+        "marker_id": 3,
+        "rect_mm": {
+          "height": 8.0,
+          "width": 8.0,
+          "x": 8.0,
+          "y": 281.0
+        }
+      }
+    ],
+    "type": "aruco"
+  },
+  "page": {
+    "height_mm": 297.0,
+    "index": 0,
+    "width_mm": 210.0
+  },
+  "page_identity": {
+    "encoding": "qr",
+    "public_payload": "fixture-only-latin:0.0.1:0"
+  },
+  "schema_version": 1,
+  "script_code": "Latn",
+  "template_id": "fixture-only-latin",
+  "template_version": "0.0.1"
+}

@@ -1,0 +1,61 @@
+.anchor {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
+.anchor .action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 8px;
+  line-height: 1.2;
+}
+
+.anchor .iconOnly {
+  width: 44px;
+  padding: 10px;
+}
+
+.anchor .withLabel {
+  padding: 10px 12px;
+}
+
+.action svg {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 1000;
+  width: max-content;
+  max-width: min(224px, calc(100vw - 24px));
+  padding: 8px 11px;
+  border: 1px solid #192e35;
+  border-radius: 7px;
+  background: #192e35;
+  color: #fffcf4;
+  box-shadow: 2px 3px 0 rgb(25 46 53 / 12%);
+  font: 500 12px / 1.4 var(--font-sans);
+  text-align: center;
+  transform: translate(-50%, -100%);
+}
+
+.tooltip[data-placement="below"] {
+  transform: translateX(-50%);
+}
+
+.tooltip::after {
+  content: "";
+  position: absolute;
+  inset: 100% 0 auto;
+  height: 9px;
+}
+
+.tooltip[data-placement="below"]::after {
+  inset: auto 0 100%;
+}

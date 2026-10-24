@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "record_type": "dataset_manifest",
+  "dataset_id": "caveat-synthetic-source",
+  "version": "0.1.0",
+  "status": "planned",
+  "source_kind": "synthetic_font",
+  "source": [
+    {
+      "schema_version": 1,
+      "uri": "public/fonts/CaveatVariable.woff2",
+      "content_hash": "sha256:891951df5e8b5b0f0bc760d31375405e795c666b5add70437de12d4a6482b33f",
+      "checked_on": "2026-10-19",
+      "finding": "Existing bundled sample typeface; pinned only as a possible synthetic source. No synthetic handwriting renders exist in this manifest."
+    }
+  ],
+  "script_codes": [
+    "Latn"
+  ],
+  "style_partitions": [
+    "print",
+    "cursive",
+    "mixed"
+  ],
+  "license": {
+    "schema_version": 1,
+    "status": "verified",
+    "identifier": "OFL-1.1",
+    "evidence": [
+      {
+        "schema_version": 1,
+        "uri": "public/fonts/OFL-Caveat.txt",
+        "content_hash": "sha256:163a2b400e16916ad3196296c946c526d0efce6baf22a2164269ffc62fb9f671",
+        "checked_on": "2026-10-19",
+        "finding": "Inspected bundled SIL Open Font License 1.1, copyright The Caveat Project Authors. Preserve attribution/license; do not sell the font alone or use author names as endorsement."
+      }
+    ],
+    "permitted_uses": [
+      "development_fixture",
+      "research_evaluation"
+    ],
+    "restrictions": [
+      "Font distribution must retain OFL and attribution. Training rights are not admitted by this development/evaluation review."
+    ]
+  },
+  "consent": {
+    "schema_version": 1,
+    "status": "not_applicable",
+    "policy_version": null,
+    "consent_ref": null,
+    "evidence": [],
+    "withdrawal_exclusion": true
+  },
+  "writer_resolution": "pending",
+  "writer_registry_ref": null,
+  "raw_data_in_repository": false,
+  "content_hash": null,
+  "samples": [],
+  "limitations": [
+    "This is a source inventory, not a rendered dataset or evaluation result.",
+    "A font family and all its weights/augmentations form one global writer surrogate; Caveat alone cannot provide disjoint train/validation/test writers.",
+    "Synthetic fonts cannot establish real writer fidelity, camera robustness or production accuracy."
+  ]
+}

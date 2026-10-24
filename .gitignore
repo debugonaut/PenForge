@@ -1,0 +1,122 @@
+# Dependencies and generated application output
+node_modules/
+.next/
+.next-dev/
+.next-*/
+out/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Python environments, caches, and reports
+.venv/
+venv/
+.bootstrap-venv/
+.python/
+.cache/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Environment files and local secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*credentials*.json
+*service-account*.json
+*service_account*.json
+firebase-admin*.json
+serviceAccount*.json
+
+# Local databases, object storage, uploads, and private handwriting
+.local/
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+*.dump
+*.backup
+/storage/
+/uploads/
+/captures/
+/private-data/
+
+# Generated evidence and research/model outputs
+/artifacts/
+/research/data/
+/research/datasets/
+/research/runs/
+/research/checkpoints/
+/research/models/
+/research/prepared/
+/research/results/
+/research/CHECKPOINT_*.inventory.json
+# Private admitted sample/writer inventories; retain locally for reproducibility.
+/research/manifests/iiit-hw-dev-r1.yaml
+/research/manifests/writers-v1.yaml
+# Local case histories and private build/research handoffs.
+/research/*.md
+!/research/README.md
+/research/experiments/r1-*.yaml
+/research/experiments/r1-attempt-*.json
+/research/evaluation/benchmarks/r1-*.yaml
+/research/evaluation/benchmarks/*-local-*.json
+*.ckpt
+*.onnx
+*.pt
+*.pth
+*.safetensors
+*.tflite
+wandb/
+mlruns/
+
+# Agent-only instructions and local assistant state
+AGENTS.md
+PROJECT_STATUS.md
+docs/history/project-status-20261024.md
+.agents/
+.codex/
+.claude/
+.cursor/
+.windsurf/
+.aider*
+.freebuff/
+CLAUDE.md
+CODEX.md
+GEMINI.md
+
+# Logs, process files, and temporary output
+*.log
+*-debug.log
+*.pid
+*.seed
+tmp/
+temp/
+.tmp/
+
+# Editor and operating-system files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Unused original artwork exports; the application uses the assets in public/.
+/Elegant Calligraphic P Monogram.png
+/Elegant Calligraphic P Monogram.svg
+/penforge-wordmark.svg

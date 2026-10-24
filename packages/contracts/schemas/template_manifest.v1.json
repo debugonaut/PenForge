@@ -1,0 +1,474 @@
+{
+  "$defs": {
+    "ExtractionPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "margin_mm": {
+          "maximum": 50,
+          "minimum": 0,
+          "title": "Margin Mm",
+          "type": "number"
+        },
+        "min_markers": {
+          "maximum": 50,
+          "minimum": 3,
+          "title": "Min Markers",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "margin_mm",
+        "min_markers"
+      ],
+      "title": "ExtractionPolicy",
+      "type": "object"
+    },
+    "Guide": {
+      "additionalProperties": false,
+      "properties": {
+        "baseline_offset_mm": {
+          "maximum": 1000000000000.0,
+          "minimum": 0,
+          "title": "Baseline Offset Mm",
+          "type": "number"
+        },
+        "cap_height_offset_mm": {
+          "anyOf": [
+            {
+              "maximum": 1000000000000.0,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cap Height Offset Mm"
+        },
+        "descender_offset_mm": {
+          "anyOf": [
+            {
+              "maximum": 1000000000000.0,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Descender Offset Mm"
+        },
+        "guide_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+          "title": "Guide Id",
+          "type": "string"
+        },
+        "headline_offset_mm": {
+          "anyOf": [
+            {
+              "maximum": 1000000000000.0,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Headline Offset Mm"
+        },
+        "lower_mark_offset_mm": {
+          "anyOf": [
+            {
+              "maximum": 1000000000000.0,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lower Mark Offset Mm"
+        },
+        "upper_mark_offset_mm": {
+          "anyOf": [
+            {
+              "maximum": 1000000000000.0,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Upper Mark Offset Mm"
+        },
+        "x_height_offset_mm": {
+          "anyOf": [
+            {
+              "maximum": 1000000000000.0,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "X Height Offset Mm"
+        }
+      },
+      "required": [
+        "guide_id",
+        "baseline_offset_mm"
+      ],
+      "title": "Guide",
+      "type": "object"
+    },
+    "Marker": {
+      "additionalProperties": false,
+      "properties": {
+        "marker_id": {
+          "maximum": 49,
+          "minimum": 0,
+          "title": "Marker Id",
+          "type": "integer"
+        },
+        "rect_mm": {
+          "$ref": "#/$defs/Rect"
+        }
+      },
+      "required": [
+        "marker_id",
+        "rect_mm"
+      ],
+      "title": "Marker",
+      "type": "object"
+    },
+    "Markers": {
+      "additionalProperties": false,
+      "properties": {
+        "dictionary": {
+          "const": "DICT_4X4_50",
+          "title": "Dictionary",
+          "type": "string"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/Marker"
+          },
+          "maxItems": 50,
+          "minItems": 3,
+          "title": "Items",
+          "type": "array"
+        },
+        "quiet_zone_mm": {
+          "anyOf": [
+            {
+              "maximum": 1000000000000.0,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quiet Zone Mm"
+        },
+        "type": {
+          "const": "aruco",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "dictionary",
+        "items"
+      ],
+      "title": "Markers",
+      "type": "object"
+    },
+    "Page": {
+      "additionalProperties": false,
+      "properties": {
+        "height_mm": {
+          "exclusiveMinimum": 0,
+          "maximum": 2000,
+          "title": "Height Mm",
+          "type": "number"
+        },
+        "index": {
+          "maximum": 999,
+          "minimum": 0,
+          "title": "Index",
+          "type": "integer"
+        },
+        "width_mm": {
+          "exclusiveMinimum": 0,
+          "maximum": 2000,
+          "title": "Width Mm",
+          "type": "number"
+        }
+      },
+      "required": [
+        "width_mm",
+        "height_mm",
+        "index"
+      ],
+      "title": "Page",
+      "type": "object"
+    },
+    "PublicPageIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "encoding": {
+          "const": "qr",
+          "title": "Encoding",
+          "type": "string"
+        },
+        "public_payload": {
+          "maxLength": 180,
+          "title": "Public Payload",
+          "type": "string"
+        },
+        "quiet_zone_modules": {
+          "anyOf": [
+            {
+              "maximum": 16,
+              "minimum": 4,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quiet Zone Modules"
+        },
+        "rect_mm": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Rect"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "encoding",
+        "public_payload"
+      ],
+      "title": "PublicPageIdentity",
+      "type": "object"
+    },
+    "Rect": {
+      "additionalProperties": false,
+      "properties": {
+        "height": {
+          "exclusiveMinimum": 0,
+          "maximum": 2000,
+          "title": "Height",
+          "type": "number"
+        },
+        "width": {
+          "exclusiveMinimum": 0,
+          "maximum": 2000,
+          "title": "Width",
+          "type": "number"
+        },
+        "x": {
+          "maximum": 1000000000000.0,
+          "minimum": 0,
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "maximum": 1000000000000.0,
+          "minimum": 0,
+          "title": "Y",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "width",
+        "height"
+      ],
+      "title": "Rect",
+      "type": "object"
+    },
+    "TemplateCell": {
+      "additionalProperties": false,
+      "properties": {
+        "cell_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+          "title": "Cell Id",
+          "type": "string"
+        },
+        "codepoints": {
+          "items": {
+            "maximum": 1114111,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "maxItems": 16,
+          "minItems": 1,
+          "title": "Codepoints",
+          "type": "array"
+        },
+        "guide_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+          "title": "Guide Id",
+          "type": "string"
+        },
+        "rect_mm": {
+          "$ref": "#/$defs/Rect"
+        }
+      },
+      "required": [
+        "cell_id",
+        "codepoints",
+        "rect_mm",
+        "guide_id"
+      ],
+      "title": "TemplateCell",
+      "type": "object"
+    },
+    "TemplatePrinting": {
+      "additionalProperties": false,
+      "properties": {
+        "border_color": {
+          "pattern": "^#[0-9a-f]{6}$",
+          "title": "Border Color",
+          "type": "string"
+        },
+        "guide_color": {
+          "pattern": "^#[0-9a-f]{6}$",
+          "title": "Guide Color",
+          "type": "string"
+        },
+        "printable_margin_mm": {
+          "maximum": 1000000000000.0,
+          "minimum": 0,
+          "title": "Printable Margin Mm",
+          "type": "number"
+        },
+        "scale_reference_rect_mm": {
+          "$ref": "#/$defs/Rect"
+        }
+      },
+      "required": [
+        "printable_margin_mm",
+        "scale_reference_rect_mm",
+        "guide_color",
+        "border_color"
+      ],
+      "title": "TemplatePrinting",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "cells": {
+      "items": {
+        "$ref": "#/$defs/TemplateCell"
+      },
+      "maxItems": 1000,
+      "minItems": 1,
+      "title": "Cells",
+      "type": "array"
+    },
+    "extraction": {
+      "$ref": "#/$defs/ExtractionPolicy"
+    },
+    "guides": {
+      "items": {
+        "$ref": "#/$defs/Guide"
+      },
+      "maxItems": 100,
+      "minItems": 1,
+      "title": "Guides",
+      "type": "array"
+    },
+    "label_provenance": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Label Provenance"
+    },
+    "markers": {
+      "$ref": "#/$defs/Markers"
+    },
+    "page": {
+      "$ref": "#/$defs/Page"
+    },
+    "page_identity": {
+      "$ref": "#/$defs/PublicPageIdentity"
+    },
+    "printing": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TemplatePrinting"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "script_code": {
+      "pattern": "^[A-Z][a-z]{3}$",
+      "title": "Script Code",
+      "type": "string"
+    },
+    "template_id": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+      "title": "Template Id",
+      "type": "string"
+    },
+    "template_version": {
+      "maxLength": 100,
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "title": "Template Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "template_id",
+    "template_version",
+    "script_code",
+    "page",
+    "markers",
+    "page_identity",
+    "cells",
+    "guides",
+    "extraction"
+  ],
+  "title": "TemplateManifest",
+  "type": "object"
+}

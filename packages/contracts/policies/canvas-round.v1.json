@@ -1,0 +1,16 @@
+{
+  "policy_version": 1,
+  "mode": "fixed_round_v1",
+  "algorithm_version": "capture-round-stroke-v1",
+  "vectorizer_version": "skia-round-stroke-v1",
+  "pathops_version": "0.9.2",
+  "cap": "round",
+  "join": "round",
+  "pressure_policy": "preserved_not_applied",
+  "conic_tolerance_capture_px": 0.01,
+  "max_source_points": 20000,
+  "max_output_segments": 16384,
+  "max_capture_area_px": 1000000,
+  "clip_to_artboard": true,
+  "status": "local_synthetic_validation_only"
+}

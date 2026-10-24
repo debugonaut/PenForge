@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "record_type": "dataset_manifest",
+  "dataset_id": "iam-candidate",
+  "version": "0.1.0",
+  "status": "candidate",
+  "source_kind": "licensed_public",
+  "source": [
+    {
+      "schema_version": 1,
+      "uri": "https://fki.tic.heia-fr.ch/databases",
+      "content_hash": null,
+      "checked_on": "2026-10-19",
+      "finding": "Official portal describes IAM English handwriting and limits availability to non-commercial research. Product/commercial training permission and contributor consent are unresolved."
+    }
+  ],
+  "script_codes": [
+    "Latn"
+  ],
+  "style_partitions": [
+    "print",
+    "cursive",
+    "mixed"
+  ],
+  "license": {
+    "schema_version": 1,
+    "status": "pending",
+    "identifier": null,
+    "evidence": [
+      {
+        "schema_version": 1,
+        "uri": "https://fki.tic.heia-fr.ch/databases",
+        "content_hash": null,
+        "checked_on": "2026-10-19",
+        "finding": "Official portal describes IAM English handwriting and limits availability to non-commercial research. Product/commercial training permission and contributor consent are unresolved."
+      }
+    ],
+    "permitted_uses": [],
+    "restrictions": [
+      "Official portal describes non-commercial research availability. No product license or commercial authorization is inferred."
+    ]
+  },
+  "consent": {
+    "schema_version": 1,
+    "status": "pending",
+    "policy_version": null,
+    "consent_ref": null,
+    "evidence": [],
+    "withdrawal_exclusion": true
+  },
+  "writer_resolution": "pending",
+  "writer_registry_ref": null,
+  "raw_data_in_repository": false,
+  "content_hash": null,
+  "samples": [],
+  "limitations": [
+    "No files downloaded, no terms accepted, and no IAM samples admitted to training or evaluation.",
+    "Verify current full terms, redistribution and product-scope permission before use.",
+    "Resolve global writer IDs and cross-corpus overlaps; annotate actual styles rather than assume all samples are cursive.",
+    "Verify contributor-consent/provenance scope independently of portal access."
+  ]
+}

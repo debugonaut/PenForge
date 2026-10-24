@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-20",
+  "domain": "synthetic regression only",
+  "baseline_hash": "sha256:57adb03b2a5fc193e6eee03f7fe37b5cf279dafedad78a1fa509a163a5d75353",
+  "minimum_cell_hit_rate": 1.0,
+  "maximum_false_glyph_count": 0,
+  "minimum_mean_cell_iou": 0.953931,
+  "minimum_mean_vector_iou": 1.0,
+  "minimum_boundary_f1_1px": 0.987045,
+  "maximum_nodes": 477,
+  "human_identity_review": "all_candidates",
+  "real_handwriting_release_gate": "unmeasured",
+  "selected_method": "exact_polyline",
+  "covered_conditions": [
+    "blur",
+    "clean",
+    "combined",
+    "lighting",
+    "missing",
+    "noise",
+    "perspective",
+    "rotation"
+  ],
+  "unqualified_conditions": [],
+  "threshold_policy": "observed extrema with downward rounding at six decimal places; validation-only regression"
+}

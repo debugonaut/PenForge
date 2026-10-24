@@ -1,0 +1,98 @@
+{
+  "$defs": {
+    "WriterIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "dataset_id": {
+          "pattern": "^[a-z0-9][a-z0-9._:-]{0,119}$",
+          "title": "Dataset Id",
+          "type": "string"
+        },
+        "evidence": {
+          "title": "Evidence",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "writer_group_id": {
+          "pattern": "^[a-z0-9][a-z0-9._:-]{0,119}$",
+          "title": "Writer Group Id",
+          "type": "string"
+        },
+        "writer_id": {
+          "pattern": "^[a-z0-9][a-z0-9._:-]{0,119}$",
+          "title": "Writer Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataset_id",
+        "writer_id",
+        "writer_group_id",
+        "evidence"
+      ],
+      "title": "WriterIdentity",
+      "type": "object"
+    }
+  },
+  "$id": "https://penforge.invalid/research/v1/writer_registry.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "identities": {
+      "items": {
+        "$ref": "#/$defs/WriterIdentity"
+      },
+      "title": "Identities",
+      "type": "array"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Limitations",
+      "type": "array"
+    },
+    "policy": {
+      "const": "global_pseudonymous_groups_no_identity_inference",
+      "default": "global_pseudonymous_groups_no_identity_inference",
+      "title": "Policy",
+      "type": "string"
+    },
+    "record_type": {
+      "const": "writer_registry",
+      "default": "writer_registry",
+      "title": "Record Type",
+      "type": "string"
+    },
+    "registry_id": {
+      "pattern": "^[a-z0-9][a-z0-9._:-]{0,119}$",
+      "title": "Registry Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "version": {
+      "pattern": "^[a-z0-9][a-z0-9._:-]{0,119}$",
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "registry_id",
+    "version",
+    "identities",
+    "limitations"
+  ],
+  "title": "WriterRegistry",
+  "type": "object"
+}

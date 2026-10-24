@@ -1,0 +1,58 @@
+{
+  "artifact_hash": "sha256:c059b7738d390643f328d148935f81a2a0fc13128ed444d151b74327b06ee4b8",
+  "artifact_type": "penforge.ml_result",
+  "attempt_id": "00000000-0000-4000-8000-000000000002",
+  "candidates": [
+    {
+      "candidate_id": "00000000-0000-4000-8000-000000000004",
+      "codepoints": [
+        97
+      ],
+      "evidence": {
+        "evaluation_record_hash": null,
+        "model_uncertainty": null,
+        "outline_validity": "unmeasured",
+        "recognition": null,
+        "segmentation": null,
+        "style_fidelity": null
+      },
+      "origin": "authentic_extraction",
+      "outline": {
+        "artifact_id": "00000000-0000-4000-8000-000000000005",
+        "media_type": "application/json",
+        "sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "size_bytes": 100
+      },
+      "rank": 1,
+      "review_status": "pending"
+    }
+  ],
+  "fencing_token": 1,
+  "input": {
+    "sample_ids": [
+      "00000000-0000-4000-8000-000000000003"
+    ],
+    "source_hashes": [
+      "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    ],
+    "template_manifest_hash": null
+  },
+  "job_id": "00000000-0000-4000-8000-000000000001",
+  "pipeline": {
+    "algorithm_version": "fixture-1",
+    "model_hash": null,
+    "model_id": null,
+    "model_version": null,
+    "preprocessing_version": "fixture-1",
+    "script_code": "Latn",
+    "style": "print"
+  },
+  "quality_report": {
+    "artifact_id": "00000000-0000-4000-8000-000000000006",
+    "media_type": "application/json",
+    "sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "size_bytes": 100
+  },
+  "schema_version": 1,
+  "stage": "candidate_extraction"
+}

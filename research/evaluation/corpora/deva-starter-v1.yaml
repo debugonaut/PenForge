@@ -1,0 +1,200 @@
+{
+  "schema_version": 1,
+  "record_type": "shaping_corpus",
+  "corpus_id": "deva-source-starter",
+  "version": "0.1.0",
+  "script_code": "Deva",
+  "status": "starter_not_evaluated",
+  "source": [
+    {
+      "schema_version": 1,
+      "uri": "docs/specifications/PENFORGE_CODEX_BACKEND_ML_INFRA_CONTEXT_v3.md#89-devanagari-engineering-parallel-track-production-gated-at-m3-final-constraints-proposed-plan",
+      "content_hash": "sha256:99e15238f9eb5ab8fd28e15f8f551c15c9d74cdcc25e4f2f7c06c350a9be4dc9",
+      "checked_on": "2026-10-19",
+      "finding": "Part B §8.9 starter sequences and explicit precomposed nukta comparison; examples only, not an empirical common-word inventory."
+    }
+  ],
+  "font_ref": null,
+  "harfbuzz_version": null,
+  "normalization_policy": "preserve_input_codepoints",
+  "common_word_inventory": false,
+  "cases": [
+    {
+      "schema_version": 1,
+      "case_id": "conjunct-kssa",
+      "text": "क्ष",
+      "codepoints": [
+        2325,
+        2381,
+        2359
+      ],
+      "behavior": "Conjunct or documented valid half-form/virama fallback",
+      "features_to_inspect": [
+        "akhn",
+        "half",
+        "cjct"
+      ],
+      "expected_output_hash": null
+    },
+    {
+      "schema_version": 1,
+      "case_id": "prebase-i",
+      "text": "कि",
+      "codepoints": [
+        2325,
+        2367
+      ],
+      "behavior": "Pre-base matra reordering and positioning",
+      "features_to_inspect": [
+        "pres",
+        "dist"
+      ],
+      "expected_output_hash": null
+    },
+    {
+      "schema_version": 1,
+      "case_id": "reph",
+      "text": "र्क",
+      "codepoints": [
+        2352,
+        2381,
+        2325
+      ],
+      "behavior": "Reph above base",
+      "features_to_inspect": [
+        "rphf",
+        "abvm"
+      ],
+      "expected_output_hash": null
+    },
+    {
+      "schema_version": 1,
+      "case_id": "rakar",
+      "text": "श्र",
+      "codepoints": [
+        2358,
+        2381,
+        2352
+      ],
+      "behavior": "Rakar or below-base form",
+      "features_to_inspect": [
+        "rkrf",
+        "vatu",
+        "blwf"
+      ],
+      "expected_output_hash": null
+    },
+    {
+      "schema_version": 1,
+      "case_id": "conjunct-kta",
+      "text": "क्त",
+      "codepoints": [
+        2325,
+        2381,
+        2340
+      ],
+      "behavior": "Conjunct or half-form handling",
+      "features_to_inspect": [
+        "half",
+        "cjct"
+      ],
+      "expected_output_hash": null
+    },
+    {
+      "schema_version": 1,
+      "case_id": "nukta-decomposed",
+      "text": "क़",
+      "codepoints": [
+        2325,
+        2364
+      ],
+      "behavior": "Decomposed nukta handling; preserve observed codepoints",
+      "features_to_inspect": [
+        "nukt",
+        "ccmp"
+      ],
+      "expected_output_hash": null
+    },
+    {
+      "schema_version": 1,
+      "case_id": "nukta-precomposed",
+      "text": "क़",
+      "codepoints": [
+        2392
+      ],
+      "behavior": "Explicit precomposed comparison without silent input normalization",
+      "features_to_inspect": [
+        "nukt",
+        "ccmp"
+      ],
+      "expected_output_hash": null
+    },
+    {
+      "schema_version": 1,
+      "case_id": "below-u",
+      "text": "कु",
+      "codepoints": [
+        2325,
+        2369
+      ],
+      "behavior": "Below-base short u positioning",
+      "features_to_inspect": [
+        "blws",
+        "blwm"
+      ],
+      "expected_output_hash": null
+    },
+    {
+      "schema_version": 1,
+      "case_id": "below-uu",
+      "text": "कू",
+      "codepoints": [
+        2325,
+        2370
+      ],
+      "behavior": "Below-base long u positioning",
+      "features_to_inspect": [
+        "blws",
+        "blwm"
+      ],
+      "expected_output_hash": null
+    },
+    {
+      "schema_version": 1,
+      "case_id": "below-r",
+      "text": "कृ",
+      "codepoints": [
+        2325,
+        2371
+      ],
+      "behavior": "Below-base vocalic r positioning",
+      "features_to_inspect": [
+        "blws",
+        "blwm"
+      ],
+      "expected_output_hash": null
+    },
+    {
+      "schema_version": 1,
+      "case_id": "stacked-marks",
+      "text": "हूँ",
+      "codepoints": [
+        2361,
+        2370,
+        2305
+      ],
+      "behavior": "Below-base matra and candrabindu attachment",
+      "features_to_inspect": [
+        "blwm",
+        "abvm"
+      ],
+      "expected_output_hash": null
+    }
+  ],
+  "limitations": [
+    "This source-derived starter record remains unevaluated as a research corpus and intentionally has no pinned font or golden output hashes. A separate Noto OFL engineering trace exercises local shaping code but is not an approved research or handwriting result.",
+    "Independent handwriting recognition and writer-fidelity evaluation are still required.",
+    "Common conjuncts and 200–500 representative words require licensed corpus frequency analysis; these source examples do not satisfy that gate.",
+    "Feature lists are investigation targets from the source, not proof every listed lookup must change each case."
+  ]
+}

@@ -1,0 +1,95 @@
+.panel {
+  margin-top: 2rem;
+  border-top: 1.5px solid var(--ink, #293b38);
+  padding-top: 1.5rem;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.panel h2 {
+  font-size: clamp(1.6rem, 5vw, 2rem);
+  line-height: 1.1;
+}
+.panel h3 {
+  margin: 0 0 0.7rem;
+  font-size: 1.05rem;
+}
+.panel p {
+  font-size: 0.92rem;
+  line-height: 1.55;
+  margin: 0.75rem 0;
+}
+.panel button,
+.panel select {
+  min-height: 44px;
+  max-width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 1.5px solid #293b38;
+  border-radius: 8px;
+  background: #fffcf4;
+  color: #293b38;
+  font: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+}
+.panel button {
+  cursor: pointer;
+}
+.panel button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.panel button:focus-visible,
+.panel select:focus-visible,
+.panel summary:focus-visible {
+  outline: 3px solid #315c49;
+  outline-offset: 3px;
+}
+.panel label {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0.8rem 0;
+  font-size: 0.9rem;
+}
+.block {
+  border: 1px solid #c9bca5;
+  background: #f8f1e3;
+  padding: 1rem;
+  margin-top: 1rem;
+  border-radius: 10px;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.panel .destructive {
+  background: #f0a18c;
+}
+.panel details {
+  margin-top: 1rem;
+}
+.panel summary {
+  cursor: pointer;
+  padding: 0.5rem 0;
+}
+.progress {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #e5efdf;
+  border: 1px solid #315c49;
+  border-radius: 10px;
+}
+.progress ol {
+  padding-left: 1.3rem;
+  font-size: 0.85rem;
+  line-height: 1.8;
+}
+@media (max-width: 400px) {
+  .block,
+  .progress {
+    padding: 0.7rem;
+  }
+  .actions {
+    flex-direction: column;
+  }
+}

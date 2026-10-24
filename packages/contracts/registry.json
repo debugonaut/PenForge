@@ -1,0 +1,142 @@
+{
+  "contracts": [
+    {
+      "capability": "future_contract",
+      "current_version": 1,
+      "name": "glyph_outline",
+      "schema_name": "GlyphOutline",
+      "supported_versions": [
+        1
+      ]
+    },
+    {
+      "capability": "future_contract",
+      "current_version": 1,
+      "name": "stroke_document",
+      "schema_name": "StrokeDocument",
+      "supported_versions": [
+        1
+      ]
+    },
+    {
+      "capability": "future_contract",
+      "current_version": 1,
+      "name": "template_manifest",
+      "schema_name": "TemplateManifest",
+      "supported_versions": [
+        1
+      ]
+    },
+    {
+      "capability": "future_contract",
+      "current_version": 1,
+      "name": "calibration_definition",
+      "schema_name": "CalibrationDefinition",
+      "supported_versions": [
+        1
+      ]
+    },
+    {
+      "capability": "future_contract",
+      "current_version": 1,
+      "name": "ml_result_manifest",
+      "schema_name": "MLResultManifest",
+      "supported_versions": [
+        1
+      ]
+    },
+    {
+      "capability": "future_contract",
+      "current_version": 1,
+      "name": "asset_verify_job",
+      "schema_name": "AssetVerifyJob",
+      "supported_versions": [
+        1
+      ]
+    },
+    {
+      "capability": "future_contract",
+      "current_version": 2,
+      "name": "analyze_samples_job",
+      "schema_name": "AnalyzeSamplesJobV2",
+      "supported_versions": [
+        1,
+        2
+      ]
+    },
+    {
+      "capability": "future_contract",
+      "current_version": 1,
+      "name": "compile_export_job",
+      "schema_name": "CompileExportJob",
+      "supported_versions": [
+        1
+      ]
+    },
+    {
+      "capability": "future_contract",
+      "current_version": 1,
+      "name": "model_registry_entry",
+      "schema_name": "ModelRegistryEntry",
+      "supported_versions": [
+        1
+      ]
+    },
+    {
+      "capability": "future_contract",
+      "current_version": 1,
+      "name": "project_dto",
+      "schema_name": "ProjectDTO",
+      "supported_versions": [
+        1
+      ]
+    },
+    {
+      "capability": "future_contract",
+      "current_version": 1,
+      "name": "job_dto",
+      "schema_name": "JobDTO",
+      "supported_versions": [
+        1
+      ]
+    },
+    {
+      "capability": "future_contract",
+      "current_version": 1,
+      "name": "font_build_manifest",
+      "schema_name": "FontBuildManifest",
+      "supported_versions": [
+        1
+      ]
+    },
+    {
+      "capability": "future_contract",
+      "current_version": 1,
+      "name": "privacy_maintenance_job",
+      "schema_name": "PrivacyMaintenanceJob",
+      "supported_versions": [
+        1
+      ]
+    },
+    {
+      "capability": "future_contract",
+      "current_version": 1,
+      "name": "freeform_analysis_input",
+      "schema_name": "FreeformAnalysisInput",
+      "supported_versions": [
+        1
+      ]
+    },
+    {
+      "capability": "future_contract",
+      "current_version": 1,
+      "name": "freeform_alignment",
+      "schema_name": "FreeformAlignment",
+      "supported_versions": [
+        1
+      ]
+    }
+  ],
+  "hash_encoding": "penforge-tagged-json-ieee754-v1",
+  "rest_api_version": "v1"
+}

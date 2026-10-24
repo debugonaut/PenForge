@@ -1,0 +1,375 @@
+{
+  "$defs": {
+    "Contour": {
+      "additionalProperties": false,
+      "properties": {
+        "closed": {
+          "const": true,
+          "title": "Closed",
+          "type": "boolean"
+        },
+        "segments": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "cubic": "#/$defs/CubicSegment",
+                "line": "#/$defs/LineSegment",
+                "quadratic": "#/$defs/QuadraticSegment"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/LineSegment"
+              },
+              {
+                "$ref": "#/$defs/QuadraticSegment"
+              },
+              {
+                "$ref": "#/$defs/CubicSegment"
+              }
+            ]
+          },
+          "maxItems": 4096,
+          "minItems": 1,
+          "title": "Segments",
+          "type": "array"
+        },
+        "start": {
+          "$ref": "#/$defs/Point"
+        }
+      },
+      "required": [
+        "closed",
+        "start",
+        "segments"
+      ],
+      "title": "Contour",
+      "type": "object"
+    },
+    "CubicSegment": {
+      "additionalProperties": false,
+      "properties": {
+        "c1": {
+          "$ref": "#/$defs/Point"
+        },
+        "c2": {
+          "$ref": "#/$defs/Point"
+        },
+        "to": {
+          "$ref": "#/$defs/Point"
+        },
+        "type": {
+          "const": "cubic",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "c1",
+        "c2",
+        "to"
+      ],
+      "title": "CubicSegment",
+      "type": "object"
+    },
+    "FontCoordinates": {
+      "additionalProperties": false,
+      "properties": {
+        "origin": {
+          "const": "baseline",
+          "default": "baseline",
+          "title": "Origin",
+          "type": "string"
+        },
+        "x_positive": {
+          "const": "right",
+          "default": "right",
+          "title": "X Positive",
+          "type": "string"
+        },
+        "y_positive": {
+          "const": "up",
+          "default": "up",
+          "title": "Y Positive",
+          "type": "string"
+        }
+      },
+      "title": "FontCoordinates",
+      "type": "object"
+    },
+    "GlyphMetrics": {
+      "additionalProperties": false,
+      "properties": {
+        "advance_width": {
+          "maximum": 131072,
+          "minimum": 0,
+          "title": "Advance Width",
+          "type": "number"
+        },
+        "left_side_bearing": {
+          "title": "Left Side Bearing",
+          "type": "number"
+        }
+      },
+      "required": [
+        "advance_width",
+        "left_side_bearing"
+      ],
+      "title": "GlyphMetrics",
+      "type": "object"
+    },
+    "IndicEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "anchors": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Point"
+          },
+          "maxProperties": 6,
+          "propertyNames": {
+            "enum": [
+              "above_base",
+              "below_base",
+              "above_mark",
+              "below_mark",
+              "stack_above_base",
+              "stack_above_mark"
+            ]
+          },
+          "title": "Anchors",
+          "type": "object"
+        },
+        "geometry_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Geometry Hash",
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "base",
+            "mark",
+            "half",
+            "reph",
+            "rakar",
+            "conjunct",
+            "contextual"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "source_classification": {
+          "enum": [
+            "authentic_capture",
+            "owner_engineering_record",
+            "engineering_fixture"
+          ],
+          "title": "Source Classification",
+          "type": "string"
+        },
+        "substitution": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Substitution"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "role",
+        "source_classification",
+        "geometry_hash"
+      ],
+      "title": "IndicEvidence",
+      "type": "object"
+    },
+    "LineSegment": {
+      "additionalProperties": false,
+      "properties": {
+        "to": {
+          "$ref": "#/$defs/Point"
+        },
+        "type": {
+          "const": "line",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "to"
+      ],
+      "title": "LineSegment",
+      "type": "object"
+    },
+    "Point": {
+      "additionalProperties": false,
+      "properties": {
+        "x": {
+          "title": "X",
+          "type": "number"
+        },
+        "y": {
+          "title": "Y",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ],
+      "title": "Point",
+      "type": "object"
+    },
+    "QuadraticSegment": {
+      "additionalProperties": false,
+      "properties": {
+        "c": {
+          "$ref": "#/$defs/Point"
+        },
+        "to": {
+          "$ref": "#/$defs/Point"
+        },
+        "type": {
+          "const": "quadratic",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "c",
+        "to"
+      ],
+      "title": "QuadraticSegment",
+      "type": "object"
+    },
+    "Substitution": {
+      "additionalProperties": false,
+      "properties": {
+        "feature": {
+          "enum": [
+            "ccmp",
+            "nukt",
+            "akhn",
+            "rphf",
+            "rkrf",
+            "blwf",
+            "half",
+            "cjct",
+            "pres",
+            "abvs",
+            "blws",
+            "psts",
+            "haln"
+          ],
+          "title": "Feature",
+          "type": "string"
+        },
+        "input_codepoints": {
+          "items": {
+            "maximum": 1114111,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "maxItems": 16,
+          "minItems": 1,
+          "title": "Input Codepoints",
+          "type": "array"
+        }
+      },
+      "required": [
+        "feature",
+        "input_codepoints"
+      ],
+      "title": "Substitution",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "codepoints": {
+      "items": {
+        "maximum": 1114111,
+        "minimum": 0,
+        "type": "integer"
+      },
+      "maxItems": 16,
+      "minItems": 1,
+      "title": "Codepoints",
+      "type": "array"
+    },
+    "contours": {
+      "items": {
+        "$ref": "#/$defs/Contour"
+      },
+      "maxItems": 128,
+      "title": "Contours",
+      "type": "array"
+    },
+    "coordinate_system": {
+      "$ref": "#/$defs/FontCoordinates"
+    },
+    "fill_rule": {
+      "const": "evenodd",
+      "default": "evenodd",
+      "title": "Fill Rule",
+      "type": "string"
+    },
+    "indic": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/IndicEvidence"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "mapping": {
+      "default": "cmap",
+      "enum": [
+        "cmap",
+        "gsub_only"
+      ],
+      "title": "Mapping",
+      "type": "string"
+    },
+    "metrics": {
+      "$ref": "#/$defs/GlyphMetrics"
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "units_per_em": {
+      "maximum": 16384,
+      "minimum": 16,
+      "title": "Units Per Em",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schema_version",
+    "units_per_em",
+    "coordinate_system",
+    "codepoints",
+    "metrics",
+    "contours"
+  ],
+  "title": "GlyphOutline",
+  "type": "object"
+}

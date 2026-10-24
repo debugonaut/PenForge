@@ -1,0 +1,31 @@
+{
+  "assignments": [
+    {
+      "capture_transform": {
+        "baseline_y": 0.75,
+        "origin_x_px": 0.0,
+        "pen_width_px": 3.0,
+        "schema_version": 1,
+        "units_per_em": 1000,
+        "units_per_px": 2.0
+      },
+      "codepoints": [
+        103
+      ],
+      "sample_id": "00000000-0000-4000-8000-000000000002"
+    }
+  ],
+  "job_type": "analyze_samples",
+  "options": {
+    "enhance": true,
+    "fuse_samples": false,
+    "quality_policy": "accuracy_first"
+  },
+  "project_id": "00000000-0000-4000-8000-000000000001",
+  "sample_ids": [
+    "00000000-0000-4000-8000-000000000002"
+  ],
+  "schema_version": 1,
+  "script_code": "Latn",
+  "template_manifest_hash": null
+}

@@ -1,0 +1,65 @@
+{
+  "version": "2026-10-24-draft-1",
+  "title": "Penforge service terms",
+  "status": "pre-release draft",
+  "sections": [
+    {
+      "heading": "Your handwriting, your rights",
+      "body": "Use your own handwriting or writing you have permission to digitise. You retain your rights in your uploads and documents. You permit the operator to process them only to provide the requested service. Training requires separate, optional consent."
+    },
+    {
+      "heading": "Use it honestly",
+      "body": "Do not forge signatures, impersonate someone without permission, deceive others about authorship, commit fraud, harass people or violate another person’s rights. A font is not proof that a person wrote or authorised a document."
+    },
+    {
+      "heading": "Accounts and enforcement",
+      "body": "Hosted creation, uploads and font downloads require a verified account and acceptance of the current terms. Keep your account secure. The operator may restrict or suspend accounts for abuse and review reports. Reports alone do not establish wrongdoing."
+    },
+    {
+      "heading": "Private accountability",
+      "body": "The service keeps versioned acceptance receipts and minimal account, request and resource references. Existing private project, snapshot and export records preserve font lineage. These records do not identify a person with certainty or track what happens to a downloaded file. Document text is not copied into audit records."
+    },
+    {
+      "heading": "Availability and responsibility",
+      "body": "This is a pre-release service. Quality and availability are not guaranteed. Review every font before use. Nothing here excludes rights or responsibilities that applicable law does not allow the parties to exclude. These terms do not provide blanket immunity from liability."
+    },
+    {
+      "heading": "Open-source software",
+      "body": "These terms concern this hosted service. Any rights to use, modify or distribute the source code depend on its separately established software licence. Other deployments may be operated independently."
+    },
+    {
+      "heading": "Changes and help",
+      "body": "Material terms changes require a new acceptance before further creation or font downloads. You can still sign in, recover existing work and request deletion. Use Report abuse to submit a concern. Operator identity, contact and final legal wording must be published before public launch."
+    }
+  ],
+  "confirmations": {
+    "terms": "I accept the service Terms and have read the Privacy notice.",
+    "rights": "I own this handwriting or have permission to digitise and use it."
+  },
+  "privacy": [
+    {
+      "heading": "What stays local",
+      "body": "The explicitly selected demo stores drafts in your browser. It does not automatically send existing local handwriting to an account. Clearing browser storage can remove local work."
+    },
+    {
+      "heading": "Account work",
+      "body": "When you choose account mode, the service stores your account identifier, projects, captures, edits, font references and Writing Desk documents so they can be restored. Authentication is handled by the configured identity provider. Missing configuration does not simulate successful cloud saving."
+    },
+    {
+      "heading": "Receipts and activity",
+      "body": "We store the accepted terms version, exact policy hash and text, both confirmations, account and server time. Minimal private request records contain account and resource references, not document text, raw bearer tokens or signed URLs. A request record does not prove a completed download or later use."
+    },
+    {
+      "heading": "Reports and retention",
+      "body": "Misuse reports are private and may contain the contact details you choose to provide. Do not include signatures, identity documents or private handwriting. Local retention defaults are one year for minimal audit events and 90 days for reports; acceptance receipts last while the account exists. Report pruning requires the operator’s maintenance procedure. Final retention and any lawful preservation process need Indian legal review before launch."
+    },
+    {
+      "heading": "Your choices",
+      "body": "Training consent is separate and optional. Existing withdrawal and account-deletion tools remain available without accepting new terms. Account deletion removes associated acceptance receipts; minimal audit records follow the existing privacy erasure and retention policy. Unlinked public reports expire through report pruning."
+    },
+    {
+      "heading": "Before public launch",
+      "body": "Operator identity, public privacy/grievance contact, provider details, security processes, retention and applicable Indian privacy requirements must be reviewed and published. This draft is not a claim of legal compliance."
+    }
+  ]
+}

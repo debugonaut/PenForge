@@ -1,0 +1,470 @@
+{
+  "$defs": {
+    "ConsentReview": {
+      "additionalProperties": false,
+      "properties": {
+        "consent_ref": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z0-9][a-z0-9._:-]{0,119}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Consent Ref"
+        },
+        "evidence": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "policy_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Policy Version"
+        },
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "status": {
+          "enum": [
+            "pending",
+            "not_applicable",
+            "separate_opt_in",
+            "withdrawn"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "withdrawal_exclusion": {
+          "const": true,
+          "default": true,
+          "title": "Withdrawal Exclusion",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "title": "ConsentReview",
+      "type": "object"
+    },
+    "Evidence": {
+      "additionalProperties": false,
+      "description": "A source, not an inference that permission or consent has been obtained.",
+      "properties": {
+        "checked_on": {
+          "format": "date",
+          "title": "Checked On",
+          "type": "string"
+        },
+        "content_hash": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Content Hash"
+        },
+        "finding": {
+          "maxLength": 1500,
+          "minLength": 1,
+          "title": "Finding",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "uri": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Uri",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uri",
+        "checked_on",
+        "finding"
+      ],
+      "title": "Evidence",
+      "type": "object"
+    },
+    "LicenseReview": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "identifier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Identifier"
+        },
+        "permitted_uses": {
+          "default": [],
+          "items": {
+            "enum": [
+              "development_fixture",
+              "research_evaluation",
+              "research_training",
+              "production_training"
+            ],
+            "type": "string"
+          },
+          "title": "Permitted Uses",
+          "type": "array"
+        },
+        "restrictions": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Restrictions",
+          "type": "array"
+        },
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "status": {
+          "enum": [
+            "pending",
+            "verified",
+            "not_applicable"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "title": "LicenseReview",
+      "type": "object"
+    },
+    "ResearchSample": {
+      "additionalProperties": false,
+      "properties": {
+        "consent_ref": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z0-9][a-z0-9._:-]{0,119}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Consent Ref"
+        },
+        "consent_state": {
+          "enum": [
+            "not_applicable",
+            "active",
+            "withdrawn",
+            "pending"
+          ],
+          "title": "Consent State",
+          "type": "string"
+        },
+        "content_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "duplicate_group_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z0-9][a-z0-9._:-]{0,119}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Duplicate Group Id"
+        },
+        "parent_content_hashes": {
+          "default": [],
+          "items": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "title": "Parent Content Hashes",
+          "type": "array"
+        },
+        "sample_id": {
+          "pattern": "^[a-z0-9][a-z0-9._:-]{0,119}$",
+          "title": "Sample Id",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "script_code": {
+          "enum": [
+            "Latn",
+            "Deva"
+          ],
+          "title": "Script Code",
+          "type": "string"
+        },
+        "source_group_id": {
+          "pattern": "^[a-z0-9][a-z0-9._:-]{0,119}$",
+          "title": "Source Group Id",
+          "type": "string"
+        },
+        "split": {
+          "enum": [
+            "train",
+            "validation",
+            "test",
+            "quarantine"
+          ],
+          "title": "Split",
+          "type": "string"
+        },
+        "style": {
+          "enum": [
+            "print",
+            "cursive",
+            "mixed"
+          ],
+          "title": "Style",
+          "type": "string"
+        },
+        "writer_group_id": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z0-9][a-z0-9._:-]{0,119}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Writer Group Id"
+        },
+        "writer_id": {
+          "pattern": "^[a-z0-9][a-z0-9._:-]{0,119}$",
+          "title": "Writer Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sample_id",
+        "writer_id",
+        "writer_group_id",
+        "script_code",
+        "style",
+        "split",
+        "content_hash",
+        "source_group_id",
+        "consent_state"
+      ],
+      "title": "ResearchSample",
+      "type": "object"
+    }
+  },
+  "$id": "https://penforge.invalid/research/v1/dataset_manifest.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "consent": {
+      "$ref": "#/$defs/ConsentReview"
+    },
+    "content_hash": {
+      "anyOf": [
+        {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Content Hash"
+    },
+    "dataset_id": {
+      "pattern": "^[a-z0-9][a-z0-9._:-]{0,119}$",
+      "title": "Dataset Id",
+      "type": "string"
+    },
+    "license": {
+      "$ref": "#/$defs/LicenseReview"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Limitations",
+      "type": "array"
+    },
+    "raw_data_in_repository": {
+      "const": false,
+      "default": false,
+      "title": "Raw Data In Repository",
+      "type": "boolean"
+    },
+    "record_type": {
+      "const": "dataset_manifest",
+      "default": "dataset_manifest",
+      "title": "Record Type",
+      "type": "string"
+    },
+    "samples": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ResearchSample"
+      },
+      "title": "Samples",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "script_codes": {
+      "items": {
+        "enum": [
+          "Latn",
+          "Deva"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Script Codes",
+      "type": "array"
+    },
+    "source": {
+      "items": {
+        "$ref": "#/$defs/Evidence"
+      },
+      "minItems": 1,
+      "title": "Source",
+      "type": "array"
+    },
+    "source_kind": {
+      "enum": [
+        "licensed_public",
+        "synthetic_font",
+        "curated",
+        "opt_in",
+        "metadata_fixture"
+      ],
+      "title": "Source Kind",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "candidate",
+        "planned",
+        "metadata_fixture",
+        "approved"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "style_partitions": {
+      "items": {
+        "enum": [
+          "print",
+          "cursive",
+          "mixed"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Style Partitions",
+      "type": "array"
+    },
+    "version": {
+      "pattern": "^[a-z0-9][a-z0-9._:-]{0,119}$",
+      "title": "Version",
+      "type": "string"
+    },
+    "writer_registry_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Writer Registry Ref"
+    },
+    "writer_resolution": {
+      "enum": [
+        "pending",
+        "resolved"
+      ],
+      "title": "Writer Resolution",
+      "type": "string"
+    }
+  },
+  "required": [
+    "dataset_id",
+    "version",
+    "status",
+    "source_kind",
+    "source",
+    "script_codes",
+    "style_partitions",
+    "license",
+    "consent",
+    "writer_resolution",
+    "writer_registry_ref",
+    "limitations"
+  ],
+  "title": "DatasetManifest",
+  "type": "object"
+}

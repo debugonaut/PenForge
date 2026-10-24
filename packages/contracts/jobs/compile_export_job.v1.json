@@ -1,0 +1,53 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "export_ids": {
+      "items": {
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+        "type": "string"
+      },
+      "maxItems": 3,
+      "minItems": 1,
+      "title": "Export Ids",
+      "type": "array"
+    },
+    "formats": {
+      "items": {
+        "enum": [
+          "ttf",
+          "otf",
+          "woff2"
+        ],
+        "type": "string"
+      },
+      "maxItems": 3,
+      "minItems": 1,
+      "title": "Formats",
+      "type": "array"
+    },
+    "job_type": {
+      "const": "compile_export",
+      "title": "Job Type",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "snapshot_id": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "title": "Snapshot Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "job_type",
+    "export_ids",
+    "snapshot_id",
+    "formats"
+  ],
+  "title": "CompileExportJob",
+  "type": "object"
+}

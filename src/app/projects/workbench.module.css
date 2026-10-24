@@ -1,0 +1,186 @@
+.topActions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.accountChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #9b7b69;
+}
+
+.accountChipOn {
+  color: #507662;
+}
+
+.heroActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.inlineNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: 780px;
+  margin: 24px 0;
+  padding: 16px 20px;
+  border: 1.5px dashed rgba(25, 46, 53, 0.4);
+  border-radius: 14px;
+  background: #fff8e6;
+  color: #3c4a48;
+}
+
+.inlineNote > svg {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  margin-top: 2px;
+}
+
+.signInCard {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  margin: 32px 0;
+  padding: 30px 34px;
+  border: 2px solid #192e35;
+  border-radius: 22px;
+  background: #fdf6e6;
+  box-shadow: 8px 9px 0 rgba(25, 46, 53, 0.12);
+  overflow: hidden;
+}
+
+.signInCard > :global(.character),
+.signInCard > :global(svg) {
+  flex: none;
+  width: 118px;
+  height: auto;
+}
+
+.signInCard h2 {
+  margin: 6px 0 8px;
+}
+
+.signInCard p {
+  max-width: 46ch;
+  margin: 0 0 18px;
+}
+
+.demoDetails {
+  margin-top: 48px;
+  border: 2px solid #192e35;
+  border-radius: 20px;
+  background: #fbf4e6;
+  box-shadow: 7px 8px 0 rgba(25, 46, 53, 0.1);
+  overflow: hidden;
+}
+
+.demoDetails > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 20px 26px;
+  cursor: pointer;
+  list-style: none;
+  background: linear-gradient(120deg, #f7e7c4, #fdf6e6 65%);
+}
+
+.demoDetails > summary::-webkit-details-marker {
+  display: none;
+}
+
+.demoDetails > summary strong {
+  display: block;
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+}
+
+.demoDetails > summary small {
+  display: block;
+  margin-top: 3px;
+  color: #6b6255;
+  font-size: 0.82rem;
+}
+
+.demoDetails[open] > summary {
+  border-bottom: 1.5px dashed rgba(25, 46, 53, 0.35);
+}
+
+.demoBody {
+  padding: 26px;
+}
+
+.demoNote {
+  max-width: 68ch;
+  color: #5b5449;
+}
+
+.demoList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.demoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 14px 18px;
+  border: 1.5px solid rgba(25, 46, 53, 0.28);
+  border-radius: 14px;
+  background: #fffaf0;
+}
+
+.demoRow h3 {
+  margin: 0 0 2px;
+  font-size: 1rem;
+}
+
+.demoRow p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #6b6255;
+}
+
+.demoRowActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .signInCard {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 24px 20px;
+  }
+
+  .signInCard > :global(.character),
+  .signInCard > :global(svg) {
+    display: none;
+  }
+
+  .signInCard > div {
+    width: 100%;
+  }
+
+  .demoBody,
+  .demoDetails > summary {
+    padding: 18px;
+  }
+}

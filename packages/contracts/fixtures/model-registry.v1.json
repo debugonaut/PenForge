@@ -1,0 +1,41 @@
+{
+  "artifact": {
+    "artifact_id": "00000000-0000-4000-8000-000000000007",
+    "media_type": "application/json",
+    "sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "size_bytes": 100
+  },
+  "benchmark_record_hashes": [],
+  "compatible_worker": ">=0.1,<0.2",
+  "dataset_manifest_hashes": [],
+  "format": "json_rules",
+  "input_contract": {
+    "dtype": "json",
+    "name": "fixture-input",
+    "preprocessing_version": "fixture-1",
+    "shape": []
+  },
+  "license_identifier": "fixture-only-no-weights",
+  "name": "fixture-only-no-model",
+  "output_contract": {
+    "dtype": "json",
+    "name": "fixture-output",
+    "preprocessing_version": "fixture-1",
+    "shape": []
+  },
+  "release_label": "research_only",
+  "resource_profile": {
+    "benchmark_record_hash": null,
+    "ms_per_unit_p95": null,
+    "peak_mem_mb": null
+  },
+  "schema_version": 1,
+  "script_codes": [
+    "Latn",
+    "Deva"
+  ],
+  "status": "candidate",
+  "task": "rules",
+  "training_run_id": null,
+  "version": "0.0.1"
+}

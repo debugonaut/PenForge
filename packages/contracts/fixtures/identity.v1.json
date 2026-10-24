@@ -1,0 +1,26 @@
+{
+  "me": {
+    "user_id": "3fd1833c-f2a2-41bf-ae85-a498b271719b",
+    "firebase_uid": "fixture-guest",
+    "is_anonymous": true,
+    "sign_in_provider": "anonymous",
+    "email_verified": false,
+    "tier": "free_guest",
+    "created_at": "2026-10-19T00:00:00Z",
+    "guest_creations": {
+      "limit": 3,
+      "used": 2,
+      "remaining": 1,
+      "applicable": true
+    },
+    "quotas": { "configured": false, "over_limit": false, "balances": [] }
+  },
+  "claim": {
+    "mode": "transferred",
+    "source_user_id": "3fd1833c-f2a2-41bf-ae85-a498b271719b",
+    "destination_user_id": "75cde01c-04e6-4839-af2b-246f232a718a",
+    "transferred": { "projects": 2, "assets": 4, "jobs": 1, "reservations": 2 },
+    "guest_creations_preserved": 3,
+    "over_limit": true
+  }
+}

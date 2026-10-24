@@ -1,0 +1,386 @@
+{
+  "$defs": {
+    "CandidateEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "evaluation_record_hash": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evaluation Record Hash"
+        },
+        "model_uncertainty": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Uncertainty"
+        },
+        "outline_validity": {
+          "enum": [
+            "pass",
+            "fail",
+            "unmeasured"
+          ],
+          "title": "Outline Validity",
+          "type": "string"
+        },
+        "recognition": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Recognition"
+        },
+        "segmentation": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Segmentation"
+        },
+        "style_fidelity": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Style Fidelity"
+        }
+      },
+      "required": [
+        "outline_validity"
+      ],
+      "title": "CandidateEvidence",
+      "type": "object"
+    },
+    "ChildArtifact": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Artifact Id",
+          "type": "string"
+        },
+        "media_type": {
+          "enum": [
+            "application/json",
+            "image/png",
+            "image/jpeg",
+            "image/webp",
+            "application/octet-stream",
+            "application/onnx",
+            "application/x-safetensors"
+          ],
+          "title": "Media Type",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "size_bytes": {
+          "maximum": 1099511627776,
+          "minimum": 1,
+          "title": "Size Bytes",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "sha256",
+        "size_bytes",
+        "media_type"
+      ],
+      "title": "ChildArtifact",
+      "type": "object"
+    },
+    "GlyphCandidate": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Candidate Id",
+          "type": "string"
+        },
+        "codepoints": {
+          "items": {
+            "maximum": 1114111,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "maxItems": 16,
+          "minItems": 1,
+          "title": "Codepoints",
+          "type": "array"
+        },
+        "evidence": {
+          "$ref": "#/$defs/CandidateEvidence"
+        },
+        "origin": {
+          "enum": [
+            "authentic_extraction",
+            "geometric_reconstruction",
+            "style_conditioned_generation",
+            "manual_drawing"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "outline": {
+          "$ref": "#/$defs/ChildArtifact"
+        },
+        "rank": {
+          "maximum": 10000,
+          "minimum": 1,
+          "title": "Rank",
+          "type": "integer"
+        },
+        "review_status": {
+          "const": "pending",
+          "default": "pending",
+          "title": "Review Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "candidate_id",
+        "codepoints",
+        "rank",
+        "origin",
+        "outline",
+        "evidence"
+      ],
+      "title": "GlyphCandidate",
+      "type": "object"
+    },
+    "PipelineProvenance": {
+      "additionalProperties": false,
+      "properties": {
+        "algorithm_version": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+          "title": "Algorithm Version",
+          "type": "string"
+        },
+        "model_hash": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Model Hash"
+        },
+        "model_id": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Model Id"
+        },
+        "model_version": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Model Version"
+        },
+        "preprocessing_version": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+          "title": "Preprocessing Version",
+          "type": "string"
+        },
+        "script_code": {
+          "pattern": "^[A-Z][a-z]{3}$",
+          "title": "Script Code",
+          "type": "string"
+        },
+        "style": {
+          "enum": [
+            "print",
+            "cursive",
+            "mixed",
+            "unknown"
+          ],
+          "title": "Style",
+          "type": "string"
+        }
+      },
+      "required": [
+        "script_code",
+        "style",
+        "model_id",
+        "model_version",
+        "model_hash",
+        "algorithm_version",
+        "preprocessing_version"
+      ],
+      "title": "PipelineProvenance",
+      "type": "object"
+    },
+    "ResultInput": {
+      "additionalProperties": false,
+      "properties": {
+        "sample_ids": {
+          "items": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "maxItems": 200,
+          "minItems": 1,
+          "title": "Sample Ids",
+          "type": "array"
+        },
+        "source_hashes": {
+          "items": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "maxItems": 200,
+          "minItems": 1,
+          "title": "Source Hashes",
+          "type": "array"
+        },
+        "template_manifest_hash": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Template Manifest Hash"
+        }
+      },
+      "required": [
+        "sample_ids",
+        "source_hashes"
+      ],
+      "title": "ResultInput",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "artifact_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "title": "Artifact Hash",
+      "type": "string"
+    },
+    "artifact_type": {
+      "const": "penforge.ml_result",
+      "title": "Artifact Type",
+      "type": "string"
+    },
+    "attempt_id": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "title": "Attempt Id",
+      "type": "string"
+    },
+    "candidates": {
+      "items": {
+        "$ref": "#/$defs/GlyphCandidate"
+      },
+      "maxItems": 10000,
+      "title": "Candidates",
+      "type": "array"
+    },
+    "fencing_token": {
+      "maximum": 2147483647,
+      "minimum": 1,
+      "title": "Fencing Token",
+      "type": "integer"
+    },
+    "input": {
+      "$ref": "#/$defs/ResultInput"
+    },
+    "job_id": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "title": "Job Id",
+      "type": "string"
+    },
+    "pipeline": {
+      "$ref": "#/$defs/PipelineProvenance"
+    },
+    "quality_report": {
+      "$ref": "#/$defs/ChildArtifact"
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "stage": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+      "title": "Stage",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "artifact_type",
+    "job_id",
+    "attempt_id",
+    "fencing_token",
+    "stage",
+    "input",
+    "pipeline",
+    "candidates",
+    "quality_report",
+    "artifact_hash"
+  ],
+  "title": "MLResultManifest",
+  "type": "object"
+}

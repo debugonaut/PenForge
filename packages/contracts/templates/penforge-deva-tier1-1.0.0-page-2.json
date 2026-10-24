@@ -1,0 +1,543 @@
+{
+  "schema_version": 1,
+  "template_id": "penforge-deva-tier1",
+  "template_version": "1.0.0",
+  "script_code": "Deva",
+  "page": {
+    "width_mm": 210.0,
+    "height_mm": 297.0,
+    "index": 2
+  },
+  "markers": {
+    "type": "aruco",
+    "dictionary": "DICT_4X4_50",
+    "items": [
+      {
+        "marker_id": 0,
+        "rect_mm": {
+          "x": 12.0,
+          "y": 12.0,
+          "width": 10.0,
+          "height": 10.0
+        }
+      },
+      {
+        "marker_id": 1,
+        "rect_mm": {
+          "x": 188.0,
+          "y": 12.0,
+          "width": 10.0,
+          "height": 10.0
+        }
+      },
+      {
+        "marker_id": 2,
+        "rect_mm": {
+          "x": 188.0,
+          "y": 275.0,
+          "width": 10.0,
+          "height": 10.0
+        }
+      },
+      {
+        "marker_id": 3,
+        "rect_mm": {
+          "x": 12.0,
+          "y": 275.0,
+          "width": 10.0,
+          "height": 10.0
+        }
+      }
+    ],
+    "quiet_zone_mm": 3.0
+  },
+  "page_identity": {
+    "encoding": "qr",
+    "public_payload": "penforge-deva-tier1:1.0.0:2",
+    "rect_mm": {
+      "x": 91.0,
+      "y": 8.0,
+      "width": 28.0,
+      "height": 28.0
+    },
+    "quiet_zone_modules": 4
+  },
+  "cells": [
+    {
+      "cell_id": "deva-098",
+      "codepoints": [
+        2407
+      ],
+      "rect_mm": {
+        "x": 17.0,
+        "y": 50.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-099",
+      "codepoints": [
+        2408
+      ],
+      "rect_mm": {
+        "x": 42.0,
+        "y": 50.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-100",
+      "codepoints": [
+        2409
+      ],
+      "rect_mm": {
+        "x": 67.0,
+        "y": 50.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-101",
+      "codepoints": [
+        2410
+      ],
+      "rect_mm": {
+        "x": 92.0,
+        "y": 50.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-102",
+      "codepoints": [
+        2411
+      ],
+      "rect_mm": {
+        "x": 117.0,
+        "y": 50.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-103",
+      "codepoints": [
+        2412
+      ],
+      "rect_mm": {
+        "x": 142.0,
+        "y": 50.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-104",
+      "codepoints": [
+        2413
+      ],
+      "rect_mm": {
+        "x": 167.0,
+        "y": 50.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-105",
+      "codepoints": [
+        2414
+      ],
+      "rect_mm": {
+        "x": 17.0,
+        "y": 79.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-106",
+      "codepoints": [
+        2415
+      ],
+      "rect_mm": {
+        "x": 42.0,
+        "y": 79.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-107",
+      "codepoints": [
+        2418
+      ],
+      "rect_mm": {
+        "x": 67.0,
+        "y": 79.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-108",
+      "codepoints": [
+        2419
+      ],
+      "rect_mm": {
+        "x": 92.0,
+        "y": 79.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-109",
+      "codepoints": [
+        2420
+      ],
+      "rect_mm": {
+        "x": 117.0,
+        "y": 79.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-110",
+      "codepoints": [
+        2421
+      ],
+      "rect_mm": {
+        "x": 142.0,
+        "y": 79.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-111",
+      "codepoints": [
+        2422
+      ],
+      "rect_mm": {
+        "x": 167.0,
+        "y": 79.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-112",
+      "codepoints": [
+        2423
+      ],
+      "rect_mm": {
+        "x": 17.0,
+        "y": 108.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-113",
+      "codepoints": [
+        2424
+      ],
+      "rect_mm": {
+        "x": 42.0,
+        "y": 108.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-114",
+      "codepoints": [
+        2425
+      ],
+      "rect_mm": {
+        "x": 67.0,
+        "y": 108.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-115",
+      "codepoints": [
+        2426
+      ],
+      "rect_mm": {
+        "x": 92.0,
+        "y": 108.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-116",
+      "codepoints": [
+        2427
+      ],
+      "rect_mm": {
+        "x": 117.0,
+        "y": 108.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-117",
+      "codepoints": [
+        2428
+      ],
+      "rect_mm": {
+        "x": 142.0,
+        "y": 108.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-118",
+      "codepoints": [
+        2429
+      ],
+      "rect_mm": {
+        "x": 167.0,
+        "y": 108.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-119",
+      "codepoints": [
+        2430
+      ],
+      "rect_mm": {
+        "x": 17.0,
+        "y": 137.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-120",
+      "codepoints": [
+        2431
+      ],
+      "rect_mm": {
+        "x": 42.0,
+        "y": 137.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-121",
+      "codepoints": [
+        2325,
+        2381,
+        2359
+      ],
+      "rect_mm": {
+        "x": 67.0,
+        "y": 137.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-122",
+      "codepoints": [
+        2325,
+        2367
+      ],
+      "rect_mm": {
+        "x": 92.0,
+        "y": 137.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-123",
+      "codepoints": [
+        2352,
+        2381,
+        2325
+      ],
+      "rect_mm": {
+        "x": 117.0,
+        "y": 137.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-124",
+      "codepoints": [
+        2358,
+        2381,
+        2352
+      ],
+      "rect_mm": {
+        "x": 142.0,
+        "y": 137.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-125",
+      "codepoints": [
+        2325,
+        2381,
+        2340
+      ],
+      "rect_mm": {
+        "x": 167.0,
+        "y": 137.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-126",
+      "codepoints": [
+        2325,
+        2364
+      ],
+      "rect_mm": {
+        "x": 17.0,
+        "y": 166.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-127",
+      "codepoints": [
+        2325,
+        2369
+      ],
+      "rect_mm": {
+        "x": 42.0,
+        "y": 166.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-128",
+      "codepoints": [
+        2325,
+        2370
+      ],
+      "rect_mm": {
+        "x": 67.0,
+        "y": 166.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-129",
+      "codepoints": [
+        2325,
+        2371
+      ],
+      "rect_mm": {
+        "x": 92.0,
+        "y": 166.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    },
+    {
+      "cell_id": "deva-130",
+      "codepoints": [
+        2361,
+        2370,
+        2305
+      ],
+      "rect_mm": {
+        "x": 117.0,
+        "y": 166.0,
+        "width": 24.0,
+        "height": 25.0
+      },
+      "guide_id": "deva-regions"
+    }
+  ],
+  "guides": [
+    {
+      "guide_id": "deva-regions",
+      "baseline_offset_mm": 19.0,
+      "headline_offset_mm": 7.0,
+      "upper_mark_offset_mm": 3.0,
+      "lower_mark_offset_mm": 23.0
+    }
+  ],
+  "extraction": {
+    "margin_mm": 0.5,
+    "min_markers": 4
+  },
+  "printing": {
+    "printable_margin_mm": 8.0,
+    "scale_reference_rect_mm": {
+      "x": 90.0,
+      "y": 279.0,
+      "width": 20.0,
+      "height": 4.0
+    },
+    "guide_color": "#c2d9ed",
+    "border_color": "#d6dfe8"
+  },
+  "label_provenance": {
+    "reference_font_sha256": "14ec4af41f27482216d1c2229f417ff9b1425e1babb014e57d1d40d03229853e",
+    "reference_font_version": "Version 2.007",
+    "license": "OFL-1.1",
+    "harfbuzz": "12.3.2",
+    "generator_sha256": "2b7b1b66f02f6fb9970da466211cdd2597757677bc628efdb9aaa85b716f10a0",
+    "renderer_sha256": "6d3f873b2ced77a04af1a99da2eab8f15c1fa01bae51118038a0cb11e6ca8c72"
+  }
+}

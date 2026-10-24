@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "record_type": "dataset_manifest",
+  "dataset_id": "iiit-hw-dev",
+  "version": "1.0.0",
+  "status": "candidate",
+  "source_kind": "licensed_public",
+  "source": [
+    {
+      "schema_version": 1,
+      "uri": "https://cvit.iiit.ac.in/images/Projects/wordlevel-Indicscripts/IIIT-HW-Dev.zip",
+      "content_hash": "sha256:570f931f3d95ff2f08ba0ac3543aaf234ff645628126c3dbb0b3fad888b12609",
+      "checked_on": "2026-10-21",
+      "finding": "Local R1 verification: 1920697925 bytes match recorded expected size; SHA-256 and full archive integrity/image inspection recorded in the derived verification report. Permission scope is unchanged."
+    },
+    {
+      "schema_version": 1,
+      "uri": "https://arxiv.org/abs/2609.16859",
+      "content_hash": null,
+      "checked_on": "2026-10-20",
+      "finding": "Independent measurement of the released package reports 95,430 word images over 12 writers with a 69,853 / 12,708 / 12,869 split covering 7 / 2 / 3 writers, and states writer separability was verified from the image paths."
+    }
+  ],
+  "script_codes": [
+    "Deva"
+  ],
+  "style_partitions": [
+    "print",
+    "cursive",
+    "mixed"
+  ],
+  "license": {
+    "schema_version": 1,
+    "status": "pending",
+    "identifier": null,
+    "evidence": [],
+    "permitted_uses": [],
+    "restrictions": [
+      "No public licence or independently reviewable authorization for PenForge use is asserted in this manifest.",
+      "Do not infer permission to train, generate font derivatives, or redistribute source data from public source availability."
+    ]
+  },
+  "consent": {
+    "schema_version": 1,
+    "status": "not_applicable",
+    "policy_version": null,
+    "consent_ref": null,
+    "evidence": [
+      {
+        "schema_version": 1,
+        "uri": "https://cvit.iiit.ac.in/research/projects/cvit-projects/indic-hw-data",
+        "content_hash": null,
+        "checked_on": "2026-10-20",
+        "finding": "Writer participation was arranged by the collecting institution. No per-writer consent record, policy version or withdrawal route is published, so Penforge records provider-asserted participation and does not claim an independent opt-in."
+      }
+    ],
+    "withdrawal_exclusion": true
+  },
+  "writer_resolution": "pending",
+  "writer_registry_ref": null,
+  "raw_data_in_repository": false,
+  "content_hash": "sha256:570f931f3d95ff2f08ba0ac3543aaf234ff645628126c3dbb0b3fad888b12609",
+  "samples": [],
+  "limitations": [
+    "The original ZIP verifies completely; its image root is HindiOp2 while annotation paths say HindiSeg/split.",
+    "The full source remains candidate; only the separately frozen bounded R1 manifest may enter research builds.",
+    "The older WORDS package substantially overlaps; do not combine them as independent writers or samples.",
+    "No character boundaries, observed dynamics, independent label audit or production font evidence exists.",
+    "Public evidence does not establish provider authorization or participant opt-in; no use is admitted."
+  ]
+}

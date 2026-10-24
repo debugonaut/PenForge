@@ -1,0 +1,982 @@
+{
+  "schema_version": 1,
+  "required_set_id": "deva-tier1-ucd17-v1",
+  "unicode_version": "17.0.0",
+  "entries": [
+    {
+      "codepoint": 2304,
+      "name": "DEVANAGARI SIGN INVERTED CANDRABINDU",
+      "kind": "Bindu",
+      "reason": "Unicode 17 Bindu",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2305,
+      "name": "DEVANAGARI SIGN CANDRABINDU",
+      "kind": "Bindu",
+      "reason": "Unicode 17 Bindu",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2306,
+      "name": "DEVANAGARI SIGN ANUSVARA",
+      "kind": "Bindu",
+      "reason": "Unicode 17 Bindu",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2307,
+      "name": "DEVANAGARI SIGN VISARGA",
+      "kind": "Visarga",
+      "reason": "Unicode 17 Visarga",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2308,
+      "name": "DEVANAGARI LETTER SHORT A",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2309,
+      "name": "DEVANAGARI LETTER A",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2310,
+      "name": "DEVANAGARI LETTER AA",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2311,
+      "name": "DEVANAGARI LETTER I",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2312,
+      "name": "DEVANAGARI LETTER II",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2313,
+      "name": "DEVANAGARI LETTER U",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2314,
+      "name": "DEVANAGARI LETTER UU",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2315,
+      "name": "DEVANAGARI LETTER VOCALIC R",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2316,
+      "name": "DEVANAGARI LETTER VOCALIC L",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2317,
+      "name": "DEVANAGARI LETTER CANDRA E",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2318,
+      "name": "DEVANAGARI LETTER SHORT E",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2319,
+      "name": "DEVANAGARI LETTER E",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2320,
+      "name": "DEVANAGARI LETTER AI",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2321,
+      "name": "DEVANAGARI LETTER CANDRA O",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2322,
+      "name": "DEVANAGARI LETTER SHORT O",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2323,
+      "name": "DEVANAGARI LETTER O",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2324,
+      "name": "DEVANAGARI LETTER AU",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2325,
+      "name": "DEVANAGARI LETTER KA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2326,
+      "name": "DEVANAGARI LETTER KHA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2327,
+      "name": "DEVANAGARI LETTER GA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2328,
+      "name": "DEVANAGARI LETTER GHA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2329,
+      "name": "DEVANAGARI LETTER NGA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2330,
+      "name": "DEVANAGARI LETTER CA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2331,
+      "name": "DEVANAGARI LETTER CHA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2332,
+      "name": "DEVANAGARI LETTER JA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2333,
+      "name": "DEVANAGARI LETTER JHA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2334,
+      "name": "DEVANAGARI LETTER NYA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2335,
+      "name": "DEVANAGARI LETTER TTA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2336,
+      "name": "DEVANAGARI LETTER TTHA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2337,
+      "name": "DEVANAGARI LETTER DDA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2338,
+      "name": "DEVANAGARI LETTER DDHA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2339,
+      "name": "DEVANAGARI LETTER NNA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2340,
+      "name": "DEVANAGARI LETTER TA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2341,
+      "name": "DEVANAGARI LETTER THA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2342,
+      "name": "DEVANAGARI LETTER DA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2343,
+      "name": "DEVANAGARI LETTER DHA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2344,
+      "name": "DEVANAGARI LETTER NA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2345,
+      "name": "DEVANAGARI LETTER NNNA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": [
+        2344,
+        2364
+      ]
+    },
+    {
+      "codepoint": 2346,
+      "name": "DEVANAGARI LETTER PA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2347,
+      "name": "DEVANAGARI LETTER PHA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2348,
+      "name": "DEVANAGARI LETTER BA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2349,
+      "name": "DEVANAGARI LETTER BHA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2350,
+      "name": "DEVANAGARI LETTER MA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2351,
+      "name": "DEVANAGARI LETTER YA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2352,
+      "name": "DEVANAGARI LETTER RA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2353,
+      "name": "DEVANAGARI LETTER RRA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": [
+        2352,
+        2364
+      ]
+    },
+    {
+      "codepoint": 2354,
+      "name": "DEVANAGARI LETTER LA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2355,
+      "name": "DEVANAGARI LETTER LLA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2356,
+      "name": "DEVANAGARI LETTER LLLA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": [
+        2355,
+        2364
+      ]
+    },
+    {
+      "codepoint": 2357,
+      "name": "DEVANAGARI LETTER VA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2358,
+      "name": "DEVANAGARI LETTER SHA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2359,
+      "name": "DEVANAGARI LETTER SSA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2360,
+      "name": "DEVANAGARI LETTER SA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2361,
+      "name": "DEVANAGARI LETTER HA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2362,
+      "name": "DEVANAGARI VOWEL SIGN OE",
+      "kind": "Vowel_Dependent",
+      "reason": "Unicode 17 Vowel_Dependent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2363,
+      "name": "DEVANAGARI VOWEL SIGN OOE",
+      "kind": "Vowel_Dependent",
+      "reason": "Unicode 17 Vowel_Dependent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2364,
+      "name": "DEVANAGARI SIGN NUKTA",
+      "kind": "Nukta",
+      "reason": "Unicode 17 Nukta",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2365,
+      "name": "DEVANAGARI SIGN AVAGRAHA",
+      "kind": "Avagraha",
+      "reason": "Unicode 17 Avagraha",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2366,
+      "name": "DEVANAGARI VOWEL SIGN AA",
+      "kind": "Vowel_Dependent",
+      "reason": "Unicode 17 Vowel_Dependent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2367,
+      "name": "DEVANAGARI VOWEL SIGN I",
+      "kind": "Vowel_Dependent",
+      "reason": "Unicode 17 Vowel_Dependent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2368,
+      "name": "DEVANAGARI VOWEL SIGN II",
+      "kind": "Vowel_Dependent",
+      "reason": "Unicode 17 Vowel_Dependent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2369,
+      "name": "DEVANAGARI VOWEL SIGN U",
+      "kind": "Vowel_Dependent",
+      "reason": "Unicode 17 Vowel_Dependent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2370,
+      "name": "DEVANAGARI VOWEL SIGN UU",
+      "kind": "Vowel_Dependent",
+      "reason": "Unicode 17 Vowel_Dependent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2371,
+      "name": "DEVANAGARI VOWEL SIGN VOCALIC R",
+      "kind": "Vowel_Dependent",
+      "reason": "Unicode 17 Vowel_Dependent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2372,
+      "name": "DEVANAGARI VOWEL SIGN VOCALIC RR",
+      "kind": "Vowel_Dependent",
+      "reason": "Unicode 17 Vowel_Dependent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2373,
+      "name": "DEVANAGARI VOWEL SIGN CANDRA E",
+      "kind": "Vowel_Dependent",
+      "reason": "Unicode 17 Vowel_Dependent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2374,
+      "name": "DEVANAGARI VOWEL SIGN SHORT E",
+      "kind": "Vowel_Dependent",
+      "reason": "Unicode 17 Vowel_Dependent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2375,
+      "name": "DEVANAGARI VOWEL SIGN E",
+      "kind": "Vowel_Dependent",
+      "reason": "Unicode 17 Vowel_Dependent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2376,
+      "name": "DEVANAGARI VOWEL SIGN AI",
+      "kind": "Vowel_Dependent",
+      "reason": "Unicode 17 Vowel_Dependent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2377,
+      "name": "DEVANAGARI VOWEL SIGN CANDRA O",
+      "kind": "Vowel_Dependent",
+      "reason": "Unicode 17 Vowel_Dependent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2378,
+      "name": "DEVANAGARI VOWEL SIGN SHORT O",
+      "kind": "Vowel_Dependent",
+      "reason": "Unicode 17 Vowel_Dependent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2379,
+      "name": "DEVANAGARI VOWEL SIGN O",
+      "kind": "Vowel_Dependent",
+      "reason": "Unicode 17 Vowel_Dependent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2380,
+      "name": "DEVANAGARI VOWEL SIGN AU",
+      "kind": "Vowel_Dependent",
+      "reason": "Unicode 17 Vowel_Dependent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2381,
+      "name": "DEVANAGARI SIGN VIRAMA",
+      "kind": "Virama",
+      "reason": "Unicode 17 Virama",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2382,
+      "name": "DEVANAGARI VOWEL SIGN PRISHTHAMATRA E",
+      "kind": "Vowel_Dependent",
+      "reason": "Unicode 17 Vowel_Dependent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2383,
+      "name": "DEVANAGARI VOWEL SIGN AW",
+      "kind": "Vowel_Dependent",
+      "reason": "Unicode 17 Vowel_Dependent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2389,
+      "name": "DEVANAGARI VOWEL SIGN CANDRA LONG E",
+      "kind": "Vowel_Dependent",
+      "reason": "Unicode 17 Vowel_Dependent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2390,
+      "name": "DEVANAGARI VOWEL SIGN UE",
+      "kind": "Vowel_Dependent",
+      "reason": "Unicode 17 Vowel_Dependent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2391,
+      "name": "DEVANAGARI VOWEL SIGN UUE",
+      "kind": "Vowel_Dependent",
+      "reason": "Unicode 17 Vowel_Dependent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2392,
+      "name": "DEVANAGARI LETTER QA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": [
+        2325,
+        2364
+      ]
+    },
+    {
+      "codepoint": 2393,
+      "name": "DEVANAGARI LETTER KHHA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": [
+        2326,
+        2364
+      ]
+    },
+    {
+      "codepoint": 2394,
+      "name": "DEVANAGARI LETTER GHHA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": [
+        2327,
+        2364
+      ]
+    },
+    {
+      "codepoint": 2395,
+      "name": "DEVANAGARI LETTER ZA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": [
+        2332,
+        2364
+      ]
+    },
+    {
+      "codepoint": 2396,
+      "name": "DEVANAGARI LETTER DDDHA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": [
+        2337,
+        2364
+      ]
+    },
+    {
+      "codepoint": 2397,
+      "name": "DEVANAGARI LETTER RHA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": [
+        2338,
+        2364
+      ]
+    },
+    {
+      "codepoint": 2398,
+      "name": "DEVANAGARI LETTER FA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": [
+        2347,
+        2364
+      ]
+    },
+    {
+      "codepoint": 2399,
+      "name": "DEVANAGARI LETTER YYA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": [
+        2351,
+        2364
+      ]
+    },
+    {
+      "codepoint": 2400,
+      "name": "DEVANAGARI LETTER VOCALIC RR",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2401,
+      "name": "DEVANAGARI LETTER VOCALIC LL",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2402,
+      "name": "DEVANAGARI VOWEL SIGN VOCALIC L",
+      "kind": "Vowel_Dependent",
+      "reason": "Unicode 17 Vowel_Dependent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2403,
+      "name": "DEVANAGARI VOWEL SIGN VOCALIC LL",
+      "kind": "Vowel_Dependent",
+      "reason": "Unicode 17 Vowel_Dependent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2404,
+      "name": "DEVANAGARI DANDA",
+      "kind": "punctuation",
+      "reason": "Specification danda punctuation",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2405,
+      "name": "DEVANAGARI DOUBLE DANDA",
+      "kind": "punctuation",
+      "reason": "Specification danda punctuation",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2406,
+      "name": "DEVANAGARI DIGIT ZERO",
+      "kind": "Number",
+      "reason": "Unicode 17 Number",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2407,
+      "name": "DEVANAGARI DIGIT ONE",
+      "kind": "Number",
+      "reason": "Unicode 17 Number",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2408,
+      "name": "DEVANAGARI DIGIT TWO",
+      "kind": "Number",
+      "reason": "Unicode 17 Number",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2409,
+      "name": "DEVANAGARI DIGIT THREE",
+      "kind": "Number",
+      "reason": "Unicode 17 Number",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2410,
+      "name": "DEVANAGARI DIGIT FOUR",
+      "kind": "Number",
+      "reason": "Unicode 17 Number",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2411,
+      "name": "DEVANAGARI DIGIT FIVE",
+      "kind": "Number",
+      "reason": "Unicode 17 Number",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2412,
+      "name": "DEVANAGARI DIGIT SIX",
+      "kind": "Number",
+      "reason": "Unicode 17 Number",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2413,
+      "name": "DEVANAGARI DIGIT SEVEN",
+      "kind": "Number",
+      "reason": "Unicode 17 Number",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2414,
+      "name": "DEVANAGARI DIGIT EIGHT",
+      "kind": "Number",
+      "reason": "Unicode 17 Number",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2415,
+      "name": "DEVANAGARI DIGIT NINE",
+      "kind": "Number",
+      "reason": "Unicode 17 Number",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2418,
+      "name": "DEVANAGARI LETTER CANDRA A",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2419,
+      "name": "DEVANAGARI LETTER OE",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2420,
+      "name": "DEVANAGARI LETTER OOE",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2421,
+      "name": "DEVANAGARI LETTER AW",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2422,
+      "name": "DEVANAGARI LETTER UE",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2423,
+      "name": "DEVANAGARI LETTER UUE",
+      "kind": "Vowel_Independent",
+      "reason": "Unicode 17 Vowel_Independent",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2424,
+      "name": "DEVANAGARI LETTER MARWARI DDA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2425,
+      "name": "DEVANAGARI LETTER ZHA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2426,
+      "name": "DEVANAGARI LETTER HEAVY YA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2427,
+      "name": "DEVANAGARI LETTER GGA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2428,
+      "name": "DEVANAGARI LETTER JJA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2429,
+      "name": "DEVANAGARI LETTER GLOTTAL STOP",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2430,
+      "name": "DEVANAGARI LETTER DDDA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    },
+    {
+      "codepoint": 2431,
+      "name": "DEVANAGARI LETTER BBA",
+      "kind": "Consonant",
+      "reason": "Unicode 17 Consonant",
+      "canonical_decomposition": null
+    }
+  ],
+  "interoperability_codepoints": [
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    123,
+    124,
+    125,
+    126
+  ],
+  "controls": {
+    "codepoints": [
+      8204,
+      8205
+    ],
+    "policy": "only_after_virama_not_drawn"
+  },
+  "excluded": [
+    {
+      "codepoint": 2384,
+      "name": "DEVANAGARI OM",
+      "category": "Other",
+      "reason": "Outside bounded Tier 1 property policy; extended/Vedic/symbol support needs separate review"
+    },
+    {
+      "codepoint": 2385,
+      "name": "DEVANAGARI STRESS SIGN UDATTA",
+      "category": "Cantillation_Mark",
+      "reason": "Outside bounded Tier 1 property policy; extended/Vedic/symbol support needs separate review"
+    },
+    {
+      "codepoint": 2386,
+      "name": "DEVANAGARI STRESS SIGN ANUDATTA",
+      "category": "Cantillation_Mark",
+      "reason": "Outside bounded Tier 1 property policy; extended/Vedic/symbol support needs separate review"
+    },
+    {
+      "codepoint": 2387,
+      "name": "DEVANAGARI GRAVE ACCENT",
+      "category": "Other",
+      "reason": "Outside bounded Tier 1 property policy; extended/Vedic/symbol support needs separate review"
+    },
+    {
+      "codepoint": 2388,
+      "name": "DEVANAGARI ACUTE ACCENT",
+      "category": "Other",
+      "reason": "Outside bounded Tier 1 property policy; extended/Vedic/symbol support needs separate review"
+    },
+    {
+      "codepoint": 2416,
+      "name": "DEVANAGARI ABBREVIATION SIGN",
+      "category": "Other",
+      "reason": "Outside bounded Tier 1 property policy; extended/Vedic/symbol support needs separate review"
+    },
+    {
+      "codepoint": 2417,
+      "name": "DEVANAGARI SIGN HIGH SPACING DOT",
+      "category": "Other",
+      "reason": "Outside bounded Tier 1 property policy; extended/Vedic/symbol support needs separate review"
+    }
+  ],
+  "tier2": {
+    "status": "unavailable",
+    "reason": "licensed_corpus_frequency_and_review_required"
+  },
+  "sources": {
+    "UnicodeData.txt": "2e1efc1dcb59c575eedf5ccae60f95229f706ee6d031835247d843c11d96470c",
+    "IndicSyllabicCategory.txt": "3fc122f4cf58b0c19268d5f810263b04ab4e1e67743386ec0e0ada9c76aec5be",
+    "Scripts.txt": "9f5e50d3abaee7d6ce09480f325c706f485ae3240912527e651954d2d6b035bf"
+  }
+}

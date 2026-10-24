@@ -1,0 +1,39 @@
+# Portable provisional thresholds; load only into a private token-authenticated scrape.
+groups:
+  - name: penforge
+    rules:
+      - alert: PenforgeDatabaseUnavailable
+        expr: penforge_scrape_db_ok == 0
+        for: 2m
+        labels: {severity: critical}
+        annotations: {summary: "Penforge operational database scrape failed"}
+      - alert: PenforgeQueueDelayed
+        expr: penforge_oldest_queued_seconds > 600
+        for: 5m
+        labels: {severity: warning}
+        annotations: {summary: "Processing queue has waited more than ten minutes"}
+      - alert: PenforgeExpiredLeases
+        expr: penforge_expired_leases > 0
+        for: 2m
+        labels: {severity: warning}
+        annotations: {summary: "Worker leases are not being reclaimed"}
+      - alert: PenforgeDeletionFailed
+        expr: penforge_failed_deletions > 0 or penforge_consent_withdrawals_pending > 0
+        for: 1m
+        labels: {severity: critical}
+        annotations: {summary: "Privacy work needs operator attention"}
+      - alert: PenforgeDeletionDelayed
+        expr: penforge_oldest_pending_deletion_seconds > 900
+        for: 5m
+        labels: {severity: warning}
+        annotations: {summary: "Deletion request has been waiting more than fifteen minutes"}
+      - alert: PenforgeApiErrors
+        expr: sum(rate(penforge_requests_total{status="5xx"}[15m])) / clamp_min(sum(rate(penforge_requests_total[15m])), 0.001) > 0.01
+        for: 5m
+        labels: {severity: warning}
+        annotations: {summary: "API server error rate exceeds one percent"}
+      - alert: PenforgeStorageBudget
+        expr: (penforge_quota_storage_bytes_reserved{scope="global"} + penforge_quota_storage_bytes_committed{scope="global"}) / clamp_min(penforge_quota_storage_bytes_limit{scope="global"}, 1) > 0.6
+        for: 5m
+        labels: {severity: warning}
+        annotations: {summary: "Global storage reservations exceed sixty percent of configured capacity"}

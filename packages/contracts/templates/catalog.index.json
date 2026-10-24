@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "template_id": "penforge-latin-ascii",
+  "version": "1.0.0",
+  "pages": [
+    {
+      "file": "penforge-latin-ascii-1.0.0-page-0.json",
+      "manifest_hash": "sha256:3302fa9601e907b14c239078212de22562736def9d71dac9977ed92f484da6bd",
+      "page_index": 0,
+      "svg": "penforge-latin-ascii-1.0.0-page-0.svg",
+      "png": "penforge-latin-ascii-1.0.0-page-0.png",
+      "pdf": "penforge-latin-ascii-1.0.0-page-0.pdf"
+    },
+    {
+      "file": "penforge-latin-ascii-1.0.0-page-1.json",
+      "manifest_hash": "sha256:cf1a17a1e750c398953e6efc861a3b737bbc155c81daded54abc45dd6dcc378a",
+      "page_index": 1,
+      "svg": "penforge-latin-ascii-1.0.0-page-1.svg",
+      "png": "penforge-latin-ascii-1.0.0-page-1.png",
+      "pdf": "penforge-latin-ascii-1.0.0-page-1.pdf"
+    }
+  ],
+  "physical_units": "mm",
+  "print_scale": "100_percent_actual_size",
+  "marker_quiet_zone_mm": 3.0,
+  "public_identity_only": true,
+  "space": "metrics_only_not_drawn",
+  "index_hash": "sha256:5ee17f28256da78600a3f91ccbb90010e148f6df956ea42464e41d11bcb93e27"
+}

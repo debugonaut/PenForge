@@ -1,0 +1,27 @@
+{
+  "role": "reference_font_not_handwriting_or_penforge_output",
+  "license": "OFL-1.1",
+  "source_commit": "2bc5d431b584d89e646214bf6cfa75494e76ceea",
+  "files": [
+    {
+      "path": "NotoSansDevanagari.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/2bc5d431b584d89e646214bf6cfa75494e76ceea/ofl/notosansdevanagari/NotoSansDevanagari%5Bwdth%2Cwght%5D.ttf",
+      "sha256": "14ec4af41f27482216d1c2229f417ff9b1425e1babb014e57d1d40d03229853e"
+    },
+    {
+      "path": "OFL.txt",
+      "url": "https://raw.githubusercontent.com/google/fonts/2bc5d431b584d89e646214bf6cfa75494e76ceea/ofl/notosansdevanagari/OFL.txt",
+      "sha256": "a216f6f8d85c7228093e0ee5e258d9d377e6671f68acb4db1930b29583d0f331"
+    },
+    {
+      "path": "METADATA.pb",
+      "url": "https://raw.githubusercontent.com/google/fonts/2bc5d431b584d89e646214bf6cfa75494e76ceea/ofl/notosansdevanagari/METADATA.pb",
+      "sha256": "270c852f690d505bf6b503304ab97ef7aee4d9b86b87847a25c303f1e821a3d5"
+    },
+    {
+      "path": "upstream_info.md",
+      "url": "https://raw.githubusercontent.com/google/fonts/2bc5d431b584d89e646214bf6cfa75494e76ceea/ofl/notosansdevanagari/upstream_info.md",
+      "sha256": "5f6d877e348e3eb21baacb9d64aead82606fc86ffcde6da67b6e0d51419171de"
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "additionalProperties": false,
+  "description": "Cloud project metadata; style controls are display metadata, not glyph output.",
+  "properties": {
+    "active_snapshot_id": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Active Snapshot Id"
+    },
+    "created_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Created At"
+    },
+    "id": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "name": {
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "row_version": {
+      "maximum": 2147483647,
+      "minimum": 1,
+      "title": "Row Version",
+      "type": "integer"
+    },
+    "script_code": {
+      "pattern": "^[A-Z][a-z]{3}$",
+      "title": "Script Code",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "processing",
+        "ready",
+        "archived",
+        "deleting"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "style_controls": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Style Controls",
+      "type": "object"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "script_code",
+    "status",
+    "row_version",
+    "updated_at"
+  ],
+  "title": "ProjectDTO",
+  "type": "object"
+}

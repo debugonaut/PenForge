@@ -1,0 +1,5 @@
+{
+  "version": "english-trocr-r3-v1",
+  "task": "words",
+  "max_label_tokens": 64
+}

@@ -1,0 +1,57 @@
+{
+  "capture_size_px": {
+    "height": 600,
+    "width": 800
+  },
+  "coordinate_system": {
+    "normalized": true,
+    "origin": "top_left",
+    "x_positive": "right",
+    "y_positive": "down"
+  },
+  "operations": [],
+  "parent_source_hash": null,
+  "schema_version": 1,
+  "strokes": [
+    {
+      "pointer_type": "pen",
+      "points": [
+        {
+          "pressure": 0.4,
+          "t_ms": 0.0,
+          "tilt_x": -12.0,
+          "tilt_y": 3.0,
+          "twist": 25.0,
+          "x": 0.2,
+          "y": 0.3
+        },
+        {
+          "pressure": null,
+          "t_ms": 12.0,
+          "tilt_x": null,
+          "tilt_y": null,
+          "twist": null,
+          "x": 0.23,
+          "y": 0.34
+        }
+      ],
+      "stroke_id": "s1"
+    },
+    {
+      "pointer_type": "mouse",
+      "points": [
+        {
+          "pressure": null,
+          "t_ms": 20.0,
+          "tilt_x": null,
+          "tilt_y": null,
+          "twist": null,
+          "x": 0.1,
+          "y": 0.4
+        }
+      ],
+      "stroke_id": "s2"
+    }
+  ],
+  "timing": "observed"
+}

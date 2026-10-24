@@ -1,0 +1,13 @@
+node_modules
+.next
+.next-dev
+.venv
+.python
+.cache
+.bootstrap-venv
+.local
+.env
+artifacts
+research
+.git
+__pycache__

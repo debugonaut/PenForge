@@ -1,0 +1,5 @@
+{
+  "version": "english-trocr-r3-v1",
+  "task": "letters",
+  "max_label_tokens": 8
+}

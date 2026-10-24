@@ -1,0 +1,174 @@
+{
+  "$defs": {
+    "AnalyzeOptions": {
+      "additionalProperties": false,
+      "properties": {
+        "enhance": {
+          "default": true,
+          "title": "Enhance",
+          "type": "boolean"
+        },
+        "fuse_samples": {
+          "default": false,
+          "title": "Fuse Samples",
+          "type": "boolean"
+        },
+        "quality_policy": {
+          "const": "accuracy_first",
+          "default": "accuracy_first",
+          "title": "Quality Policy",
+          "type": "string"
+        }
+      },
+      "title": "AnalyzeOptions",
+      "type": "object"
+    },
+    "CaptureAssignment": {
+      "additionalProperties": false,
+      "properties": {
+        "capture_transform": {
+          "$ref": "#/$defs/CaptureToFont"
+        },
+        "codepoints": {
+          "items": {
+            "maximum": 1114111,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "maxItems": 16,
+          "minItems": 1,
+          "title": "Codepoints",
+          "type": "array"
+        },
+        "sample_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Sample Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sample_id",
+        "codepoints",
+        "capture_transform"
+      ],
+      "title": "CaptureAssignment",
+      "type": "object"
+    },
+    "CaptureToFont": {
+      "additionalProperties": false,
+      "properties": {
+        "baseline_y": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Baseline Y",
+          "type": "number"
+        },
+        "origin_x_px": {
+          "default": 0.0,
+          "maximum": 32768,
+          "minimum": 0,
+          "title": "Origin X Px",
+          "type": "number"
+        },
+        "pen_width_px": {
+          "exclusiveMinimum": 0,
+          "maximum": 100,
+          "title": "Pen Width Px",
+          "type": "number"
+        },
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "units_per_em": {
+          "default": 1000,
+          "maximum": 16384,
+          "minimum": 16,
+          "title": "Units Per Em",
+          "type": "integer"
+        },
+        "units_per_px": {
+          "exclusiveMinimum": 0,
+          "maximum": 100,
+          "title": "Units Per Px",
+          "type": "number"
+        }
+      },
+      "required": [
+        "baseline_y",
+        "units_per_px",
+        "pen_width_px"
+      ],
+      "title": "CaptureToFont",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "assignments": {
+      "items": {
+        "$ref": "#/$defs/CaptureAssignment"
+      },
+      "maxItems": 200,
+      "title": "Assignments",
+      "type": "array"
+    },
+    "job_type": {
+      "const": "analyze_samples",
+      "title": "Job Type",
+      "type": "string"
+    },
+    "options": {
+      "$ref": "#/$defs/AnalyzeOptions"
+    },
+    "project_id": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "sample_ids": {
+      "items": {
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+        "type": "string"
+      },
+      "maxItems": 200,
+      "minItems": 1,
+      "title": "Sample Ids",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "script_code": {
+      "pattern": "^[A-Z][a-z]{3}$",
+      "title": "Script Code",
+      "type": "string"
+    },
+    "template_manifest_hash": {
+      "anyOf": [
+        {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Template Manifest Hash"
+    }
+  },
+  "required": [
+    "schema_version",
+    "job_type",
+    "project_id",
+    "sample_ids",
+    "script_code"
+  ],
+  "title": "AnalyzeSamplesJob",
+  "type": "object"
+}

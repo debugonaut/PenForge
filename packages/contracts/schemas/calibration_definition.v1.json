@@ -1,0 +1,149 @@
+{
+  "$defs": {
+    "CalibrationRegion": {
+      "additionalProperties": false,
+      "properties": {
+        "expected_codepoints": {
+          "items": {
+            "maximum": 1114111,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "maxItems": 4096,
+          "minItems": 1,
+          "title": "Expected Codepoints",
+          "type": "array"
+        },
+        "region_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+          "title": "Region Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "region_id",
+        "expected_codepoints"
+      ],
+      "title": "CalibrationRegion",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "calibration_id": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$",
+      "title": "Calibration Id",
+      "type": "string"
+    },
+    "evaluation_record_hash": {
+      "anyOf": [
+        {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Evaluation Record Hash"
+    },
+    "expected_regions": {
+      "items": {
+        "$ref": "#/$defs/CalibrationRegion"
+      },
+      "maxItems": 100,
+      "title": "Expected Regions",
+      "type": "array"
+    },
+    "localization_review": {
+      "anyOf": [
+        {
+          "enum": [
+            "engineering_unreviewed",
+            "reviewed"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Localization Review"
+    },
+    "optimization_status": {
+      "default": "unmeasured",
+      "enum": [
+        "unmeasured",
+        "evaluated"
+      ],
+      "title": "Optimization Status",
+      "type": "string"
+    },
+    "prompt_is_ground_truth": {
+      "const": false,
+      "default": false,
+      "title": "Prompt Is Ground Truth",
+      "type": "boolean"
+    },
+    "prompt_text": {
+      "maxLength": 10000,
+      "minLength": 1,
+      "title": "Prompt Text",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "script_code": {
+      "pattern": "^[A-Z][a-z]{3}$",
+      "title": "Script Code",
+      "type": "string"
+    },
+    "target_codepoints": {
+      "items": {
+        "maximum": 1114111,
+        "minimum": 0,
+        "type": "integer"
+      },
+      "maxItems": 4096,
+      "minItems": 1,
+      "title": "Target Codepoints",
+      "type": "array"
+    },
+    "target_sequences": {
+      "items": {
+        "items": {
+          "maximum": 1114111,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "maxItems": 16,
+        "minItems": 1,
+        "type": "array"
+      },
+      "title": "Target Sequences",
+      "type": "array"
+    },
+    "version": {
+      "maxLength": 100,
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "calibration_id",
+    "version",
+    "script_code",
+    "prompt_text",
+    "target_codepoints",
+    "expected_regions"
+  ],
+  "title": "CalibrationDefinition",
+  "type": "object"
+}

@@ -1,0 +1,251 @@
+{
+  "$defs": {
+    "ArtifactRef": {
+      "additionalProperties": false,
+      "properties": {
+        "content_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "record_id": {
+          "pattern": "^[a-z0-9][a-z0-9._:-]{0,119}$",
+          "title": "Record Id",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "record_id",
+        "content_hash"
+      ],
+      "title": "ArtifactRef",
+      "type": "object"
+    },
+    "Evidence": {
+      "additionalProperties": false,
+      "description": "A source, not an inference that permission or consent has been obtained.",
+      "properties": {
+        "checked_on": {
+          "format": "date",
+          "title": "Checked On",
+          "type": "string"
+        },
+        "content_hash": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Content Hash"
+        },
+        "finding": {
+          "maxLength": 1500,
+          "minLength": 1,
+          "title": "Finding",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "uri": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Uri",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uri",
+        "checked_on",
+        "finding"
+      ],
+      "title": "Evidence",
+      "type": "object"
+    },
+    "ShapingCase": {
+      "additionalProperties": false,
+      "properties": {
+        "behavior": {
+          "title": "Behavior",
+          "type": "string"
+        },
+        "case_id": {
+          "pattern": "^[a-z0-9][a-z0-9._:-]{0,119}$",
+          "title": "Case Id",
+          "type": "string"
+        },
+        "codepoints": {
+          "items": {
+            "maximum": 1114111,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": "Codepoints",
+          "type": "array"
+        },
+        "expected_output_hash": {
+          "anyOf": [
+            {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Output Hash"
+        },
+        "features_to_inspect": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Features To Inspect",
+          "type": "array"
+        },
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "text": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "case_id",
+        "text",
+        "codepoints",
+        "behavior",
+        "features_to_inspect"
+      ],
+      "title": "ShapingCase",
+      "type": "object"
+    }
+  },
+  "$id": "https://penforge.invalid/research/v1/shaping_corpus.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "cases": {
+      "items": {
+        "$ref": "#/$defs/ShapingCase"
+      },
+      "minItems": 1,
+      "title": "Cases",
+      "type": "array"
+    },
+    "common_word_inventory": {
+      "const": false,
+      "default": false,
+      "title": "Common Word Inventory",
+      "type": "boolean"
+    },
+    "corpus_id": {
+      "pattern": "^[a-z0-9][a-z0-9._:-]{0,119}$",
+      "title": "Corpus Id",
+      "type": "string"
+    },
+    "font_ref": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ArtifactRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "harfbuzz_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Harfbuzz Version"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Limitations",
+      "type": "array"
+    },
+    "normalization_policy": {
+      "const": "preserve_input_codepoints",
+      "default": "preserve_input_codepoints",
+      "title": "Normalization Policy",
+      "type": "string"
+    },
+    "record_type": {
+      "const": "shaping_corpus",
+      "default": "shaping_corpus",
+      "title": "Record Type",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "script_code": {
+      "const": "Deva",
+      "default": "Deva",
+      "title": "Script Code",
+      "type": "string"
+    },
+    "source": {
+      "items": {
+        "$ref": "#/$defs/Evidence"
+      },
+      "minItems": 1,
+      "title": "Source",
+      "type": "array"
+    },
+    "status": {
+      "const": "starter_not_evaluated",
+      "default": "starter_not_evaluated",
+      "title": "Status",
+      "type": "string"
+    },
+    "version": {
+      "pattern": "^[a-z0-9][a-z0-9._:-]{0,119}$",
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "corpus_id",
+    "version",
+    "source",
+    "cases",
+    "limitations"
+  ],
+  "title": "ShapingCorpus",
+  "type": "object"
+}

@@ -1,0 +1,166 @@
+{
+  "$defs": {
+    "FontOptions": {
+      "additionalProperties": false,
+      "properties": {
+        "ascender": {
+          "default": 1000,
+          "maximum": 32767,
+          "minimum": 1,
+          "title": "Ascender",
+          "type": "integer"
+        },
+        "conversion_tolerance": {
+          "default": 1.5,
+          "maximum": 2,
+          "minimum": 0.75,
+          "title": "Conversion Tolerance",
+          "type": "number"
+        },
+        "descender": {
+          "default": -300,
+          "maximum": 0,
+          "minimum": -32768,
+          "title": "Descender",
+          "type": "integer"
+        },
+        "fs_type": {
+          "default": 0,
+          "enum": [
+            0,
+            2,
+            4,
+            8
+          ],
+          "title": "Fs Type",
+          "type": "integer"
+        },
+        "license_description": {
+          "default": "Private handwriting font. No training consent granted.",
+          "maxLength": 500,
+          "title": "License Description",
+          "type": "string"
+        },
+        "line_gap": {
+          "default": 0,
+          "maximum": 32767,
+          "minimum": 0,
+          "title": "Line Gap",
+          "type": "integer"
+        },
+        "realism": {
+          "default": 0,
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Realism",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "spacing": {
+          "default": 0,
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Spacing",
+          "type": "integer"
+        },
+        "units_per_em": {
+          "default": 1000,
+          "maximum": 16384,
+          "minimum": 16,
+          "title": "Units Per Em",
+          "type": "integer"
+        }
+      },
+      "title": "FontOptions",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "compiler_version": {
+      "const": "penforge-font-v1",
+      "default": "penforge-font-v1",
+      "title": "Compiler Version",
+      "type": "string"
+    },
+    "family_name": {
+      "title": "Family Name",
+      "type": "string"
+    },
+    "indic_evidence_hash": {
+      "anyOf": [
+        {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Indic Evidence Hash"
+    },
+    "options": {
+      "$ref": "#/$defs/FontOptions"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "script_code": {
+      "default": "Latn",
+      "enum": [
+        "Latn",
+        "Deva"
+      ],
+      "title": "Script Code",
+      "type": "string"
+    },
+    "snapshot_created_at": {
+      "format": "date-time",
+      "title": "Snapshot Created At",
+      "type": "string"
+    },
+    "snapshot_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "title": "Snapshot Hash",
+      "type": "string"
+    },
+    "style_name": {
+      "default": "Regular",
+      "title": "Style Name",
+      "type": "string"
+    },
+    "tool_versions": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Tool Versions",
+      "type": "object"
+    },
+    "validation_profile": {
+      "default": "penforge-latin-v1",
+      "enum": [
+        "penforge-latin-v1",
+        "penforge-devanagari-v1"
+      ],
+      "title": "Validation Profile",
+      "type": "string"
+    }
+  },
+  "required": [
+    "snapshot_hash",
+    "snapshot_created_at",
+    "family_name",
+    "tool_versions"
+  ],
+  "title": "FontBuildManifest",
+  "type": "object"
+}

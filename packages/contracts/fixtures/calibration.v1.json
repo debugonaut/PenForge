@@ -1,0 +1,36 @@
+{
+  "calibration_id": "fixture-only-deva",
+  "evaluation_record_hash": null,
+  "expected_regions": [
+    {
+      "expected_codepoints": [
+        2325,
+        2367,
+        32,
+        2325,
+        2381,
+        2359,
+        32,
+        2361,
+        2370,
+        2305
+      ],
+      "region_id": "line-1"
+    }
+  ],
+  "optimization_status": "unmeasured",
+  "prompt_is_ground_truth": false,
+  "prompt_text": "\u0915\u093f \u0915\u094d\u0937 \u0939\u0942\u0901",
+  "schema_version": 1,
+  "script_code": "Deva",
+  "target_codepoints": [
+    2325,
+    2367,
+    2381,
+    2359,
+    2361,
+    2370,
+    2305
+  ],
+  "version": "0.0.1"
+}

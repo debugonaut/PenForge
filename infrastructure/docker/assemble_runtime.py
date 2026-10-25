@@ -60,6 +60,11 @@ class AssemblyError(RuntimeError):
     pass
 
 
+class MissingNativeDependency(AssemblyError):
+    def __init__(self, path: Path, missing: list[str]):
+        super().__init__("native_dependency_missing:" + str(path) + ":" + ",".join(missing))
+
+
 def dependencies(path: Path) -> list[str]:
     """Resolve the builder's native closure; ldd is confined to trusted build inputs."""
     process = subprocess.run(
@@ -70,8 +75,11 @@ def dependencies(path: Path) -> list[str]:
         env={"PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "LC_ALL": "C"},
     )
     lines = process.stdout.splitlines()
-    if "not found" in process.stdout:
-        raise AssemblyError("native_dependency_missing")
+    missing = [
+        line.partition("=>")[0].strip()
+        for line in lines
+        if line.partition("=>")[2].strip() == "not found"
+    ]
     static = any(
         line.strip() in {"statically linked", "not a dynamic executable"} for line in lines
     )
@@ -82,6 +90,8 @@ def dependencies(path: Path) -> list[str]:
         value = line.strip()
         if not value or value in {"statically linked", "not a dynamic executable"}:
             continue
+        if value.partition("=>")[2].strip() == "not found":
+            continue
         if value.startswith(("linux-vdso.", "linux-gate.")):
             continue
         if "=>" in value:
@@ -90,6 +100,10 @@ def dependencies(path: Path) -> list[str]:
         if not value.startswith("/") or any(char.isspace() for char in value):
             raise AssemblyError("native_dependency_output_unrecognized")
         found.append(value)
+    if missing:
+        if static:
+            raise AssemblyError("native_dependency_output_unrecognized")
+        raise MissingNativeDependency(path, missing)
     if not found and not static:
         raise AssemblyError("native_dependency_evidence_empty")
     return sorted(set(found))
@@ -114,6 +128,7 @@ class RuntimeAssembler:
         self.visited: set[str] = set()
         self.native: deque[str] = deque()
         self.native_closure: dict[str, list[str]] = {}
+        self.native_context: dict[str, list[str]] = {}
         self.total_bytes = 0
 
     @staticmethod
@@ -251,14 +266,32 @@ class RuntimeAssembler:
             self.native.append(resolved)
 
     def close_native_dependencies(self) -> None:
+        inspected: set[str] = set()
+        deferred: dict[str, MissingNativeDependency] = {}
+        resolved_by: dict[str, set[str]] = {}
         while self.native:
             logical = self.native.popleft()
-            if logical in self.native_closure:
+            if logical in inspected:
                 continue
-            found = self.resolver(self.source / logical.lstrip("/"))
+            inspected.add(logical)
+            try:
+                found = self.resolver(self.source / logical.lstrip("/"))
+            except MissingNativeDependency as error:
+                # A wheel's shared library can inherit its importing extension's
+                # RPATH. Require a successful complete trace that includes this
+                # exact resolved ELF, rather than changing the loader search path.
+                deferred[logical] = error
+                continue
             self.native_closure[logical] = found
             for dependency in found:
                 self.copy(dependency)
+                resolved, _ = self.resolve(dependency)
+                if resolved != logical:
+                    resolved_by.setdefault(resolved, set()).add(logical)
+        for logical, unresolved in deferred.items():
+            if logical not in resolved_by:
+                raise unresolved
+            self.native_context[logical] = sorted(resolved_by[logical])
 
     def finish(self, *, role: str) -> dict:
         self.close_native_dependencies()
@@ -278,6 +311,7 @@ class RuntimeAssembler:
             "copied_bytes": self.total_bytes,
             "copied_files": self.files,
             "native_dependencies": self.native_closure,
+            "native_context": self.native_context,
             "package_metadata": "Unmodified builder dpkg metadata; copied_files records the actual runtime subset. Python distribution metadata/licenses are retained with the complete venv.",
             "security_disposition": "none",
         }

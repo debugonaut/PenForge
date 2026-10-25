@@ -9,7 +9,12 @@ from types import SimpleNamespace
 
 import pytest
 
-from infrastructure.docker.assemble_runtime import AssemblyError, RuntimeAssembler, dependencies
+from infrastructure.docker.assemble_runtime import (
+    AssemblyError,
+    MissingNativeDependency,
+    RuntimeAssembler,
+    dependencies,
+)
 
 
 def put(root, name, data=b"fixture", mode=0o644):
@@ -128,6 +133,74 @@ def test_missing_dependency_refuses_instead_of_omitting_it(roots):
         assembler.finish(role="worker")
 
 
+@pytest.mark.parametrize("parent_first", [False, True])
+def test_vendored_elf_requires_complete_parent_trace_and_records_exact_context(roots, parent_first):
+    source, output = roots
+    parent = "/app/extension.so"
+    child = "/app/vendor/libgssapi.so"
+    sibling = "/app/vendor/libkrb5.so"
+    child_alias = "/app/vendor/libgssapi.so.2"
+    for name in (parent, child, sibling):
+        put(source, name, b"\x7fELF" + name.encode())
+    (source / child_alias.lstrip("/")).symlink_to("libgssapi.so")
+    calls = []
+
+    def resolve(path):
+        name = "/" + str(path.relative_to(source))
+        calls.append(name)
+        if name == child:
+            raise MissingNativeDependency(path, ["libkrb5.so"])
+        return [child_alias, sibling] if name == parent else []
+
+    assembler = RuntimeAssembler(source, output, resolver=resolve)
+    for name in (parent, child) if parent_first else (child, parent):
+        assembler.copy(name)
+    result = assembler.finish(role="api")
+    assert result["native_context"] == {child: [parent]}
+    assert result["native_dependencies"][parent] == [child_alias, sibling]
+    assert set(calls) == {parent, child, sibling}
+    assert (output / sibling.lstrip("/")).read_bytes() == (
+        source / sibling.lstrip("/")
+    ).read_bytes()
+
+
+def test_parent_trace_does_not_cover_unresolved_elf_with_same_basename(roots):
+    source, output = roots
+    parent = "/app/extension.so"
+    child = "/app/vendor/libchild.so"
+    orphan = "/app/unrelated/libchild.so"
+    for name in (parent, child, orphan):
+        put(source, name, b"\x7fELF")
+
+    def resolve(path):
+        name = "/" + str(path.relative_to(source))
+        if name == orphan:
+            raise MissingNativeDependency(path, ["libmissing.so"])
+        return [child] if name == parent else []
+
+    assembler = RuntimeAssembler(source, output, resolver=resolve)
+    assembler.copy("/app")
+    with pytest.raises(MissingNativeDependency, match="unrelated/libchild.so:libmissing.so"):
+        assembler.finish(role="api")
+
+
+def test_parent_trace_never_overrides_other_native_inspection_failures(roots):
+    source, output = roots
+    parent, child = "/app/extension.so", "/app/vendor/libchild.so"
+    for name in (parent, child):
+        put(source, name, b"\x7fELF")
+
+    def resolve(path):
+        if str(path).endswith("libchild.so"):
+            raise AssemblyError("native_dependency_output_unrecognized")
+        return [child]
+
+    assembler = RuntimeAssembler(source, output, resolver=resolve)
+    assembler.copy("/app")
+    with pytest.raises(AssemblyError, match="output_unrecognized"):
+        assembler.finish(role="api")
+
+
 @pytest.mark.parametrize("target", ["../../../../etc/shadow", "/etc/shadow"])
 def test_unsafe_symlink_is_not_copied(roots, target):
     source, output = roots
@@ -198,3 +271,35 @@ def test_native_inspection_fails_closed(monkeypatch, stdout, returncode):
     )
     with pytest.raises(AssemblyError):
         dependencies(Path("/trusted/extension.so"))
+
+
+def test_missing_native_diagnostic_identifies_trusted_elf_and_library(monkeypatch):
+    monkeypatch.setattr(
+        "infrastructure.docker.assemble_runtime.subprocess.run",
+        lambda *args, **kwargs: SimpleNamespace(
+            stdout="libmissing.so => not found\n", returncode=0
+        ),
+    )
+    with pytest.raises(
+        MissingNativeDependency,
+        match="native_dependency_missing:/trusted/extension.so:libmissing.so",
+    ):
+        dependencies(Path("/trusted/extension.so"))
+
+
+@pytest.mark.parametrize(
+    "stdout,returncode",
+    [
+        ("libmissing.so => not found\nunexpected output\n", 0),
+        ("libmissing.so => not found\n", 1),
+        ("statically linked\nlibmissing.so => not found\n", 0),
+    ],
+)
+def test_missing_library_never_masks_other_inspection_errors(monkeypatch, stdout, returncode):
+    monkeypatch.setattr(
+        "infrastructure.docker.assemble_runtime.subprocess.run",
+        lambda *args, **kwargs: SimpleNamespace(stdout=stdout, returncode=returncode),
+    )
+    with pytest.raises(AssemblyError) as result:
+        dependencies(Path("/trusted/extension.so"))
+    assert not isinstance(result.value, MissingNativeDependency)

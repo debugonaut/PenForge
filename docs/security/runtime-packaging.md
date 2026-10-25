@@ -13,6 +13,14 @@ native rendering resources loaded at runtime receive explicit inclusion. Source
 paths, symlinks, content hashes, ownership, limits and forbidden payloads are checked.
 Do not apply this builder tool to uploaded binaries or untrusted filesystem trees.
 
+Some wheel libraries inherit the importing extension's RPATH and cannot resolve
+their siblings when inspected alone. Such a missing-library result is deferred only
+until every ELF is inspected. It is accepted only when a separate successful complete
+`ldd` trace includes that exact resolved ELF; the manifest's `native_context` records
+the parent trace. That trace's full dependency paths are copied and checked normally.
+An unresolved orphan, a same-named different file or any other inspection error
+still fails. The assembler never widens `LD_LIBRARY_PATH` to manufacture success.
+
 The runtime manifest records the files actually copied. Unmodified dpkg metadata
 still describes the builder's package set; its presence does not assert that every
 builder file exists in the runtime. Keeping it and the redistribution notices avoids

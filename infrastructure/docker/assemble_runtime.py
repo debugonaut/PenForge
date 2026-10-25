@@ -39,12 +39,14 @@ REQUIRED_FILES = (
     "/etc/ssl/openssl.cnf",
     "/etc/ssl/certs/ca-certificates.crt",
 )
-ALLOWED_TREES = TREES + ("/usr/lib", "/usr/lib64", "/lib", "/lib64", "/usr/share/doc")
+OPTIONAL_TREES = ("/etc/ld.so.conf.d",)
+ALLOWED_TREES = (
+    TREES + OPTIONAL_TREES + ("/usr/lib", "/usr/lib64", "/lib", "/lib64", "/usr/share/doc")
+)
 OPTIONAL_FILES = (
     "/etc/gai.conf",
     "/etc/ld.so.cache",
     "/etc/ld.so.conf",
-    "/etc/ld.so.conf.d",
     "/etc/localtime",
     "/etc/timezone",
     "/usr/lib/ssl/cert.pem",
@@ -197,7 +199,7 @@ class RuntimeAssembler:
     def copy(self, logical: str) -> None:
         resolved, links = self.resolve(logical)
         if not self.allowed(resolved):
-            raise AssemblyError("runtime_source_not_allowed")
+            raise AssemblyError("runtime_source_not_allowed:" + resolved)
         for alias, target in links:
             self.alias(alias, target)
         if resolved in self.visited:
@@ -295,7 +297,7 @@ def main() -> None:
     assembler = RuntimeAssembler(Path("/"), args.output)
     for logical in TREES + REQUIRED_FILES:
         assembler.copy(logical)
-    for logical in OPTIONAL_FILES:
+    for logical in OPTIONAL_FILES + OPTIONAL_TREES:
         if Path(logical).exists() or Path(logical).is_symlink():
             assembler.copy(logical)
     # Preserve redistribution notices without inheriting documentation executables.

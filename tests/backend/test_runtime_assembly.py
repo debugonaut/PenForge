@@ -152,6 +152,19 @@ def test_output_cannot_be_inside_a_copied_tree(roots):
         RuntimeAssembler(source, source / "app/runtime")
 
 
+def test_loader_configuration_directory_preserves_children_without_widening_etc(roots):
+    source, output = roots
+    config = "/etc/ld.so.conf.d/x86_64-linux-gnu.conf"
+    put(source, config, b"/usr/local/lib\n/usr/lib/x86_64-linux-gnu\n")
+    put(source, "/etc/shadow", b"not part of runtime")
+    assembler = RuntimeAssembler(source, output)
+    assembler.copy("/etc/ld.so.conf.d")
+    assert (output / config.lstrip("/")).read_bytes() == (source / config.lstrip("/")).read_bytes()
+    with pytest.raises(AssemblyError, match="runtime_source_not_allowed:/etc/shadow"):
+        assembler.copy("/etc/shadow")
+    assert not (output / "etc/shadow").exists()
+
+
 @pytest.mark.parametrize(
     "stdout,returncode,expected",
     [

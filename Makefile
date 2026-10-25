@@ -45,7 +45,7 @@ test-frontend:
 	npm test
 
 test-api:
-	$(PYTHON) -m pytest $(PUBLIC_PYTEST_EXCLUDES) -m 'not integration' -q
+	$(PYTHON) -m pytest $(PUBLIC_PYTEST_EXCLUDES) -m 'not integration' -x -v --tb=short -o faulthandler_timeout=60
 
 test-integration:
 	@test -n "$$TEST_DATABASE_URL" || (echo 'Set TEST_DATABASE_URL to a disposable real PostgreSQL database.'; exit 1)

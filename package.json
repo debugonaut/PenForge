@@ -2,6 +2,9 @@
   "name": "penforge",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=24.22.1 <25"
+  },
   "scripts": {
     "dev": "next dev --hostname 0.0.0.0",
     "build": "next build",
@@ -33,5 +36,13 @@
     "openapi-typescript": "7.10.1",
     "prettier": "^3.9.10",
     "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "@firebase/firestore": {
+      "@grpc/grpc-js": "1.13.6"
+    },
+    "next": {
+      "postcss": "8.5.23"
+    }
   }
 }

@@ -7,7 +7,11 @@ ENV PYTHONPATH=/app/apps/api:/app/packages/contracts \
     APP_ENV=production AUTH_BACKEND=disabled STORAGE_BACKEND=disabled \
     UV_COMPILE_BYTECODE=1
 COPY pyproject.toml uv.lock ./
-RUN uv sync --locked --no-dev --no-group worker --no-group research
+# Preserve the project dependency graph; global installers are build-only.
+RUN uv sync --locked --no-dev --no-group worker --no-group research \
+    && /usr/local/bin/python -B -m pip uninstall --yes pip \
+    && /usr/local/bin/python -B -c "import ensurepip, pathlib, shutil; shutil.rmtree(pathlib.Path(ensurepip.__file__).parent)" \
+    && rm /usr/local/bin/uv
 COPY apps/api apps/api
 COPY packages/contracts/penforge_contracts packages/contracts/penforge_contracts
 COPY packages/contracts/templates packages/contracts/templates

@@ -108,8 +108,8 @@ jobs:
           mkdir -p artifacts/image-security
           docker image inspect penforge-api:ci --format '{{.Id}}' > artifacts/image-security/api-image-id.txt
           docker image inspect penforge-worker:ci --format '{{.Id}}' > artifacts/image-security/worker-image-id.txt
-          docker run --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges --memory 256m --mount type=bind,src="$PWD/scripts/image_security_inventory.py",dst=/tmp/image_security_inventory.py,readonly --entrypoint .venv/bin/python penforge-api:ci -B /tmp/image_security_inventory.py > artifacts/image-security/api.json
-          docker run --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges --memory 256m --mount type=bind,src="$PWD/scripts/image_security_inventory.py",dst=/tmp/image_security_inventory.py,readonly --entrypoint .venv/bin/python penforge-worker:ci -B /tmp/image_security_inventory.py > artifacts/image-security/worker.json
+          docker run --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges --memory 256m --mount type=bind,src="$PWD/scripts/image_security_inventory.py",dst=/tmp/image_security_inventory.py,readonly --entrypoint .venv/bin/python penforge-api:ci -B /tmp/image_security_inventory.py --require-no-global-installers > artifacts/image-security/api.json
+          docker run --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges --memory 256m --mount type=bind,src="$PWD/scripts/image_security_inventory.py",dst=/tmp/image_security_inventory.py,readonly --entrypoint .venv/bin/python penforge-worker:ci -B /tmp/image_security_inventory.py --require-no-global-installers > artifacts/image-security/worker.json
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:

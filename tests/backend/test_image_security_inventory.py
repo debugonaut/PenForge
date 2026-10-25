@@ -11,7 +11,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from scripts.image_security_inventory import Limits, inventory
+from scripts.image_security_inventory import Limits, inventory, no_global_installers
 
 ROOT = Path(__file__).resolve().parents[2]
 STATUS = b"Package: base-files\nStatus: install ok installed\nVersion: 13.8\nArchitecture: amd64\n"
@@ -295,3 +295,94 @@ def test_cli_emits_json_with_complete_or_failed_exit_codes(image):
     (image / "var/lib/dpkg/status").unlink()
     result = subprocess.run(command, text=True, capture_output=True, timeout=10)
     assert result.returncode == 2 and not json.loads(result.stdout)["complete"]
+
+
+@pytest.mark.parametrize(
+    "path,component",
+    [
+        ("/usr/local/lib/python3.12/site-packages/pip/__init__.py", "global_pip"),
+        ("/usr/local/lib/python3.12/site-packages/pip.py", "global_pip"),
+        ("/usr/local/lib/python3.12/site-packages/pip.pyc", "global_pip"),
+        ("/usr/local/bin/pip3.12", "global_pip"),
+        ("/usr/local/lib/python3.12/ensurepip/__init__.py", "global_ensurepip"),
+        ("/usr/local/lib/python3.12/ensurepip.py", "global_ensurepip"),
+        (
+            "/usr/local/lib/python3.12/ensurepip/_bundled/pip-25.0.1-py3-none-any.whl",
+            "global_bundled_installers",
+        ),
+        ("/usr/share/python-wheels/pip-25.0.1-py3-none-any.whl", "global_bundled_installers"),
+        ("/usr/local/bin/uv", "global_uv"),
+        ("/usr/local/bin/uvx", "global_uv"),
+    ],
+)
+def test_global_installer_code_is_detected_without_distribution_metadata(image, path, component):
+    put(image, path)
+    result = inventory(image)
+    assert result["complete"], result["errors"]
+    assert not result["python_distributions"]
+    assert result["components"][component]["present"]
+    policy = no_global_installers(result)
+    assert not policy["passed"] and component in policy["violations"]
+
+
+@pytest.mark.parametrize(
+    "path,component",
+    [
+        ("/usr/local/lib/python3.12/site-packages/pip", "global_pip"),
+        ("/usr/local/lib/python3.12/ensurepip", "global_ensurepip"),
+    ],
+)
+def test_empty_global_module_directory_cannot_pass_the_policy(image, path, component):
+    (image / path.lstrip("/")).mkdir(parents=True)
+    result = inventory(image)
+    assert result["complete"] and result["components"][component]["present"]
+    assert component in no_global_installers(result)["violations"]
+
+
+def test_global_distribution_metadata_is_independently_rejected(image):
+    put(
+        image,
+        "/usr/local/lib/python3.12/site-packages/pip-25.0.1.dist-info/METADATA",
+        b"Name: pip\nVersion: 25.0.1\n",
+    )
+    result = inventory(image)
+    assert result["complete"]
+    assert not result["components"]["global_pip"]["present"]
+    assert no_global_installers(result)["violations"] == ["global_pip_distribution"]
+
+
+def test_venv_pip_remains_permitted_and_incomplete_evidence_never_passes(image):
+    site = "/app/.venv/lib/python3.12/site-packages"
+    put(image, site + "/pip/__init__.py")
+    put(image, site + "/pip-26.2.2.dist-info/METADATA", b"Name: pip\nVersion: 26.2.2\n")
+    result = inventory(image)
+    assert result["complete"] and no_global_installers(result)["passed"]
+    (image / "var/lib/dpkg/status").unlink()
+    result = inventory(image)
+    assert not result["complete"]
+    assert no_global_installers(result) == {
+        "name": "no_global_installers",
+        "passed": False,
+        "violations": ["inventory_incomplete"],
+    }
+
+
+def test_global_installer_cli_policy_is_opt_in_and_always_emits_json(image):
+    script = ROOT / "scripts/image_security_inventory.py"
+    command = [sys.executable, "-B", str(script), "--root", str(image)]
+    module = put(image, "/usr/local/lib/python3.12/site-packages/pip.py")
+    default = subprocess.run(command, text=True, capture_output=True, timeout=10)
+    assert default.returncode == 0
+    assert json.loads(default.stdout)["complete"]
+    assert "policy" not in json.loads(default.stdout)
+    rejected = subprocess.run(
+        command + ["--require-no-global-installers"], text=True, capture_output=True, timeout=10
+    )
+    assert rejected.returncode == 2
+    value = json.loads(rejected.stdout)
+    assert value["complete"] and not value["policy"]["passed"]
+    module.unlink()
+    accepted = subprocess.run(
+        command + ["--require-no-global-installers"], text=True, capture_output=True, timeout=10
+    )
+    assert accepted.returncode == 0 and json.loads(accepted.stdout)["policy"]["passed"]

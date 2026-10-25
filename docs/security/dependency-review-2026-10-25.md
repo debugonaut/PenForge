@@ -49,3 +49,17 @@ The HIGH/CRITICAL vulnerability scans remain separate and blocking. No VEX or
 scanner suppression is introduced by this repair. Actual image evidence is required
 before any component-specific disposition; this document is not an all-green or
 deployment-readiness claim.
+
+The initial [Linux inventory run](https://github.com/debugonaut/PenForge/actions/runs/40202887884)
+confirmed `infocmp`, libacl, libmount, mount and nsenter are present; mount is root-owned
+and SUID. None receives an absence disposition. Systemd-homed/homework, Archive::Tar,
+pip's native msgpack decoder and setuptools PackageIndex were absent in the scoped
+searches. These are candidates for narrow review, not blanket package exemptions.
+
+The probe also found global pip 25.0.1 and its older vendored libraries in both images.
+The Dockerfiles now remove global pip, ensurepip's bundled installer and uv after the
+locked project environment is built. Worker venv pip/pip-api remain installed, keeping
+FontBakery's declared dependencies complete. CI requires the global installer payloads
+to be absent, then exercises the unchanged validators and capped font pipeline.
+This removes unnecessary runtime code without treating scanner silence as proof of
+security. Current Debian libraries and worker-vendored urllib3 still need resolution.

@@ -1,11 +1,15 @@
-# Independent verification runtime. Docker execution remains a recorded host gate.
+# Independent verification runtime with pinned compiler and validator dependencies.
 FROM python:3.12.15-slim-trixie
 COPY --from=ghcr.io/astral-sh/uv:0.13.1 /uv /usr/local/bin/uv
 WORKDIR /app
 # Apply current Debian security fixes, then discard package index files.
 RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
 COPY pyproject.toml uv.lock ./
-RUN uv sync --locked --no-dev --group worker --no-group research
+# Preserve the project dependency graph; global installers are build-only.
+RUN uv sync --locked --no-dev --group worker --no-group research \
+    && /usr/local/bin/python -B -m pip uninstall --yes pip \
+    && /usr/local/bin/python -B -c "import ensurepip, pathlib, shutil; shutil.rmtree(pathlib.Path(ensurepip.__file__).parent)" \
+    && rm /usr/local/bin/uv
 COPY services/worker services/worker
 COPY apps/api apps/api
 COPY packages/contracts/penforge_contracts packages/contracts/penforge_contracts

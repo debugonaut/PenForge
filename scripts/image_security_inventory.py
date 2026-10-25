@@ -25,12 +25,14 @@ SCOPES = (
     "/lib64",
     "/usr/bin",
     "/usr/sbin",
+    "/usr/local/bin",
     "/usr/lib",
     "/usr/lib64",
     "/usr/local/lib",
     "/usr/share/perl",
     "/usr/share/perl5",
     "/usr/local/share/perl",
+    "/usr/share/python-wheels",
     "/etc/perl",
     "/app/.venv/lib",
     "/var/lib/dpkg",
@@ -316,16 +318,22 @@ def inventory(root: Path = Path("/"), *, limits: Limits = Limits()) -> dict:
     fs = ImageRoot(root, limits)
     components = {}
 
-    def group(name: str, paths, errors_before: int | None = None):
+    def group(name: str, paths, errors_before: int | None = None, *, directories=()):
         start = len(fs.errors) if errors_before is None else errors_before
         rows = [fs.file(path)[0] for path in sorted(set(paths))]
-        present = any(row["present"] is True for row in rows)
+        directory_rows = []
+        for path in sorted(set(directories)):
+            fs.directory(path)
+            directory_rows.append(dict(fs.searches[path]))
+        present = any(row["present"] is True for row in [*rows, *directory_rows])
         complete = len(fs.errors) == start
         components[name] = {
             "complete": complete,
             "present": present if complete or present else None,
             "files": rows,
         }
+        if directory_rows:
+            components[name]["directories"] = directory_rows
 
     dpkg = package_inventory(fs)
     group("infocmp", ["/usr/bin/infocmp", "/bin/infocmp"])
@@ -374,12 +382,47 @@ def inventory(root: Path = Path("/"), *, limits: Limits = Limits()) -> dict:
     standalone_package_index = []
     vendor_manifests = []
     distributions = []
+    global_pip_paths = ["/usr/local/bin/pip", "/usr/local/bin/pip3"]
+    global_pip_directories = []
+    global_ensurepip_paths = []
+    global_ensurepip_directories = []
+    global_bundled = []
+    global_start = len(fs.errors)
+    for name in fs.directory("/usr/local/bin"):
+        if re.fullmatch(r"pip[0-9]+(?:\.[0-9]+)?", name):
+            global_pip_paths.append("/usr/local/bin/" + name)
+    for path in fs.walk(["/usr/share/python-wheels"]):
+        if re.fullmatch(r"(?:pip|setuptools|wheel)-[^/]+\.(?:whl|zip)", PurePosixPath(path).name):
+            global_bundled.append(path)
     for base in ("/usr/local/lib", "/app/.venv/lib"):
         for version in fs.directory(base):
             if not PYTHON.fullmatch(version):
                 continue
             site = base + "/" + version + "/site-packages"
             vendor = site + "/pip/_vendor"
+            if base == "/usr/local/lib":
+                global_pip_directories.append(site + "/pip")
+                global_pip_paths.extend(
+                    [
+                        site + "/pip.py",
+                        site + "/pip.pyc",
+                        site + "/pip/__init__.py",
+                        site + "/pip/__main__.py",
+                    ]
+                )
+                ensurepip = base + "/" + version + "/ensurepip"
+                global_ensurepip_directories.append(ensurepip)
+                global_ensurepip_paths.extend(
+                    [
+                        ensurepip + ".py",
+                        ensurepip + ".pyc",
+                        ensurepip + "/__init__.py",
+                        ensurepip + "/__main__.py",
+                    ]
+                )
+                for path in fs.walk([ensurepip + "/_bundled"]):
+                    if path.endswith((".whl", ".zip")):
+                        global_bundled.append(path)
             for path in fs.walk([vendor + "/msgpack"]):
                 if (
                     path.endswith((".so", ".pyd", ".dll", ".dylib"))
@@ -431,6 +474,15 @@ def inventory(root: Path = Path("/"), *, limits: Limits = Limits()) -> dict:
     group("pip_vendor_msgpack_c_extension", msgpack, start)
     group("pip_vendor_setuptools_package_index", vendor_package_index, start)
     group("standalone_setuptools_package_index", standalone_package_index, start)
+    group("global_pip", global_pip_paths, global_start, directories=global_pip_directories)
+    group(
+        "global_ensurepip",
+        global_ensurepip_paths,
+        global_start,
+        directories=global_ensurepip_directories,
+    )
+    group("global_bundled_installers", global_bundled, global_start)
+    group("global_uv", ["/usr/local/bin/uv", "/usr/local/bin/uvx"], global_start)
     result = {
         "schema_version": 1,
         "complete": not fs.errors,
@@ -443,14 +495,48 @@ def inventory(root: Path = Path("/"), *, limits: Limits = Limits()) -> dict:
         "searches": [fs.searches[path] for path in sorted(fs.searches)],
         "errors": sorted(fs.errors, key=lambda row: (row["path"], row["code"])),
     }
-    if len(json.dumps(result, sort_keys=True).encode()) > limits.output_bytes:
+    return bounded_output(result, limits.output_bytes)
+
+
+def bounded_output(result: dict, maximum: int) -> dict:
+    if len(json.dumps(result, sort_keys=True).encode()) > maximum:
         return {"schema_version": 1, "complete": False, "errors": [{"code": "output_byte_limit"}]}
     return result
+
+
+def no_global_installers(result: dict) -> dict:
+    """Only global Python build installers; unrelated system tools are out of scope."""
+    if not result.get("complete"):
+        return {
+            "name": "no_global_installers",
+            "passed": False,
+            "violations": ["inventory_incomplete"],
+        }
+    violations = []
+    for name in ("global_pip", "global_ensurepip", "global_bundled_installers", "global_uv"):
+        component = result.get("components", {}).get(name, {})
+        if not component.get("complete") or component.get("present") is not False:
+            violations.append(name)
+    if any(
+        row.get("name") == "pip" and row.get("site_packages", "").startswith("/usr/local/lib/")
+        for row in result.get("python_distributions", [])
+    ):
+        violations.append("global_pip_distribution")
+    return {
+        "name": "no_global_installers",
+        "passed": not violations,
+        "violations": sorted(violations),
+    }
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path("/"))
+    parser.add_argument(
+        "--require-no-global-installers",
+        action="store_true",
+        help="Require no global pip, ensurepip/bundled installers or uv; venv pip is permitted.",
+    )
     args = parser.parse_args()
     try:
         result = inventory(args.root)
@@ -460,8 +546,14 @@ def main() -> int:
             "complete": False,
             "errors": [{"code": "invalid_image_root"}],
         }
+    if args.require_no_global_installers:
+        result["policy"] = no_global_installers(result)
+        result = bounded_output(result, Limits().output_bytes)
     print(json.dumps(result, sort_keys=True, separators=(",", ":")))
-    return 0 if result["complete"] else 2
+    passed = result["complete"] and (
+        not args.require_no_global_installers or result.get("policy", {}).get("passed", False)
+    )
+    return 0 if passed else 2
 
 
 if __name__ == "__main__":

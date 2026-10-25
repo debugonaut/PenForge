@@ -20,7 +20,7 @@ Backend, ML and infrastructure work follows the complete [v3 engineering specifi
 ## Run
 
 Use Node.js 24 LTS, version 24.22.1 or newer within 24.x. The [.nvmrc](.nvmrc)
-selects that release line; `package.json` declares the patched minimum. Use the
+pins the verified runtime; `package.json` declares the patched minimum. Use the
 committed lockfile. CI also blocks moderate-or-higher npm vulnerability findings.
 
 ```sh

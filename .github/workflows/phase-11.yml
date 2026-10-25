@@ -96,12 +96,14 @@ jobs:
           # Keep the worker above PID 1 for the decoder parent-death guard.
           docker run --init --rm --network none --memory 768m --cpus 1 --entrypoint .venv/bin/python penforge-worker:ci image_smoke.py --worker
       - name: Scan API image for known vulnerabilities
+        id: api_vulnerabilities
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: penforge-api:ci
           severity: HIGH,CRITICAL
           exit-code: "1"
       - name: Scan worker image for known vulnerabilities
+        if: ${{ !cancelled() && steps.api_vulnerabilities.outcome != 'skipped' }}
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: penforge-worker:ci

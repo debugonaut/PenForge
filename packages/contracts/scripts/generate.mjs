@@ -27,7 +27,7 @@ try {
   // Formatting is pinned by the existing package lock and shared with source files.
   execFileSync(
     path.join(root, "node_modules/.bin/prettier"),
-    ["--write", destination],
+    ["--no-config", "--no-editorconfig", "--write", destination],
     {
       cwd: root,
       stdio: "pipe",
@@ -35,10 +35,20 @@ try {
   );
   const generated = await fs.readFile(destination, "utf8");
   if (check) {
-    if ((await fs.readFile(output, "utf8").catch(() => "")) !== generated)
+    const committed = await fs.readFile(output, "utf8").catch(() => "");
+    if (committed !== generated) {
+      const before = committed.split("\n");
+      const after = generated.split("\n");
+      const line = Array.from(
+        { length: Math.max(before.length, after.length) },
+        (_, index) => index,
+      ).find((index) => before[index] !== after[index]);
       throw new Error(
-        "Generated TypeScript drift. Run npm run contracts:generate.",
+        `Generated TypeScript drift at line ${line + 1}. Run npm run contracts:generate.\n` +
+          `Committed: ${JSON.stringify(before[line] ?? "<EOF>")}\n` +
+          `Generated: ${JSON.stringify(after[line] ?? "<EOF>")}`,
       );
+    }
   } else {
     await fs.writeFile(output, generated);
   }

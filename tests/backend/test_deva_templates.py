@@ -1,3 +1,4 @@
+import hashlib
 import json
 from pathlib import Path
 
@@ -5,6 +6,7 @@ import cv2
 import numpy as np
 from penforge_contracts import CalibrationDefinition, content_hash
 from penforge_contracts.templates import load_templates
+from template_fixtures import assert_png_raster_equal
 
 from packages.extraction.deva_labels import shaped
 from packages.extraction.templates import template_png, template_svg
@@ -25,8 +27,10 @@ def test_pinned_deva_labels_geometry_and_print_identity(tmp_path):
             assert items and all(i.codepoint != 0 for i, p in items)
         data = template_png(m, pixels_per_mm=300 / 25.4)
         name = f"{m.template_id}-{m.template_version}-page-{m.page.index}"
-        assert (BASE / (name + ".png")).read_bytes() == data
-        assert (BASE / (name + ".svg")).read_text() == template_svg(m)
+        assert_png_raster_equal((BASE / (name + ".png")).read_bytes(), data)
+        assert hashlib.sha256((BASE / (name + ".svg")).read_bytes()).hexdigest() == (
+            hashlib.sha256(template_svg(m).encode()).hexdigest()
+        )
         image = cv2.imdecode(np.frombuffer(data, np.uint8), cv2.IMREAD_COLOR)
         payload, _, _ = cv2.QRCodeDetector().detectAndDecode(image)
         assert payload == m.page_identity.public_payload

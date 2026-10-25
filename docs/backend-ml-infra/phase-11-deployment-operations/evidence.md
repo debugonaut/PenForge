@@ -35,7 +35,12 @@ No migration, authorization rule or validation assertion was relaxed.
 GitHub PostgreSQL acceptance, benchmarks, credential checks, image builds, size
 budgets and networkless capped API/worker smoke have now passed on the repair branch.
 Contract generation also has a regression for Linux temporary-directory ignore rules
-and host formatter configuration. The local public suites pass with the patched
+and host formatter configuration. Print-raster checks compare every decoded pixel,
+mode, dimensions and metadata while allowing lossless PNG compression differences.
+Negative controls reject a single changed pixel and metadata/layout changes; compact
+hash diagnostics avoid pytest's unbounded binary-difference rendering. Foundation
+checks stop at the first failure, report stalled stacks and have a 30-minute job cap.
+The local public suites pass with the patched
 dependencies. The PR records the current head's full workflow results; this is not an
 all-green or production-readiness claim. HIGH/CRITICAL image scans remain blocking.
 Some Debian and pip-vendored findings still have no patched stable release; no blanket

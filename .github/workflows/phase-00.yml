@@ -13,8 +13,9 @@ jobs:
           POSTGRES_USER: penforge
           POSTGRES_PASSWORD: penforge
         ports: ["5432:5432"]
+        # The runner parses these arguments directly, without shell quoting.
         options: >-
-          --health-cmd 'pg_isready -U penforge -d penforge_test'
+          --health-cmd "pg_isready -U penforge -d penforge_test"
           --health-interval 2s --health-timeout 2s --health-retries 15
     env:
       PYTHONPATH: apps/api:packages/contracts:packages/font-engine:.

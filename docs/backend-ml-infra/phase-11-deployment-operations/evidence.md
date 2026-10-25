@@ -24,6 +24,29 @@ No provider resources, credentials, public endpoint or training run were created
 The [baseline](baseline.md) is historical; [providers](providers.md), [budget](budget.md)
 and [runbook](runbook.md) contain the corrected current guidance.
 
+## Subsequent CI repair — 2026-10-25
+
+[Draft PR #1](https://github.com/debugonaut/PenForge/pull/1) repairs runner argument
+quoting and gives the capped worker an init parent, preserving its decoder guard.
+Clean-checkout fixes align test setup and ORM metadata with the existing migration
+head, authenticate fixture requests and preserve passwords in ephemeral test URLs.
+No migration, authorization rule or validation assertion was relaxed.
+
+GitHub PostgreSQL acceptance, benchmarks, credential checks, image builds, size
+budgets and networkless capped API/worker smoke have now passed on the repair branch.
+Contract generation also has a regression for Linux temporary-directory ignore rules
+and host formatter configuration. The local public suites pass with the patched
+dependencies. The PR records the current head's full workflow results; this is not an
+all-green or production-readiness claim. HIGH/CRITICAL image scans remain blocking.
+Some Debian and pip-vendored findings still have no patched stable release; no blanket
+ignore, suppressed severity or bypass was added.
+
+Brotli is updated to 1.2.1 and the current toolchain policy records that version.
+Compiler 1.0.1 and spacing policy v2 remain unchanged. Frozen manifests using Brotli
+1.2.0 fail with `toolchain_mismatch`; request a fresh build with the patched toolchain.
+Existing ready exports remain immutable. No private handwriting or generated personal
+font is part of the PR, and no provider provisioning or deployment occurred.
+
 ## Work-package status
 
 | Package | Actual state |

@@ -8,7 +8,7 @@
     "start": "next start --hostname 0.0.0.0",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "node --test tests/mock-services.test.mjs tests/writing-desk.test.mjs tests/writing.test.mjs tests/motion-preference.test.mjs tests/api-boundary.test.mjs tests/auth-service.test.mjs tests/password-policy.test.mjs tests/stroke-capture.test.mjs tests/capture-service.test.mjs tests/extraction-client.test.mjs tests/export-client.test.mjs tests/job-client.test.mjs tests/privacy-client.test.mjs tests/unicode-sequences.test.mjs tests/account-persistence.test.mjs tests/account-clients.test.mjs tests/owner-token.test.mjs tests/service-access.test.mjs",
+    "test": "node --test tests/contracts-generation.test.mjs tests/mock-services.test.mjs tests/writing-desk.test.mjs tests/writing.test.mjs tests/motion-preference.test.mjs tests/api-boundary.test.mjs tests/auth-service.test.mjs tests/password-policy.test.mjs tests/stroke-capture.test.mjs tests/capture-service.test.mjs tests/extraction-client.test.mjs tests/export-client.test.mjs tests/job-client.test.mjs tests/privacy-client.test.mjs tests/unicode-sequences.test.mjs tests/account-persistence.test.mjs tests/account-clients.test.mjs tests/owner-token.test.mjs tests/service-access.test.mjs",
     "format": "prettier --write src tests *.json *.mjs next.config.ts README.md",
     "contracts:generate": "node packages/contracts/scripts/generate.mjs",
     "contracts:check": "node packages/contracts/scripts/generate.mjs --check"

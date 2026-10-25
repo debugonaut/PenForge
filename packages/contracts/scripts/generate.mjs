@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
+import { format } from "prettier";
 
 const root = fileURLToPath(new URL("../../../", import.meta.url));
 const packageRoot = path.join(root, "packages/contracts");
@@ -24,16 +25,11 @@ try {
     ],
     { cwd: root, stdio: "pipe" },
   );
-  // Formatting is pinned by the existing package lock and shared with source files.
-  execFileSync(
-    path.join(root, "node_modules/.bin/prettier"),
-    ["--no-config", "--no-editorconfig", "--write", destination],
-    {
-      cwd: root,
-      stdio: "pipe",
-    },
-  );
-  const generated = await fs.readFile(destination, "utf8");
+  // Format text directly: /tmp can match ignore rules, and host config must not
+  // influence this lockfile-pinned generated contract.
+  const generated = await format(await fs.readFile(destination, "utf8"), {
+    parser: "typescript",
+  });
   if (check) {
     const committed = await fs.readFile(output, "utf8").catch(() => "");
     if (committed !== generated) {

@@ -30,6 +30,12 @@ from services.worker.runtime import PipelineWorker
 pytestmark = pytest.mark.integration
 
 
+@pytest.fixture(scope="module", autouse=True)
+def prepare_evidence_directory():
+    # Evidence is generated on each clean checkout; no prior local run is required.
+    Path("artifacts/phase06").mkdir(parents=True, exist_ok=True)
+
+
 @pytest.mark.parametrize("handler", ["analysis", "exports"])
 def test_stage_resource_shortage_is_typed_and_never_weakens_quality(
     uploads_database, tmp_path, monkeypatch, handler

@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 import sqlalchemy as sa
 from app.db import models as m
+from app.db.revision import EXPECTED_MIGRATION_HEAD
 from app.modules.privacy.schemas import DeletionCreate
 from test_database import migrate
 from test_privacy_database import drain, privacy
@@ -39,7 +40,7 @@ def test_previous_privacy_release_seed_and_erasure_journal_survive_upgrade(
             assert before == after
             assert (
                 await con.scalar(sa.text("SELECT version_num FROM alembic_version"))
-                == "0013_account_workspace"
+                == EXPECTED_MIGRATION_HEAD
             )
         assert journal == {
             o.key: hashlib.sha256(storage.read_object(o.key, max_bytes=100000)).hexdigest()
@@ -52,7 +53,7 @@ def test_previous_privacy_release_seed_and_erasure_journal_survive_upgrade(
             json.dumps(
                 {
                     "previous_head": "0010_privacy",
-                    "head": "0013_account_workspace",
+                    "head": EXPECTED_MIGRATION_HEAD,
                     "privacy_request_unchanged": True,
                     "journal_byte_hashes_unchanged": True,
                     "erasure_resumed": True,

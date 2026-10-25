@@ -1,7 +1,9 @@
 # Independent verification runtime. Docker execution remains a recorded host gate.
-FROM python:3.12.15-slim-bookworm
+FROM python:3.12.15-slim-trixie
 COPY --from=ghcr.io/astral-sh/uv:0.13.1 /uv /usr/local/bin/uv
 WORKDIR /app
+# Apply current Debian security fixes, then discard package index files.
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
 COPY pyproject.toml uv.lock ./
 RUN uv sync --locked --no-dev --group worker --no-group research
 COPY services/worker services/worker

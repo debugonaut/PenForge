@@ -78,3 +78,9 @@ exclude = ["infrastructure/migrations/versions"]
 [[tool.mypy.overrides]]
 module = ["fontTools.*", "pathops", "ots", "uharfbuzz", "freetype"]
 ignore_missing_imports = true
+
+# Model runtimes belong to the optional recognition group. CI still checks our
+# research code without requiring those runtime installations or executing them.
+[[tool.mypy.overrides]]
+module = ["torch.*", "transformers.*", "safetensors.*"]
+ignore_missing_imports = true

@@ -20,6 +20,14 @@ from test_uploads_database import create_project as setup
 from test_uploads_database import uploads_database as uploads_database
 
 pytestmark = pytest.mark.integration
+
+
+@pytest.fixture(scope="module", autouse=True)
+def prepare_evidence_directory():
+    # Evidence is generated on each clean checkout; no prior local run is required.
+    Path("artifacts/phase07").mkdir(parents=True, exist_ok=True)
+
+
 ARTIFACTS = Path("artifacts/phase07")
 
 

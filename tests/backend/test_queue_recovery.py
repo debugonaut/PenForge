@@ -3,6 +3,7 @@
 import asyncio
 import uuid
 from datetime import timedelta
+from pathlib import Path
 
 import pytest
 import sqlalchemy as sa
@@ -11,6 +12,12 @@ from test_uploads_database import configure, create_project, execute, init_uploa
 from test_uploads_database import uploads_database as uploads_database
 
 pytestmark = pytest.mark.integration
+
+
+@pytest.fixture(scope="module", autouse=True)
+def prepare_evidence_directory():
+    # Evidence is generated on each clean checkout; no prior local run is required.
+    Path("artifacts/phase06").mkdir(parents=True, exist_ok=True)
 
 
 async def queue_config(engine, **values):

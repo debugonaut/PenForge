@@ -950,7 +950,9 @@ service_agreements = sa.Table(
     col("handwriting_rights_confirmed", sa.Boolean),
     stamp("accepted_at"),
     fk("user_id", "users.id", delete="CASCADE"),
-    sa.UniqueConstraint("user_id", "policy_sha256"),
+    sa.UniqueConstraint(
+        "user_id", "policy_sha256", name="service_agreements_user_id_policy_sha256_key"
+    ),
     check("policy_sha256 ~ '^[0-9a-f]{64}$'", "hash"),
     check("terms_accepted AND handwriting_rights_confirmed", "affirmative"),
 )

@@ -1,6 +1,8 @@
-FROM python:3.12.15-slim-bookworm
+FROM python:3.12.15-slim-trixie
 COPY --from=ghcr.io/astral-sh/uv:0.13.1 /uv /usr/local/bin/uv
 WORKDIR /app
+# Apply current Debian security fixes, then discard package index files.
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
 ENV PYTHONPATH=/app/apps/api:/app/packages/contracts \
     APP_ENV=production AUTH_BACKEND=disabled STORAGE_BACKEND=disabled \
     UV_COMPILE_BYTECODE=1

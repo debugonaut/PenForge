@@ -529,6 +529,28 @@ def no_global_installers(result: dict) -> dict:
     }
 
 
+def minimal_runtime_components(result: dict) -> dict:
+    """Require scoped absence of unnecessary affected tools, in addition to installers."""
+    violations = no_global_installers(result)["violations"]
+    for name in (
+        "infocmp",
+        "mount",
+        "nsenter",
+        "libacl",
+        "libmount",
+        "systemd_homed",
+        "perl_archive_tar",
+    ):
+        component = result.get("components", {}).get(name, {})
+        if component.get("complete") is not True or component.get("present") is not False:
+            violations.append(name)
+    return {
+        "name": "minimal_runtime_components",
+        "passed": not violations,
+        "violations": sorted(violations),
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path("/"))
@@ -537,7 +559,11 @@ def main() -> int:
         action="store_true",
         help="Require no global pip, ensurepip/bundled installers or uv; venv pip is permitted.",
     )
+    parser.add_argument("--require-minimal-runtime", action="store_true")
+    parser.add_argument("--image-id", help="Exact image config ID supplied by the Docker host.")
     args = parser.parse_args()
+    if args.image_id and not re.fullmatch(r"sha256:[0-9a-f]{64}", args.image_id):
+        parser.error("image-id must be an exact sha256 config ID")
     try:
         result = inventory(args.root)
     except (OSError, ValueError, RuntimeError):
@@ -546,12 +572,18 @@ def main() -> int:
             "complete": False,
             "errors": [{"code": "invalid_image_root"}],
         }
-    if args.require_no_global_installers:
-        result["policy"] = no_global_installers(result)
+    if args.image_id:
+        result["image_config_id"] = args.image_id
+    if args.require_no_global_installers or args.require_minimal_runtime:
+        policy = (
+            minimal_runtime_components if args.require_minimal_runtime else no_global_installers
+        )
+        result["policy"] = policy(result)
         result = bounded_output(result, Limits().output_bytes)
     print(json.dumps(result, sort_keys=True, separators=(",", ":")))
     passed = result["complete"] and (
-        not args.require_no_global_installers or result.get("policy", {}).get("passed", False)
+        not (args.require_no_global_installers or args.require_minimal_runtime)
+        or result.get("policy", {}).get("passed", False)
     )
     return 0 if passed else 2
 

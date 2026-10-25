@@ -52,9 +52,9 @@ test-integration:
 	$(PYTHON) -m pytest $(PUBLIC_PYTEST_EXCLUDES) -m 'integration and not emulator' -q
 
 lint:
-	.venv/bin/ruff check apps/api packages/contracts/penforge_contracts packages/contracts/scripts packages/capture_safety packages/extraction packages/ml_core packages/font-engine/penforge_font_engine services/worker research tests/backend scripts infrastructure/migrations
-	.venv/bin/ruff format --check apps/api packages/contracts/penforge_contracts packages/contracts/scripts packages/capture_safety packages/extraction packages/ml_core packages/font-engine/penforge_font_engine services/worker research tests/backend scripts infrastructure/migrations
-	.venv/bin/mypy apps/api/app packages/contracts/penforge_contracts packages/capture_safety packages/extraction packages/ml_core packages/font-engine/penforge_font_engine services/worker research infrastructure/migrations
+	.venv/bin/ruff check apps/api packages/contracts/penforge_contracts packages/contracts/scripts packages/capture_safety packages/extraction packages/ml_core packages/font-engine/penforge_font_engine services/worker research tests/backend scripts infrastructure/migrations infrastructure/docker
+	.venv/bin/ruff format --check apps/api packages/contracts/penforge_contracts packages/contracts/scripts packages/capture_safety packages/extraction packages/ml_core packages/font-engine/penforge_font_engine services/worker research tests/backend scripts infrastructure/migrations infrastructure/docker
+	.venv/bin/mypy apps/api/app packages/contracts/penforge_contracts packages/capture_safety packages/extraction packages/ml_core packages/font-engine/penforge_font_engine services/worker research infrastructure/migrations infrastructure/docker
 	$(PYTHON) scripts/check_boundaries.py
 	$(PYTHON) scripts/check_docs.py
 

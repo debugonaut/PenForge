@@ -11,7 +11,12 @@ from types import SimpleNamespace
 
 import pytest
 
-from scripts.image_security_inventory import Limits, inventory, no_global_installers
+from scripts.image_security_inventory import (
+    Limits,
+    inventory,
+    minimal_runtime_components,
+    no_global_installers,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 STATUS = b"Package: base-files\nStatus: install ok installed\nVersion: 13.8\nArchitecture: amd64\n"
@@ -386,3 +391,54 @@ def test_global_installer_cli_policy_is_opt_in_and_always_emits_json(image):
         command + ["--require-no-global-installers"], text=True, capture_output=True, timeout=10
     )
     assert accepted.returncode == 0 and json.loads(accepted.stdout)["policy"]["passed"]
+
+
+@pytest.mark.parametrize(
+    "path,component",
+    [
+        ("/usr/bin/infocmp", "infocmp"),
+        ("/usr/bin/mount", "mount"),
+        ("/usr/bin/nsenter", "nsenter"),
+        ("/usr/lib/libacl.so.1", "libacl"),
+        ("/usr/lib/libmount.so.1", "libmount"),
+        ("/usr/lib/systemd/systemd-homework", "systemd_homed"),
+        ("/usr/share/perl/5.40/Archive/Tar.pm", "perl_archive_tar"),
+    ],
+)
+def test_minimal_runtime_rejects_each_unnecessary_affected_component(image, path, component):
+    assert minimal_runtime_components(inventory(image))["passed"]
+    put(image, path)
+    result = inventory(image)
+    assert no_global_installers(result)["passed"]
+    assert minimal_runtime_components(result)["violations"] == [component]
+
+
+def test_minimal_runtime_missing_evidence_cannot_be_absence(image):
+    result = inventory(image)
+    del result["components"]["libmount"]
+    assert minimal_runtime_components(result)["violations"] == ["libmount"]
+
+
+def test_cli_image_binding_and_minimal_component_policy(image):
+    script = ROOT / "scripts/image_security_inventory.py"
+    image_id = "sha256:" + "a" * 64
+    command = [
+        sys.executable,
+        "-B",
+        str(script),
+        "--root",
+        str(image),
+        "--require-minimal-runtime",
+        "--image-id",
+        image_id,
+    ]
+    accepted = subprocess.run(command, text=True, capture_output=True, timeout=10)
+    value = json.loads(accepted.stdout)
+    assert accepted.returncode == 0 and value["policy"]["passed"]
+    assert value["image_config_id"] == image_id
+    put(image, "/usr/bin/nsenter")
+    rejected = subprocess.run(command, text=True, capture_output=True, timeout=10)
+    assert rejected.returncode == 2
+    assert json.loads(rejected.stdout)["policy"]["violations"] == ["nsenter"]
+    invalid = subprocess.run(command[:-1] + ["latest"], capture_output=True, timeout=10)
+    assert invalid.returncode == 2

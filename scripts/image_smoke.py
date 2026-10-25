@@ -2,8 +2,12 @@
 
 import argparse
 import copy
+import hashlib
 import io
 import json
+import locale
+import socket
+import ssl
 import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
@@ -16,6 +20,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--worker", action="store_true")
     args = parser.parse_args()
+    # Exercise runtime-loaded CA/locale/NSS data, not only static ELF dependencies.
+    assert ssl.create_default_context().cert_store_stats()["x509_ca"] > 0
+    locale.setlocale(locale.LC_CTYPE, "C.UTF-8")
+    assert socket.getaddrinfo("localhost", 8000)
     root = Path("packages/contracts")
     assert graphemes("A\u0301") == [[65, 769]]
     assert len(graphemes("कि")) == 1
@@ -23,7 +31,7 @@ def main():
     outline = json.loads((root / "fixtures/outline.v1.json").read_text())
     GlyphOutline.model_validate(outline)
     if args.worker:
-        from penforge_contracts import FontBuildManifest
+        from penforge_contracts import FontBuildManifest, FontOptions
         from penforge_font_engine.compiler import compile_font, installed_versions
         from penforge_font_engine.validation import validate_font
         from PIL import Image, ImageDraw
@@ -73,11 +81,14 @@ def main():
             snapshot_created_at=datetime(2026, 10, 21, tzinfo=UTC),
             family_name="Penforge Image Smoke",
             tool_versions=installed_versions(),
-            options={"spacing": 100},
+            options=FontOptions(spacing=100),
         )
         with tempfile.TemporaryDirectory() as temporary:
+            frozen = json.loads((root / "fixtures/font-runtime-hashes.v1.json").read_text())
+            assert installed_versions() == frozen["tool_versions"]
             for format in ("ttf", "otf", "woff2"):
                 data = compile_font(manifest, rows, format)
+                assert hashlib.sha256(data).hexdigest() == frozen["fonts"][format]
                 report = validate_font(data, manifest, rows, format, Path(temporary) / format)
                 assert report["status"] in {"passed", "passed_with_warnings"}, report
                 assert report["layers"]["harfbuzz"]["measured_spacing"]["corrected_pairs"] > 0

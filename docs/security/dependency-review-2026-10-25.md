@@ -63,3 +63,23 @@ FontBakery's declared dependencies complete. CI requires the global installer pa
 to be absent, then exercises the unchanged validators and capped font pipeline.
 This removes unnecessary runtime code without treating scanner silence as proof of
 security. Current Debian libraries and worker-vendored urllib3 still need resolution.
+
+## Local validator boundary follow-up — 2026-10-26
+
+The validator now launches a Python child in isolated mode (`-I`) before importing
+FontBakery. The child fixes the existing four-check profile and denies `pip` and
+`pip_api` imports, including submodules. Preloaded installer modules refuse before
+FontBakery loads; an attempted import still fails the child if a dependency catches
+the rejection. The parent retains exact check-ID/result checks and all five validator
+layers. FontBakery's declared dependency graph and compiler toolchain are unchanged.
+
+Real subprocess controls exercise rejected imports, preloaded modules, swallowed
+rejections, late module injection, fixed arguments and exit statuses. A positive
+control executes the fake installer without the guard. Actual synthetic full/partial
+fonts still pass every validation layer in TTF/OTF/WOFF2; their six output hashes
+match the pre-change compiler baseline. No private font or model was rebuilt.
+
+This is local application-path evidence only. Docker is unavailable on the current
+host, so this follow-up has not rebuilt or rescanned Linux images. It does not clear
+the existing image-security gate, establish a VEX disposition, or implement the
+separate proposed minimal-runtime filesystem. Raw findings remain blocking.

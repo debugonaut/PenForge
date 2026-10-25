@@ -1,0 +1,20 @@
+{
+  "fonts": {
+    "otf": "5c34abab5fa071c3c0342e7fe83479ea984c10d30ab33a8671cbb53812fa4050",
+    "ttf": "f78abd809d01d0854a54022809da3a814141a99dc60a8aabd57ea84fc9681c11",
+    "woff2": "5d7fcefa1b751b83036f8f95f3429ed76f55b447c720b48cf9effa2fe46290e5"
+  },
+  "schema_version": 1,
+  "scope": "authored_synthetic_image_smoke_not_private_handwriting",
+  "tool_versions": {
+    "brotli": "1.2.1",
+    "fontbakery": "1.1.0",
+    "fonttools": "4.61.1",
+    "freetype-py": "2.3.0",
+    "opentype-sanitizer": "9.2.0",
+    "penforge-font-engine": "1.0.1",
+    "pillow": "13.0.0",
+    "skia-pathops": "0.9.2",
+    "uharfbuzz": "0.53.3"
+  }
+}

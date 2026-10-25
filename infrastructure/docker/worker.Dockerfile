@@ -1,10 +1,11 @@
 # Independent verification runtime with pinned compiler and validator dependencies.
-FROM python:3.12.15-slim-trixie
+FROM python:3.12.15-slim-trixie AS builder
 COPY --from=ghcr.io/astral-sh/uv:0.13.1 /uv /usr/local/bin/uv
 WORKDIR /app
 # Apply current Debian security fixes, then discard package index files.
 RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
 COPY pyproject.toml uv.lock ./
+COPY LICENSE THIRD_PARTY_NOTICES.md ./
 # Preserve the project dependency graph; global installers are build-only.
 RUN uv sync --locked --no-dev --group worker --no-group research \
     && /usr/local/bin/python -B -m pip uninstall --yes pip \
@@ -23,5 +24,18 @@ COPY packages/contracts/unicode packages/contracts/unicode
 COPY packages/contracts/fixtures packages/contracts/fixtures
 COPY scripts/image_smoke.py image_smoke.py
 ENV PYTHONPATH=/app/apps/api:/app/packages/contracts:/app/packages/font-engine:/app
+USER 65532:65532
+CMD [".venv/bin/python", "-m", "services.worker"]
+
+FROM builder AS assembled
+USER 0:0
+COPY infrastructure/docker/assemble_runtime.py /tmp/assemble_runtime.py
+RUN /usr/local/bin/python -B /tmp/assemble_runtime.py --output /runtime --role worker
+
+FROM scratch AS runtime
+COPY --from=assembled /runtime/ /
+WORKDIR /app
+ENV PYTHONPATH=/app/apps/api:/app/packages/contracts:/app/packages/font-engine:/app \
+    PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 LANG=C.UTF-8
 USER 65532:65532
 CMD [".venv/bin/python", "-m", "services.worker"]

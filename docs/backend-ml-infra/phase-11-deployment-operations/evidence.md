@@ -34,6 +34,10 @@ No migration, authorization rule or validation assertion was relaxed.
 
 GitHub PostgreSQL acceptance, benchmarks, credential checks, image builds, size
 budgets and networkless capped API/worker smoke have now passed on the repair branch.
+The full `make check` also passes on Linux. Six local Auth-emulator/PostgreSQL
+scenarios verify the current account, email-verification and policy-receipt gates,
+plus linking, revocation, replay, legacy guest-work transfer and redaction. Historical
+guest records are seeded through the domain service; public guest creation stays denied.
 Contract generation also has a regression for Linux temporary-directory ignore rules
 and host formatter configuration. Print-raster checks compare every decoded pixel,
 mode, dimensions and metadata while allowing lossless PNG compression differences.

@@ -10,6 +10,8 @@ from types import SimpleNamespace
 import pytest
 
 from infrastructure.docker.assemble_runtime import (
+    STDLIB,
+    TKINTER_EXTENSION,
     AssemblyError,
     MissingNativeDependency,
     RuntimeAssembler,
@@ -180,7 +182,7 @@ def test_parent_trace_does_not_cover_unresolved_elf_with_same_basename(roots):
 
     assembler = RuntimeAssembler(source, output, resolver=resolve)
     assembler.copy("/app")
-    with pytest.raises(MissingNativeDependency, match="unrelated/libchild.so:libmissing.so"):
+    with pytest.raises(AssemblyError, match="unrelated/libchild.so:libmissing.so"):
         assembler.finish(role="api")
 
 
@@ -345,6 +347,72 @@ def test_all_independent_inspection_failures_are_reported_without_accepting_runt
 
     def resolve(path):
         raise AssemblyError("native_dependency_output_unrecognized:" + str(path))
+
+    assembler = RuntimeAssembler(source, output, resolver=resolve)
+    assembler.copy("/app")
+    with pytest.raises(AssemblyError) as result:
+        assembler.finish(role="api")
+    assert "first.so" in str(result.value) and "second.so" in str(result.value)
+    assert not (output / "usr/share/penforge-runtime/manifest.json").exists()
+
+
+def test_only_current_stdlib_tk_bridge_is_omitted_with_hash_and_explicit_reason(roots):
+    source, output = roots
+    tk = put(source, TKINTER_EXTENSION, b"\x7fELFunsupported GUI bridge")
+    other = STDLIB + "/lib-dynload/_other.so"
+    put(source, other, b"\x7fELFother extension")
+    put(source, STDLIB + "/lib-dynload/_tkinter.other-abi.so", b"\x7fELFother ABI")
+    put(source, STDLIB + "/tkinter/__init__.py", b"stdlib Python code")
+    assembler = RuntimeAssembler(source, output, resolver=lambda _: [])
+    assembler.copy(STDLIB, omit_optional_stdlib=True)
+    result = assembler.finish(role="api")
+    assert not (output / TKINTER_EXTENSION.lstrip("/")).exists()
+    assert (output / other.lstrip("/")).exists()
+    assert (output / (STDLIB + "/lib-dynload/_tkinter.other-abi.so").lstrip("/")).exists()
+    assert (output / (STDLIB + "/tkinter/__init__.py").lstrip("/")).exists()
+    assert result["omitted_optional_stdlib"] == {
+        TKINTER_EXTENSION: {
+            "sha256": hashlib.sha256(tk.read_bytes()).hexdigest(),
+            "size": tk.stat().st_size,
+            "reason": "headless_runtime_omits_unsupported_tk_gui_bridge",
+        }
+    }
+    assert TKINTER_EXTENSION not in result["copied_files"]
+
+
+def test_tk_bridge_omission_requires_explicit_stdlib_traversal(roots):
+    source, output = roots
+    put(source, TKINTER_EXTENSION, b"\x7fELF")
+    assembler = RuntimeAssembler(source, output)
+    with pytest.raises(AssemblyError, match="unsupported_gui"):
+        assembler.copy(STDLIB)
+
+
+@pytest.mark.parametrize("alias", [False, True])
+def test_required_native_tk_bridge_still_refuses_even_after_optional_omission(roots, alias):
+    source, output = roots
+    put(source, TKINTER_EXTENSION, b"\x7fELF")
+    put(source, "/app/parser", b"\x7fELF")
+    required = TKINTER_EXTENSION
+    if alias:
+        required = "/usr/lib/required-gui.so"
+        path = source / required.lstrip("/")
+        path.parent.mkdir(parents=True)
+        path.symlink_to(TKINTER_EXTENSION)
+    assembler = RuntimeAssembler(source, output, resolver=lambda _: [required])
+    assembler.copy(STDLIB, omit_optional_stdlib=True)
+    assembler.copy("/app")
+    with pytest.raises(AssemblyError, match="required_native_dependency_is_unsupported_gui"):
+        assembler.finish(role="api")
+
+
+def test_all_unresolved_native_orphans_are_reported_together(roots):
+    source, output = roots
+    for name in ("/app/first.so", "/app/second.so"):
+        put(source, name, b"\x7fELF")
+
+    def resolve(path):
+        raise MissingNativeDependency(path, ["libmissing.so"])
 
     assembler = RuntimeAssembler(source, output, resolver=resolve)
     assembler.copy("/app")

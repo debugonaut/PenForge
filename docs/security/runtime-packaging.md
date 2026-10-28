@@ -13,6 +13,14 @@ native rendering resources loaded at runtime receive explicit inclusion. Source
 paths, symlinks, content hashes, ownership, limits and forbidden payloads are checked.
 Do not apply this builder tool to uploaded binaries or untrusted filesystem trees.
 
+These are headless runtimes. The base image ships a `_tkinter` extension without
+its Tcl/Tk libraries; the assembler explicitly omits only that exact current-ABI
+stdlib bridge and records its source hash and reason in `omitted_optional_stdlib`.
+The Python tkinter modules, other stdlib extensions and complete project venv are
+retained. Tk GUI support is unavailable. If a native dependency trace requires the
+omitted bridge, directly or through a symlink, assembly still refuses. Other
+unresolved dependencies remain blocking and are reported together.
+
 Some wheel libraries inherit the importing extension's RPATH and cannot resolve
 their siblings when inspected alone. Such a missing-library result is deferred only
 until every ELF is inspected. It is accepted only when a separate successful complete

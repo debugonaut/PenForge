@@ -17,6 +17,7 @@ import shutil
 import stat
 import subprocess
 import sys
+import sysconfig
 from collections import deque
 from pathlib import Path, PurePosixPath
 
@@ -54,6 +55,8 @@ OPTIONAL_FILES = (
     "/usr/lib/ssl/openssl.cnf",
 )
 FORBIDDEN_TOOLS = {"mount", "nsenter", "infocmp", "uv", "uvx", "pip", "pip3", "pip3.12"}
+STDLIB = "/usr/local/lib/python3.12"
+TKINTER_EXTENSION = STDLIB + "/lib-dynload/_tkinter" + sysconfig.get_config_var("EXT_SUFFIX")
 
 
 class AssemblyError(RuntimeError):
@@ -142,6 +145,7 @@ class RuntimeAssembler:
         self.native: deque[str] = deque()
         self.native_closure: dict[str, list[str]] = {}
         self.native_context: dict[str, list[str]] = {}
+        self.omitted_optional_stdlib: dict[str, dict] = {}
         self.total_bytes = 0
 
     @staticmethod
@@ -224,10 +228,12 @@ class RuntimeAssembler:
         ):
             raise AssemblyError("runtime_forbidden_payload")
 
-    def copy(self, logical: str) -> None:
+    def copy(self, logical: str, *, omit_optional_stdlib: bool = False) -> None:
         resolved, links = self.resolve(logical)
         if not self.allowed(resolved):
             raise AssemblyError("runtime_source_not_allowed:" + resolved)
+        if resolved == TKINTER_EXTENSION and (not omit_optional_stdlib or links):
+            raise AssemblyError("required_native_dependency_is_unsupported_gui:" + logical)
         for alias, target in links:
             self.alias(alias, target)
         if resolved in self.visited:
@@ -239,10 +245,31 @@ class RuntimeAssembler:
         destination = self.output / resolved.lstrip("/")
         before = source.lstat()
         self.check_payload(resolved, before.st_mode)
+        if resolved == TKINTER_EXTENSION:
+            if not stat.S_ISREG(before.st_mode) or before.st_size > 16 * 1024 * 1024:
+                raise AssemblyError("optional_stdlib_extension_invalid")
+            with source.open("rb") as stream:
+                source_hash = hashlib.file_digest(stream, "sha256").hexdigest()
+            after = source.stat()
+            if (before.st_size, before.st_mtime_ns, before.st_ino) != (
+                after.st_size,
+                after.st_mtime_ns,
+                after.st_ino,
+            ):
+                raise AssemblyError("runtime_source_changed_during_copy")
+            self.omitted_optional_stdlib[resolved] = {
+                "sha256": source_hash,
+                "size": before.st_size,
+                "reason": "headless_runtime_omits_unsupported_tk_gui_bridge",
+            }
+            return
         if stat.S_ISDIR(before.st_mode):
             destination.mkdir(parents=True, exist_ok=True)
             for child in sorted(source.iterdir()):
-                self.copy(str(PurePosixPath(resolved) / child.name))
+                self.copy(
+                    str(PurePosixPath(resolved) / child.name),
+                    omit_optional_stdlib=omit_optional_stdlib,
+                )
             return
         if not stat.S_ISREG(before.st_mode):
             raise AssemblyError("runtime_special_file_forbidden")
@@ -310,9 +337,21 @@ class RuntimeAssembler:
                 "native_dependency_inspection_failures:"
                 + json.dumps({"count": len(failures), "failures": failures[:20]}, sort_keys=True)
             )
-        for logical, unresolved in deferred.items():
-            if logical not in resolved_by:
-                raise unresolved
+        unresolved_errors = [
+            error for logical, error in deferred.items() if logical not in resolved_by
+        ]
+        if unresolved_errors:
+            raise AssemblyError(
+                "native_dependency_missing_in_all_contexts:"
+                + json.dumps(
+                    {
+                        "count": len(unresolved_errors),
+                        "failures": [str(e) for e in unresolved_errors[:20]],
+                    },
+                    sort_keys=True,
+                )
+            )
+        for logical in deferred:
             self.native_context[logical] = sorted(resolved_by[logical])
 
     def finish(self, *, role: str) -> dict:
@@ -334,6 +373,7 @@ class RuntimeAssembler:
             "copied_files": self.files,
             "native_dependencies": self.native_closure,
             "native_context": self.native_context,
+            "omitted_optional_stdlib": self.omitted_optional_stdlib,
             "package_metadata": "Unmodified builder dpkg metadata; copied_files records the actual runtime subset. Python distribution metadata/licenses are retained with the complete venv.",
             "security_disposition": "none",
         }
@@ -348,11 +388,11 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--role", choices=("api", "worker"), required=True)
     args = parser.parse_args()
-    if sys.platform != "linux":
+    if sys.platform != "linux" or sys.version_info[:2] != (3, 12):
         parser.error("Runtime assembly requires the Linux build image")
     assembler = RuntimeAssembler(Path("/"), args.output)
     for logical in TREES + REQUIRED_FILES:
-        assembler.copy(logical)
+        assembler.copy(logical, omit_optional_stdlib=logical == STDLIB)
     for logical in OPTIONAL_FILES + OPTIONAL_TREES:
         if Path(logical).exists() or Path(logical).is_symlink():
             assembler.copy(logical)

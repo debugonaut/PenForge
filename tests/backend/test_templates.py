@@ -14,6 +14,7 @@ from penforge_contracts import TemplateManifest, content_hash
 from penforge_contracts.templates import load_templates
 from PIL import Image
 from pydantic import ValidationError
+from template_fixtures import assert_png_raster_equal
 
 from packages.extraction.templates import load_template, template_hash, template_png, template_svg
 
@@ -39,8 +40,12 @@ def test_archived_manifest_digest_and_regenerated_masters_match(page):
     assert content_hash(catalog) == index_hash
     entry = catalog["pages"][page]
     assert entry["manifest_hash"] == template_hash(manifest)
-    assert (BASE / entry["svg"]).read_text() == template_svg(manifest)
-    assert (BASE / entry["png"]).read_bytes() == template_png(manifest, pixels_per_mm=300 / 25.4)
+    assert hashlib.sha256((BASE / entry["svg"]).read_bytes()).hexdigest() == (
+        hashlib.sha256(template_svg(manifest).encode()).hexdigest()
+    )
+    assert_png_raster_equal(
+        (BASE / entry["png"]).read_bytes(), template_png(manifest, pixels_per_mm=300 / 25.4)
+    )
     svg = ElementTree.fromstring(template_svg(manifest))
     assert svg.get("width") == "210.0mm" and svg.get("height") == "297.0mm"
     assert template_hash(manifest) in template_svg(manifest)
@@ -115,3 +120,33 @@ def test_legacy_template_contract_remains_byte_equivalent_without_new_layout_fie
     assert TemplateManifest.model_validate(fixture).model_dump(mode="json") == fixture
     with pytest.raises(ValueError, match="template_print_geometry_unpinned"):
         template_png(TemplateManifest.model_validate(fixture))
+
+
+def encoded(image, *, compression=6, **options):
+    output = io.BytesIO()
+    image.save(output, format="PNG", compress_level=compression, **options)
+    return output.getvalue()
+
+
+def test_print_raster_comparison_accepts_only_lossless_encoding_changes():
+    image = Image.new("RGB", (8, 8), "white")
+    uncompressed, compressed = encoded(image, compression=0), encoded(image, compression=9)
+    assert uncompressed != compressed
+    assert_png_raster_equal(uncompressed, compressed)
+
+
+@pytest.mark.parametrize("change", ["pixels", "dimensions", "mode", "metadata"])
+def test_print_raster_comparison_rejects_content_changes(change):
+    image = Image.new("RGB", (8, 8), "white")
+    original = encoded(image)
+    options = {}
+    if change == "pixels":
+        image.putpixel((0, 0), (254, 255, 255))
+    elif change == "dimensions":
+        image = Image.new("RGB", (8, 9), "white")
+    elif change == "mode":
+        image = image.convert("RGBA")
+    else:
+        options["dpi"] = (300, 300)
+    with pytest.raises(AssertionError, match=change):
+        assert_png_raster_equal(original, encoded(image, **options))

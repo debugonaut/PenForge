@@ -35,6 +35,13 @@ def test_actual_formats_curves_holes_descenders_coverage_and_reproducibility(for
     assert data != compile_font(fixture_manifest(style_name="Changed"), rows, format)
 
 
+def test_pre_security_update_manifest_is_never_reinterpreted():
+    manifest = fixture_manifest()
+    manifest.tool_versions["brotli"] = "1.2.0"
+    with pytest.raises(ValueError, match="^toolchain_mismatch$"):
+        compile_font(manifest, fixture_glyphs(False), "woff2")
+
+
 def test_unapproved_and_generated_are_distinct():
     rows = fixture_glyphs(False)
     extra = fixture_glyphs()[0]

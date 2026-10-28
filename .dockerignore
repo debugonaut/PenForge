@@ -1,13 +1,15 @@
 node_modules
 .next
 .next-dev
+.next-*
 .venv
 .python
 .cache
 .bootstrap-venv
 .local
-.env
+.env*
 artifacts
 research
 .git
 __pycache__
+public/fonts/local-demo

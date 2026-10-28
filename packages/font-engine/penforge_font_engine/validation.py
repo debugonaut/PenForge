@@ -117,17 +117,13 @@ def check_fontbakery(path, working):
     suffix = ".otf" if raw[:4] == b"OTTO" else ".ttf"
     normalized_path = working / ("validated" + suffix)
     normalized_path.write_bytes(raw)
-    profile = Path(__file__).with_name("fontbakery_profile.py")
     process = subprocess.run(
         [
-            str(Path(sys.executable).with_name("fontbakery")),
-            "check-profile",
-            str(profile),
+            sys.executable,
+            "-I",
+            str(Path(__file__).with_name("_fontbakery_child.py")),
             str(normalized_path),
-            "--skip-network",
-            "--json",
             str(output),
-            "-q",
         ],
         capture_output=True,
         timeout=25,

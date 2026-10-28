@@ -168,10 +168,15 @@ def test_migration_cycle_and_metadata_drift(database: Engine) -> None:
             connection, opts={"compare_type": True, "compare_server_default": True}
         )
         assert compare_metadata(context, m.metadata) == []
-        # 27 lineage tables plus account project workspaces and Writing Desk pages.
+        # 27 lineage tables, two account workspaces, and two accountability tables.
         tables = set(sa.inspect(connection).get_table_names()) - {"alembic_version"}
-        assert len(tables) == 29
-        assert {"project_workspaces", "writing_documents"} <= tables
+        assert len(tables) == 31
+        assert {
+            "project_workspaces",
+            "writing_documents",
+            "service_agreements",
+            "abuse_reports",
+        } <= tables
 
 
 @pytest.mark.parametrize(

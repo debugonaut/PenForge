@@ -18,6 +18,7 @@ import sqlalchemy as sa
 from alembic import command
 from alembic.config import Config
 from app.core.config import Settings
+from app.core.errors import ApiError
 from app.db.session import normalize_database_url
 from app.main import create_app
 from fastapi.testclient import TestClient
@@ -57,6 +58,7 @@ def emulator_app(tmp_path, monkeypatch) -> Iterator[tuple[TestClient, str]]:
         identity_rate_limit=1000,
         identity_first_request_limit=100,
         identity_global_first_request_limit=1000,
+        hmac_secret="e" * 32,
     )
     try:
         with TestClient(create_app(settings), client=("127.0.0.1", 50000)) as client:
@@ -80,6 +82,37 @@ def auth(base: str, action: str, **body) -> dict:
 
 def headers(token: str) -> dict[str, str]:
     return {"Authorization": "Bearer " + token}
+
+
+def verify_email(client, base, account, email):
+    from firebase_admin import auth as admin_auth
+
+    admin_auth.update_user(
+        account["localId"], email_verified=True, app=client.app.state.auth_verifier._app
+    )
+    # Refresh the actual emulator token; never substitute its claims in the API.
+    return auth(
+        base,
+        "signInWithPassword",
+        email=email,
+        password="emulator-password-42",
+        returnSecureToken=True,
+    )
+
+
+def accept_policy(client, account_headers):
+    policy = client.get("/api/v1/service-policy").json()
+    assert policy["ready"]
+    accepted = client.post(
+        "/api/v1/me/service-agreements",
+        headers=account_headers,
+        json={
+            "policy_sha256": policy["sha256"],
+            "terms_accepted": True,
+            "handwriting_rights_confirmed": True,
+        },
+    )
+    assert accepted.status_code == 200 and accepted.json()["eligible"]
 
 
 def test_anonymous_password_link_and_existing_account_claim(emulator_app):
@@ -177,37 +210,71 @@ def test_emulated_google_link_keeps_uid_and_revocation_blocks_access(emulator_ap
     assert denied.json()["error"]["code"] == "invalid_token"
 
 
-def test_cloud_project_quota_replay_and_claimed_owner_preserve_guest_work(emulator_app):
+def test_project_creation_requires_verified_account_and_current_policy(emulator_app):
+    client, base = emulator_app
+    guest = auth(base, "signUp", returnSecureToken=True)
+    email = uuid.uuid4().hex + "@example.test"
+    account = auth(
+        base,
+        "signUp",
+        email=email,
+        password="emulator-password-42",
+        returnSecureToken=True,
+    )
+
+    def create(token):
+        return client.post(
+            "/api/v1/projects",
+            headers={**headers(token), "Idempotency-Key": "current-policy-project"},
+            json={"name": "Verified fixture project", "script_code": "Latn"},
+        )
+
+    for account_token, code in [
+        (guest["idToken"], "account_required"),
+        (account["idToken"], "email_verification_required"),
+    ]:
+        denied = create(account_token)
+        assert denied.status_code == 403 and denied.json()["error"]["code"] == code
+    verified = verify_email(client, base, account, email)
+    denied = create(verified["idToken"])
+    assert denied.status_code == 403 and denied.json()["error"]["code"] == "terms_required"
+    accept_policy(client, headers(verified["idToken"]))
+    created = create(verified["idToken"])
+    assert created.status_code == 201 and created.headers["ETag"] == '"v1"'
+    replayed = create(verified["idToken"])
+    assert replayed.status_code == 201 and replayed.headers["Idempotency-Replayed"] == "true"
+    assert replayed.json() == created.json()
+
+
+def test_legacy_guest_project_quota_replay_and_claimed_owner_preserve_work(emulator_app):
     client, base = emulator_app
     guest = auth(base, "signUp", returnSecureToken=True)
     guest_headers = headers(guest["idToken"])
     assert client.get("/api/v1/me", headers=guest_headers).status_code == 200
+
+    # Public creation now requires an accountable account. Seed historical guest
+    # records through the domain service to retain real claim/quota/replay coverage.
+    async def create_legacy(index):
+        principal = await client.app.state.auth_verifier.verify(guest["idToken"])
+        return await client.app.state.projects_service.create(
+            principal,
+            idempotency_key=f"emulator-project-{index}",
+            name=f"Guest project {index}",
+            script_code="Latn",
+            style_controls={},
+        )
+
+    assert client.portal is not None
     created = []
     for index in range(3):
-        response = client.post(
-            "/api/v1/projects",
-            headers={**guest_headers, "Idempotency-Key": f"emulator-project-{index}"},
-            json={"name": f"Guest project {index}", "script_code": "Latn"},
-        )
-        assert response.status_code == 201
-        assert response.headers["ETag"] == '"v1"'
-        created.append(response.json())
-
-    replay = client.post(
-        "/api/v1/projects",
-        headers={**guest_headers, "Idempotency-Key": "emulator-project-0"},
-        json={"name": "Guest project 0", "script_code": "Latn"},
-    )
-    assert replay.status_code == 201
-    assert replay.headers["Idempotency-Replayed"] == "true"
-    assert replay.json() == created[0]
-    blocked = client.post(
-        "/api/v1/projects",
-        headers={**guest_headers, "Idempotency-Key": "emulator-project-4"},
-        json={"name": "Fourth project", "script_code": "Latn"},
-    )
-    assert blocked.status_code == 403
-    assert blocked.json()["error"]["code"] == "guest_limit_reached"
+        replayed, status, body = client.portal.call(create_legacy, index)
+        assert not replayed and status == 201 and body["row_version"] == 1
+        created.append(body)
+    replayed, status, body = client.portal.call(create_legacy, 0)
+    assert replayed and status == 201 and body == created[0]
+    with pytest.raises(ApiError) as blocked:
+        client.portal.call(create_legacy, 4)
+    assert blocked.value.code == "guest_limit_reached"
     assert client.get("/api/v1/me", headers=guest_headers).json()["guest_creations"]["used"] == 3
 
     email = uuid.uuid4().hex + "@example.test"
@@ -218,7 +285,9 @@ def test_cloud_project_quota_replay_and_claimed_owner_preserve_guest_work(emulat
         password="emulator-password-42",
         returnSecureToken=True,
     )
+    destination = verify_email(client, base, destination, email)
     destination_headers = headers(destination["idToken"])
+    accept_policy(client, destination_headers)
     claim = client.post(
         "/api/v1/identity/claim",
         headers=destination_headers,
@@ -249,7 +318,10 @@ def test_cloud_project_quota_replay_and_claimed_owner_preserve_guest_work(emulat
         json={"name": "stale guest overwrite"},
     )
     assert stale_guest.status_code == 403
-    assert stale_guest.json()["error"]["code"] == "account_merged"
+    assert stale_guest.json()["error"]["code"] == "account_required"
+    stale_identity = client.get("/api/v1/me", headers=guest_headers)
+    assert stale_identity.status_code == 403
+    assert stale_identity.json()["error"]["code"] == "account_merged"
 
 
 def test_errors_cors_rate_headers_and_secret_redaction(emulator_app, caplog):

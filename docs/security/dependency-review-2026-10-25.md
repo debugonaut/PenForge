@@ -83,3 +83,21 @@ This is local application-path evidence only. Docker is unavailable on the curre
 host, so this follow-up has not rebuilt or rescanned Linux images. It does not clear
 the existing image-security gate, establish a VEX disposition, or implement the
 separate proposed minimal-runtime filesystem. Raw findings remain blocking.
+
+## Batched CI follow-up — 2026-10-28
+
+PR branches now run through pull-request events only, with default-branch push
+coverage retained and stale runs cancelled. Container builds and acceptance live
+in the operations workflow, avoiding duplicate builds in the foundations workflow.
+The runtime assembler handles inherited wheel loader paths and glibc's static-object
+diagnostic on stderr while preserving unresolved-dependency and malformed-output
+refusals. Offline smoke now imports native API dependencies, starts/stops the API
+with disabled cloud adapters and checks worker definitions without entering its loop.
+
+The [exact-image gate](image-security-dispositions.md) collects raw scans as JSON
+and applies the approved, narrow component review separately. Raw findings remain
+visible; only exact reviewed package/version/path tuples with complete matching
+image, filesystem and smoke evidence can receive a disposition. Missing Python
+package origin, unknown advisories and invalid evidence block. The import guard alone
+does not clear a vulnerability. Linux results, not source tests, establish whether
+the new runtime meets these requirements; no deployment is included.

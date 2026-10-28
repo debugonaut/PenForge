@@ -254,7 +254,7 @@ def test_native_resolver_parses_loader_and_library_paths(monkeypatch, stdout, re
     def run(command, **kwargs):
         assert command == ["/usr/bin/ldd", "/trusted/extension.so"]
         assert set(kwargs["env"]) == {"PATH", "LC_ALL"}
-        return SimpleNamespace(stdout=stdout, returncode=returncode)
+        return SimpleNamespace(stdout=stdout, stderr="", returncode=returncode)
 
     monkeypatch.setattr("infrastructure.docker.assemble_runtime.subprocess.run", run)
     assert dependencies(Path("/trusted/extension.so")) == expected
@@ -267,7 +267,7 @@ def test_native_resolver_parses_loader_and_library_paths(monkeypatch, stdout, re
 def test_native_inspection_fails_closed(monkeypatch, stdout, returncode):
     monkeypatch.setattr(
         "infrastructure.docker.assemble_runtime.subprocess.run",
-        lambda *args, **kwargs: SimpleNamespace(stdout=stdout, returncode=returncode),
+        lambda *args, **kwargs: SimpleNamespace(stdout=stdout, stderr="", returncode=returncode),
     )
     with pytest.raises(AssemblyError):
         dependencies(Path("/trusted/extension.so"))
@@ -277,7 +277,7 @@ def test_missing_native_diagnostic_identifies_trusted_elf_and_library(monkeypatc
     monkeypatch.setattr(
         "infrastructure.docker.assemble_runtime.subprocess.run",
         lambda *args, **kwargs: SimpleNamespace(
-            stdout="libmissing.so => not found\n", returncode=0
+            stdout="libmissing.so => not found\n", stderr="", returncode=0
         ),
     )
     with pytest.raises(
@@ -298,8 +298,57 @@ def test_missing_native_diagnostic_identifies_trusted_elf_and_library(monkeypatc
 def test_missing_library_never_masks_other_inspection_errors(monkeypatch, stdout, returncode):
     monkeypatch.setattr(
         "infrastructure.docker.assemble_runtime.subprocess.run",
-        lambda *args, **kwargs: SimpleNamespace(stdout=stdout, returncode=returncode),
+        lambda *args, **kwargs: SimpleNamespace(stdout=stdout, stderr="", returncode=returncode),
     )
     with pytest.raises(AssemblyError) as result:
         dependencies(Path("/trusted/extension.so"))
     assert not isinstance(result.value, MissingNativeDependency)
+
+
+def test_glibc_static_object_diagnostic_on_stderr_is_recognized(monkeypatch):
+    monkeypatch.setattr(
+        "infrastructure.docker.assemble_runtime.subprocess.run",
+        lambda *args, **kwargs: SimpleNamespace(
+            stdout="", stderr="\tnot a dynamic executable\n", returncode=1
+        ),
+    )
+    assert dependencies(Path("/trusted/python.o")) == []
+
+
+@pytest.mark.parametrize(
+    "stdout,stderr,returncode",
+    [
+        ("libc.so => /lib/libc.so (0x1)\n", "loader error", 0),
+        ("libmissing.so => not found\n", "loader error", 0),
+        ("", "not a dynamic executable\nloader error", 1),
+        ("libc.so => /lib/libc.so (0x1)\n", "not a dynamic executable", 1),
+    ],
+)
+def test_unexpected_stderr_and_conflicting_static_output_fail_closed(
+    monkeypatch, stdout, stderr, returncode
+):
+    monkeypatch.setattr(
+        "infrastructure.docker.assemble_runtime.subprocess.run",
+        lambda *args, **kwargs: SimpleNamespace(
+            stdout=stdout, stderr=stderr, returncode=returncode
+        ),
+    )
+    with pytest.raises(AssemblyError, match="/trusted/extension.so") as result:
+        dependencies(Path("/trusted/extension.so"))
+    assert not isinstance(result.value, MissingNativeDependency)
+
+
+def test_all_independent_inspection_failures_are_reported_without_accepting_runtime(roots):
+    source, output = roots
+    for name in ("/app/first.so", "/app/second.so"):
+        put(source, name, b"\x7fELF")
+
+    def resolve(path):
+        raise AssemblyError("native_dependency_output_unrecognized:" + str(path))
+
+    assembler = RuntimeAssembler(source, output, resolver=resolve)
+    assembler.copy("/app")
+    with pytest.raises(AssemblyError) as result:
+        assembler.finish(role="api")
+    assert "first.so" in str(result.value) and "second.so" in str(result.value)
+    assert not (output / "usr/share/penforge-runtime/manifest.json").exists()

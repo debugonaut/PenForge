@@ -1,5 +1,12 @@
 name: Penforge deployment and operations gates
-on: [push, pull_request]
+# PR branches run once through pull_request; merged/default-branch changes run on push.
+on:
+  push:
+    branches: [main]
+  pull_request:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -98,36 +105,55 @@ jobs:
           echo "api=${api_mb}MB worker=${worker_mb}MB"
           test "$api_mb" -lt 600
           test "$worker_mb" -lt 1800
-      - name: Exercise packaged contracts and capped font pipeline
-        run: |
-          docker run --rm --network none --memory 256m --entrypoint .venv/bin/python penforge-api:ci image_smoke.py
-          # Keep the worker above PID 1 for the decoder parent-death guard.
-          docker run --init --rm --network none --memory 768m --cpus 1 --entrypoint .venv/bin/python penforge-worker:ci image_smoke.py --worker
-      - name: Inventory affected components in the actual images
+      - name: Record exact image identities and runtime manifests
+        id: image_ids
         run: |
           mkdir -p artifacts/image-security
           docker image inspect penforge-api:ci --format '{{.Id}}' > artifacts/image-security/api-image-id.txt
           docker image inspect penforge-worker:ci --format '{{.Id}}' > artifacts/image-security/worker-image-id.txt
+          docker run --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges --memory 256m --entrypoint .venv/bin/python penforge-api:ci -B -c 'from pathlib import Path; print(Path("/usr/share/penforge-runtime/manifest.json").read_text(), end="")' > artifacts/image-security/api-runtime.json
+          docker run --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges --memory 256m --entrypoint .venv/bin/python penforge-worker:ci -B -c 'from pathlib import Path; print(Path("/usr/share/penforge-runtime/manifest.json").read_text(), end="")' > artifacts/image-security/worker-runtime.json
+      - name: Exercise packaged contracts and capped font pipeline
+        run: |
+          docker run --rm --network none --memory 256m --entrypoint .venv/bin/python penforge-api:ci image_smoke.py --image-id "$(cat artifacts/image-security/api-image-id.txt)" > artifacts/image-security/api-smoke.json
+          # Keep the worker above PID 1 for the decoder parent-death guard.
+          docker run --init --rm --network none --memory 768m --cpus 1 --entrypoint .venv/bin/python penforge-worker:ci image_smoke.py --worker --image-id "$(cat artifacts/image-security/worker-image-id.txt)" > artifacts/image-security/worker-smoke.json
+      - name: Inventory affected components in the actual images
+        run: |
           docker run --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges --memory 256m --mount type=bind,src="$PWD/scripts/image_security_inventory.py",dst=/tmp/image_security_inventory.py,readonly --entrypoint .venv/bin/python penforge-api:ci -B /tmp/image_security_inventory.py --require-minimal-runtime --image-id "$(cat artifacts/image-security/api-image-id.txt)" > artifacts/image-security/api.json
           docker run --rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges --memory 256m --mount type=bind,src="$PWD/scripts/image_security_inventory.py",dst=/tmp/image_security_inventory.py,readonly --entrypoint .venv/bin/python penforge-worker:ci -B /tmp/image_security_inventory.py --require-minimal-runtime --image-id "$(cat artifacts/image-security/worker-image-id.txt)" > artifacts/image-security/worker.json
-      - uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
-        with:
-          name: image-security-inventory
-          path: artifacts/image-security/
-          if-no-files-found: error
       - name: Scan API image for known vulnerabilities
         id: api_vulnerabilities
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: penforge-api:ci
           severity: HIGH,CRITICAL
-          exit-code: "1"
+          format: json
+          output: artifacts/image-security/api-trivy.json
+          exit-code: "0"
       - name: Scan worker image for known vulnerabilities
         if: ${{ !cancelled() && steps.api_vulnerabilities.outcome != 'skipped' }}
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: penforge-worker:ci
           severity: HIGH,CRITICAL
-          exit-code: "1"
+          format: json
+          output: artifacts/image-security/worker-trivy.json
+          exit-code: "0"
           skip-setup-trivy: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Enforce exact-image vulnerability evidence
+        run: |
+          result=0
+          for role in api worker; do
+            python -m scripts.image_security_gate --scan "artifacts/image-security/$role-trivy.json" --inventory "artifacts/image-security/$role.json" --runtime-manifest "artifacts/image-security/$role-runtime.json" --smoke "artifacts/image-security/$role-smoke.json" --image-id "$(cat "artifacts/image-security/$role-image-id.txt")" --output "artifacts/image-security/$role-disposition.json" || result=1
+          done
+          exit "$result"
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() && steps.image_ids.outcome != 'skipped' }}
+        with:
+          name: image-security-inventory
+          path: artifacts/image-security/
+          if-no-files-found: warn

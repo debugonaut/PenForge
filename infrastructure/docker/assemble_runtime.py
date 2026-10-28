@@ -74,21 +74,32 @@ def dependencies(path: Path) -> list[str]:
         timeout=20,
         env={"PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "LC_ALL": "C"},
     )
-    lines = process.stdout.splitlines()
+    diagnostic = json.dumps(
+        {
+            "file": str(path),
+            "exit": process.returncode,
+            "stdout": process.stdout[:1000],
+            "stderr": process.stderr[:1000],
+        },
+        sort_keys=True,
+    )
+    static_messages = {"statically linked", "not a dynamic executable"}
+    stderr = process.stderr.strip()
+    if stderr and stderr not in static_messages:
+        raise AssemblyError("native_dependency_inspection_failed:" + diagnostic)
+    lines = process.stdout.splitlines() + process.stderr.splitlines()
     missing = [
         line.partition("=>")[0].strip()
         for line in lines
         if line.partition("=>")[2].strip() == "not found"
     ]
-    static = any(
-        line.strip() in {"statically linked", "not a dynamic executable"} for line in lines
-    )
-    if process.returncode and not static:
-        raise AssemblyError("native_dependency_inspection_failed")
+    static = any(line.strip() in static_messages for line in lines)
+    if process.returncode not in (0, 1) or (process.returncode and not static):
+        raise AssemblyError("native_dependency_inspection_failed:" + diagnostic)
     found = []
     for line in lines:
         value = line.strip()
-        if not value or value in {"statically linked", "not a dynamic executable"}:
+        if not value or value in static_messages:
             continue
         if value.partition("=>")[2].strip() == "not found":
             continue
@@ -98,12 +109,14 @@ def dependencies(path: Path) -> list[str]:
             value = value.partition("=>")[2].strip()
         value = value.partition(" (")[0].strip()
         if not value.startswith("/") or any(char.isspace() for char in value):
-            raise AssemblyError("native_dependency_output_unrecognized")
+            raise AssemblyError("native_dependency_output_unrecognized:" + diagnostic)
         found.append(value)
     if missing:
         if static:
-            raise AssemblyError("native_dependency_output_unrecognized")
+            raise AssemblyError("native_dependency_output_unrecognized:" + diagnostic)
         raise MissingNativeDependency(path, missing)
+    if static and found:
+        raise AssemblyError("native_dependency_output_unrecognized:" + diagnostic)
     if not found and not static:
         raise AssemblyError("native_dependency_evidence_empty")
     return sorted(set(found))
@@ -269,6 +282,7 @@ class RuntimeAssembler:
         inspected: set[str] = set()
         deferred: dict[str, MissingNativeDependency] = {}
         resolved_by: dict[str, set[str]] = {}
+        failures: list[dict[str, str]] = []
         while self.native:
             logical = self.native.popleft()
             if logical in inspected:
@@ -282,12 +296,20 @@ class RuntimeAssembler:
                 # exact resolved ELF, rather than changing the loader search path.
                 deferred[logical] = error
                 continue
+            except AssemblyError as error:
+                failures.append({"file": logical, "error": str(error)})
+                continue
             self.native_closure[logical] = found
             for dependency in found:
                 self.copy(dependency)
                 resolved, _ = self.resolve(dependency)
                 if resolved != logical:
                     resolved_by.setdefault(resolved, set()).add(logical)
+        if failures:
+            raise AssemblyError(
+                "native_dependency_inspection_failures:"
+                + json.dumps({"count": len(failures), "failures": failures[:20]}, sort_keys=True)
+            )
         for logical, unresolved in deferred.items():
             if logical not in resolved_by:
                 raise unresolved

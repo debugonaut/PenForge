@@ -1,5 +1,12 @@
 name: Penforge foundations and identity
-on: [push, pull_request]
+# PR branches run once through pull_request; merged/default-branch changes run on push.
+on:
+  push:
+    branches: [main]
+  pull_request:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -38,5 +45,4 @@ jobs:
         env:
           PENFORGE_TEST_AUTH_EMULATOR_HOST: 127.0.0.1:9099
         run: npx --yes --package firebase-tools@15.34.0 firebase emulators:exec --only auth --project demo-penforge-identity --config infrastructure/firebase/firebase.json "make test-identity-emulator"
-      - run: docker build -f infrastructure/docker/api.Dockerfile -t penforge-api:ci .
-      - run: docker build -f infrastructure/docker/worker.Dockerfile -t penforge-worker-foundation:ci .
+      # phase-11's image-budget job owns both image builds and runtime/security acceptance.

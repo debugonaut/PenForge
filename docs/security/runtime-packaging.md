@@ -49,12 +49,15 @@ The final images must also pass the existing CI gates:
   existing dependency versions. A mismatch fails instead of regenerating the fixture.
 - Read-only inventory bound to each exact image config ID, with forbidden components
   absent and all evidence complete.
-- Raw HIGH/CRITICAL scans and the normal application, database and identity suites.
+- Preserved raw HIGH/CRITICAL scans, the blocking [exact-image evidence gate](image-security-dispositions.md),
+  and the normal application, database and identity suites. Known findings require
+  reviewed component/path evidence; unknown or ambiguous findings remain blocking.
 
 No image has passed merely because source tests pass. On a build/import/validation
 failure, preserve its evidence and repair the dependency closure; do not disable a
-validator or broaden an advisory exclusion. No VEX or scan filter is supplied here.
-Unresolved findings keep the security gate red even if the runtime functions.
+validator or broaden an advisory exclusion. Raw reports retain every finding; the
+separate gate records only the documented exact tuples and evidence. Unresolved
+findings keep the security gate red even if the runtime functions.
 
 Existing ready font exports remain immutable. This packaging change does not alter
 the compiler version, approve a model, publish private font assets, deploy a service

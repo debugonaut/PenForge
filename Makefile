@@ -54,7 +54,7 @@ test-integration:
 lint:
 	.venv/bin/ruff check apps/api packages/contracts/penforge_contracts packages/contracts/scripts packages/capture_safety packages/extraction packages/ml_core packages/font-engine/penforge_font_engine services/worker research tests/backend scripts infrastructure/migrations infrastructure/docker
 	.venv/bin/ruff format --check apps/api packages/contracts/penforge_contracts packages/contracts/scripts packages/capture_safety packages/extraction packages/ml_core packages/font-engine/penforge_font_engine services/worker research tests/backend scripts infrastructure/migrations infrastructure/docker
-	.venv/bin/mypy apps/api/app packages/contracts/penforge_contracts packages/capture_safety packages/extraction packages/ml_core packages/font-engine/penforge_font_engine services/worker research infrastructure/migrations infrastructure/docker scripts/image_smoke.py scripts/image_security_inventory.py scripts/image_security_gate.py
+	.venv/bin/mypy apps/api/app packages/contracts/penforge_contracts packages/capture_safety packages/extraction packages/ml_core packages/font-engine/penforge_font_engine services/worker research infrastructure/migrations infrastructure/docker scripts/image_smoke.py scripts/image_security_inventory.py scripts/image_security_gate.py scripts/image_sbom_inventory.py
 	$(PYTHON) scripts/check_boundaries.py
 	$(PYTHON) scripts/check_docs.py
 

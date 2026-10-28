@@ -35,6 +35,7 @@ REQUIRED_FILES = (
     "/usr/local/bin/python",
     "/usr/local/bin/python3",
     "/usr/local/bin/python3.12",
+    "/etc/debian_version",
     "/etc/os-release",
     "/etc/nsswitch.conf",
     "/etc/ssl/openssl.cnf",

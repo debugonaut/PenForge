@@ -8,7 +8,8 @@ incomplete evidence block the gate; no package-wide ignore, severity reduction o
 `ignore-unfixed` option is used.
 
 Run `python -m scripts.image_security_gate` from the repository root, with `--scan`,
-`--inventory`, `--runtime-manifest`, `--smoke`, `--image-id` and `--output`. The tool
+`--inventory`, `--runtime-manifest`, `--smoke`, `--sbom-inventory`, `--image-id` and
+`--output`. The tool
 uses only Python's standard library and the existing image inventory policy. Exit 0
 means every reported finding has a reviewed disposition; exit 1 means unresolved
 findings or invalid evidence remain. CLI errors also fail; callers must check exit
@@ -29,6 +30,10 @@ status and retain the input files.
   three pinned synthetic font hashes, execute the four installer-import rejection
   probes and identify the installed child hash. The installed validator parent,
   child and fixed profile hashes must match reviewed checkout sources.
+- The scanner version is pinned to 0.70.0. A complete SBOM-input export inventory
+  must bind the same image and runtime-manifest hash. Declared image volumes refuse
+  because exports can otherwise hide image paths. Nonempty secret, configuration
+  or license findings also block; their contents are not echoed in coded errors.
 - Malformed or oversized JSON, duplicate keys, changed source, substituted manifests,
   failed probes, unknown versions, privileged files and conflicting presence records
   fail closed. Component absence must agree with both inventory and copied files;
@@ -54,6 +59,8 @@ These receive a code-absence disposition only when their exact affected componen
 is absent. Other advisories in those packages remain blocking.
 
 Pip-vendored [msgpack's native decoder](https://github.com/msgpack/msgpack-python/commit/2c56ddb5d0025ed481d962c0f5d62d19dec7476d)
+and the additional native-only
+[`CVE-2026-114613`](https://github.com/msgpack/msgpack-python/security/advisories/GHSA-j586-36cw-2gc2),
 and setuptools' [PackageIndex](https://github.com/pypa/setuptools/security/advisories/GHSA-5rjg-fvgr-3xxf)
 have separate absence rules. Two exact urllib3 advisories concern
 [HTTPS proxy TLS](https://github.com/urllib3/urllib3/security/advisories/GHSA-8988-9cw3-xx77)
@@ -63,11 +70,47 @@ fixed FontBakery profile, whose child rejects installer imports before discovery
 this is an application call-path invariant, not an OS sandbox or permission to use
 pip/other FontBakery profiles at runtime.
 
-Every Python rule requires the exact pip vendor metadata path, pinned versions and
-matching metadata hashes. Trivy can aggregate pip's embedded SBOM into a `Python`
-result without `PkgPath`, as described by the [scanner project](https://github.com/aquasecurity/trivy/discussions/11031).
-Such findings stay **blocking** even when names, versions or BOM references match;
-the gate never invents a vendor origin. A different installed copy is not covered.
+Every Python rule requires the exact pip vendor origin, pinned versions and matching
+metadata hashes. Trivy can aggregate pip's embedded SBOM into a `Python` result
+without `PkgPath`, as described by the [scanner project](https://github.com/aquasecurity/trivy/discussions/11031).
+Names, versions and BOM references alone never establish origin. A different
+installed copy is not covered.
+
+## Exclusive scanner-input provenance
+
+The [SBOM input collector](../../scripts/image_sbom_inventory.py) reads an entire
+plain tar stream from a nonstarted container: `docker export` feeds
+`python -m scripts.image_sbom_inventory --image-id SHA --runtime-manifest FILE
+--output FILE`. CI verifies that container's exact image ID and empty mount list
+before export and removes it afterward. The collector neither extracts nor executes
+files. It caps raw tar bytes at 2 GB, members at 100,000, extended metadata headers
+at 64 KiB and each SBOM at 1 MiB. Duplicate/unsafe paths, incomplete members, missing
+end markers, nonzero trailing data and nonregular or extra SBOM inputs refuse.
+
+Every copied manifest path must occur with the expected kind, file size or symlink
+target. This is coverage verification, **not a rehash of ordinary exported files**.
+Recognized SBOM bytes are independently hashed against the copied-file manifest,
+retained in the proof and parsed again by the gate. Generated files are included in
+the exhaustive pathname scan too. The current reviewed pip document is CycloneDX
+1.4; its root component has no version. Pip's own distribution metadata supplies
+the separately checked root version.
+
+The collector mirrors the pinned scanner's
+[`Required()` filter](https://github.com/aquasecurity/trivy/blob/v0.70.0/pkg/fanal/analyzer/sbom/sbom.go):
+case-sensitive `.spdx`, `.spdx.json`, `.cdx` and `.cdx.json` suffixes, excluding any
+path containing `.dist-info/sboms/`. The proof records this reviewed source hash and
+filter. CI does not configure custom analyzer file patterns or external SBOM sources.
+
+A missing or empty `PkgPath` may receive a **separately recorded derived origin**
+only when the exhaustive export has exactly one recognized input, the bound pip
+vendor SBOM. The raw finding must join uniquely to a raw package row by package ID,
+UID, name/version, complete PURL/BOM reference and layer; that layer must belong to
+the scanned image. The row must have the exact analyzer string `sbom`, with no
+conflicting file path. Its identity must occur exactly once in the independently
+parsed document. This establishes origin through an exclusive parser input plus
+scanner attribution, rather than guessing from a matching package name. Raw findings
+remain unchanged. Missing, ambiguous, combined-analyzer or conflicting provenance
+continues to block, as do unreviewed advisories after origin is established.
 
 Source tests demonstrate failure behavior using synthetic evidence. They do not
 establish that a new Linux image builds, passes smoke or receives clearance. Actual

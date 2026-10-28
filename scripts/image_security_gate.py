@@ -56,6 +56,7 @@ OS_RULES = {
     "CVE-2026-9538": ({"perl-base": "5.40.1-6+deb13u1"}, ("perl_archive_tar",)),
 }
 PYTHON_RULES = {
+    "CVE-2026-114613": ("msgpack", "1.1.2", ("pip_vendor_msgpack_c_extension",)),
     "GHSA-6v7p-g79w-8964": ("msgpack", "1.1.2", ("pip_vendor_msgpack_c_extension",)),
     "CVE-2025-47273": (
         "setuptools",
@@ -68,6 +69,7 @@ PYTHON_RULES = {
 SOURCES = {
     **{name: "https://security-tracker.debian.org/tracker/" + name for name in OS_RULES},
     "GHSA-6v7p-g79w-8964": "https://github.com/msgpack/msgpack-python/security/advisories/GHSA-6v7p-g79w-8964",
+    "CVE-2026-114613": "https://github.com/msgpack/msgpack-python/security/advisories/GHSA-j586-36cw-2gc2",
     "CVE-2025-47273": "https://github.com/pypa/setuptools/security/advisories/GHSA-5rjg-fvgr-3xxf",
     "CVE-2026-97687": "https://github.com/urllib3/urllib3/security/advisories/GHSA-8988-9cw3-xx77",
     "CVE-2026-97689": "https://github.com/urllib3/urllib3/security/advisories/GHSA-vxq7-64xx-v4gw",
@@ -151,6 +153,156 @@ def absent(inventory: dict, files: dict, components) -> None:
             not any(manifest_component(path, name) for path in files),
             "manifest_component_present:" + name,
         )
+
+
+def validate_sbom_inventory(scan, runtime, sbom_inventory, image_id, runtime_sha) -> list:
+    # Local import avoids a module startup cycle with the collector's shared
+    # parsing helpers when either stdlib-only CLI is invoked with -m.
+    from scripts.image_sbom_inventory import (
+        FILTER,
+        MAX_BYTES,
+        MAX_ENTRIES,
+        MAX_SBOM,
+        PIP_BOM,
+        ROOT_COMPONENT,
+        sbom_components,
+    )
+
+    require(scan.get("Trivy") == {"Version": "0.70.0"}, "scanner_version_unreviewed")
+    config = mapping(scan["Metadata"].get("ImageConfig"), "image_config_missing")
+    image_config = mapping(config.get("config"), "image_runtime_config_missing")
+    require(image_config.get("Volumes") in (None, {}), "image_declared_volumes_unreviewed")
+    proof = mapping(sbom_inventory, "sbom_inventory_missing")
+    require(
+        proof.get("schema_version") == 1
+        and proof.get("complete") is True
+        and proof.get("errors") == [],
+        "sbom_inventory_incomplete",
+    )
+    require(proof.get("image_config_id") == image_id, "sbom_inventory_image_mismatch")
+    require(proof.get("runtime_manifest_sha256") == runtime_sha, "sbom_runtime_manifest_mismatch")
+    require(proof.get("filter") == FILTER, "sbom_scanner_filter_mismatch")
+    copied = runtime["copied_files"]
+    require(
+        type(proof.get("manifest_files_verified")) is int
+        and proof["manifest_files_verified"] == len(copied),
+        "sbom_manifest_coverage_incomplete",
+    )
+    require(
+        type(proof.get("entries")) is int and len(copied) <= proof["entries"] <= MAX_ENTRIES,
+        "sbom_entry_evidence_invalid",
+    )
+    total = proof.get("tar_bytes")
+    require(
+        type(total) is int and 1024 <= total <= MAX_BYTES and total % 512 == 0,
+        "sbom_tar_evidence_invalid",
+    )
+    require(
+        isinstance(proof.get("tar_sha256"), str) and SHA.fullmatch(proof["tar_sha256"]) is not None,
+        "sbom_tar_hash_invalid",
+    )
+    expected = sorted(
+        path
+        for path in copied
+        if path.endswith(tuple(FILTER["suffixes"])) and FILTER["excluded_substring"] not in path
+    )
+    candidates = rows(proof.get("recognized_candidates"), "sbom_candidates_invalid", 1)
+    require([row.get("path") for row in candidates] == expected, "sbom_candidates_mismatch")
+    for candidate in candidates:
+        require(candidate["path"] == PIP_BOM, "sbom_origin_unreviewed")
+        require(candidate.get("root_component") == ROOT_COMPONENT, "sbom_root_component_unreviewed")
+        require(candidate.get("sha256") == file_hash(copied, PIP_BOM), "sbom_origin_hash_mismatch")
+        document = candidate.get("document")
+        require(isinstance(document, str), "sbom_document_missing")
+        data = document.encode("utf-8")
+        require(
+            len(data) <= MAX_SBOM
+            and type(candidate.get("size")) is int
+            and candidate["size"] == len(data) == copied[PIP_BOM].get("size")
+            and digest(data) == candidate["sha256"],
+            "sbom_document_hash_mismatch",
+        )
+        components = rows(candidate.get("components"), "sbom_components_missing", 1024)
+        require(components == sbom_components(data), "sbom_parsed_components_mismatch")
+        require(bool(components), "sbom_components_empty")
+        identities = []
+        for row in components:
+            mapping(row, "sbom_component_invalid")
+            require(
+                set(row) == {"name", "version", "purl", "bom-ref"}, "sbom_component_shape_invalid"
+            )
+            identities.append(tuple(row[key] for key in ("name", "version", "purl", "bom-ref")))
+        require(len(identities) == len(set(identities)), "sbom_component_duplicate")
+    return candidates
+
+
+def derived_sbom_origin(scan: dict, result: dict, finding: dict, candidates: list) -> dict:
+    require(len(candidates) == 1, "sbom_finding_origin_ambiguous")
+    identity = mapping(finding.get("PkgIdentifier"), "sbom_finding_identifier_missing")
+    uid = identity.get("UID")
+    require(
+        isinstance(uid, str) and re.fullmatch(r"[0-9a-f]{16}", uid) is not None,
+        "sbom_finding_uid_invalid",
+    )
+    matches = []
+    for context in scan["Results"]:
+        packages = context.get("Packages")
+        for package in rows([] if packages is None else packages, "scan_packages_invalid"):
+            mapping(package, "scan_package_invalid")
+            if (
+                mapping(package.get("Identifier", {}), "scan_package_identifier_invalid").get("UID")
+                == uid
+            ):
+                matches.append((context, package))
+    require(len(matches) == 1, "sbom_package_join_ambiguous")
+    context, package = matches[0]
+    require(
+        all(context.get(key) == result.get(key) for key in ("Target", "Class", "Type")),
+        "sbom_package_context_mismatch",
+    )
+    require(
+        package.get("AnalyzedBy") == "sbom" and type(package.get("AnalyzedBy")) is str,
+        "sbom_package_analyzer_unreviewed",
+    )
+    require(package.get("FilePath") in (None, ""), "sbom_package_path_conflict")
+    require(
+        package.get("ID")
+        == finding.get("PkgID")
+        == finding["PkgName"] + "@" + finding["InstalledVersion"]
+        and package.get("Name") == finding["PkgName"]
+        and package.get("Version") == finding["InstalledVersion"]
+        and package.get("Identifier") == identity,
+        "sbom_package_identity_mismatch",
+    )
+    layer = mapping(finding.get("Layer"), "sbom_finding_layer_missing")
+    require(
+        package.get("Layer") == layer
+        and IMAGE.fullmatch(layer.get("DiffID", "")) is not None
+        and layer["DiffID"] in scan["Metadata"].get("DiffIDs", []),
+        "sbom_package_layer_mismatch",
+    )
+    candidate = candidates[0]
+    expected = {
+        "name": finding["PkgName"],
+        "version": finding["InstalledVersion"],
+        "purl": identity.get("PURL"),
+        "bom-ref": identity.get("BOMRef"),
+    }
+    require(
+        expected["purl"] == "pkg:pypi/" + finding["PkgName"] + "@" + finding["InstalledVersion"]
+        and expected["bom-ref"] == expected["purl"],
+        "sbom_package_purl_unreviewed",
+    )
+    require(
+        sum(row == expected for row in candidate["components"]) == 1, "sbom_component_join_unproven"
+    )
+    return {
+        "path": candidate["path"],
+        "sha256": candidate["sha256"],
+        "method": "unique_pinned_scanner_input",
+        "package_uid": uid,
+        "analyzed_by": "sbom",
+    }
 
 
 def validate_evidence(scan, inventory, runtime, smoke, image_id, runtime_sha, *, root, now):
@@ -279,8 +431,17 @@ def validate_evidence(scan, inventory, runtime, smoke, image_id, runtime_sha, *,
 
 
 def disposition(
-    result: dict, finding: dict, inventory: dict, files: dict, packages: list, *, role: str
+    result: dict,
+    finding: dict,
+    inventory: dict,
+    files: dict,
+    packages: list,
+    *,
+    role: str,
+    scan: dict,
+    candidates: list,
 ) -> dict:
+    origin = None
     identifier, package, version = (
         finding.get(key) for key in ("VulnerabilityID", "PkgName", "InstalledVersion")
     )
@@ -319,7 +480,13 @@ def disposition(
         require(
             (package, version) == (name, pinned_version), "python_package_or_version_unreviewed"
         )
-        path = logical_path(finding.get("PkgPath"))
+        raw_path = finding.get("PkgPath")
+        origin = (
+            derived_sbom_origin(scan, result, finding, candidates)
+            if raw_path in (None, "")
+            else None
+        )
+        path = origin["path"] if origin else logical_path(raw_path)
         require(
             path in {VENDOR + "vendor.txt", VENDOR + "bom.cdx.json"},
             "pip_finding_origin_unreviewed",
@@ -375,16 +542,30 @@ def disposition(
             )
     else:
         raise EvidenceError("unreviewed_advisory")
-    return {
+    decision: dict = {
         "status": "not_affected",
         "justification": justification,
         "reason": reason,
         "source": SOURCES[identifier],
     }
+    if identifier in PYTHON_RULES and origin:
+        decision["derived_origin"] = origin
+    return decision
 
 
 def evaluate(
-    scan, inventory, runtime, smoke, *, image_id, scan_sha256, runtime_sha256, root=ROOT, now=None
+    scan,
+    inventory,
+    runtime,
+    smoke,
+    *,
+    image_id,
+    scan_sha256,
+    runtime_sha256,
+    sbom_inventory=None,
+    sbom_sha256=None,
+    root=ROOT,
+    now=None,
 ) -> dict:
     report: dict = {
         "schema_version": 1,
@@ -392,6 +573,7 @@ def evaluate(
         "status": "blocked",
         "raw_scan_sha256": scan_sha256,
         "runtime_manifest_sha256": runtime_sha256,
+        "sbom_inventory_sha256": sbom_sha256,
         "findings": [],
         "errors": [],
     }
@@ -419,6 +601,13 @@ def evaluate(
         raw = []
         for result in results:
             mapping(result, "scan_result_invalid")
+            for key in ("Secrets", "Misconfigurations", "Licenses"):
+                value = result.get(key)
+                require(
+                    value is None or isinstance(value, list),
+                    "scan_non_vulnerability_findings_invalid",
+                )
+                require(not value, "non_vulnerability_findings_require_review")
             findings = result.get("Vulnerabilities")
             for finding in rows([] if findings is None else findings, "scan_findings_invalid"):
                 mapping(finding, "scan_finding_invalid")
@@ -440,10 +629,24 @@ def evaluate(
             root=root,
             now=now or datetime.now(UTC),
         )
+        require(
+            isinstance(sbom_sha256, str) and SHA.fullmatch(sbom_sha256) is not None,
+            "sbom_inventory_hash_invalid",
+        )
+        candidates = validate_sbom_inventory(
+            scan, runtime, sbom_inventory, image_id, runtime_sha256
+        )
         for row in raw:
             try:
                 row["disposition"] = disposition(
-                    row["result"], row["finding"], inventory, files, packages, role=runtime["role"]
+                    row["result"],
+                    row["finding"],
+                    inventory,
+                    files,
+                    packages,
+                    role=runtime["role"],
+                    scan=scan,
+                    candidates=candidates,
                 )
             except EvidenceError as error:
                 row["disposition"] = {"status": "blocked", "reason": str(error)}
@@ -481,11 +684,11 @@ def load_json(path: Path, maximum: int) -> tuple[dict, str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    for name in ("scan", "inventory", "runtime-manifest", "smoke", "output"):
+    for name in ("scan", "inventory", "runtime-manifest", "smoke", "sbom-inventory", "output"):
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--image-id", required=True)
     args = parser.parse_args()
-    inputs = (args.scan, args.inventory, args.runtime_manifest, args.smoke)
+    inputs = (args.scan, args.inventory, args.runtime_manifest, args.smoke, args.sbom_inventory)
     if args.output.resolve() in {path.resolve() for path in inputs}:
         parser.error("output must be separate from every evidence input")
     try:
@@ -493,6 +696,7 @@ def main() -> int:
         inventory, _ = load_json(args.inventory, 512 * 1024)
         runtime, runtime_sha = load_json(args.runtime_manifest, 20 * 1024 * 1024)
         smoke, _ = load_json(args.smoke, 64 * 1024)
+        sbom_inventory, sbom_sha = load_json(args.sbom_inventory, 2 * 1024 * 1024)
         result = evaluate(
             scan,
             inventory,
@@ -501,6 +705,8 @@ def main() -> int:
             image_id=args.image_id,
             scan_sha256=scan_sha,
             runtime_sha256=runtime_sha,
+            sbom_inventory=sbom_inventory,
+            sbom_sha256=sbom_sha,
         )
     except (OSError, ValueError, RecursionError):
         result = {

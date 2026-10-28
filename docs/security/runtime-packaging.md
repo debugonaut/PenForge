@@ -12,6 +12,9 @@ builder** with `ldd`; its dependency closure is copied recursively. NSS, crypto 
 native rendering resources loaded at runtime receive explicit inclusion. Source
 paths, symlinks, content hashes, ownership, limits and forbidden payloads are checked.
 Do not apply this builder tool to uploaded binaries or untrusted filesystem trees.
+Both `/etc/os-release` and the original `/etc/debian_version` are retained: the
+pinned scanner's Debian detector requires the latter. An unidentified OS or missing
+OS-package scan result remains a blocking evidence failure, never a clean scan.
 
 These are headless runtimes. The base image ships a `_tkinter` extension without
 its Tcl/Tk libraries; the assembler explicitly omits only that exact current-ABI

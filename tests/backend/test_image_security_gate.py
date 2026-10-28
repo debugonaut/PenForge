@@ -1,13 +1,16 @@
 """Exact-image evidence and negative controls for narrow advisory dispositions."""
 
 import copy
+import io
 import json
 import subprocess
 import sys
+import tarfile
 from datetime import UTC, datetime, timedelta
 
 import pytest
 
+from scripts.image_sbom_inventory import ROOT_COMPONENT, collect
 from scripts.image_security_gate import (
     IMAGE,
     OS_RULES,
@@ -24,6 +27,7 @@ from scripts.image_security_gate import (
 from scripts.image_security_inventory import inventory
 
 IMAGE_ID = "sha256:" + "a" * 64
+LAYER = {"DiffID": "sha256:" + "c" * 64}
 NOW = datetime(2026, 10, 28, 12, tzinfo=UTC)
 
 
@@ -53,6 +57,13 @@ def python_findings(path=VENDOR + "bom.cdx.json"):
             "InstalledVersion": version,
             "Severity": "HIGH",
             "PkgPath": path,
+            "PkgID": name + "@" + version,
+            "PkgIdentifier": {
+                "UID": {"msgpack": "1" * 16, "setuptools": "2" * 16, "urllib3": "3" * 16}[name],
+                "PURL": "pkg:pypi/" + name + "@" + version,
+                "BOMRef": "pkg:pypi/" + name + "@" + version,
+            },
+            "Layer": dict(LAYER),
         }
         for identifier, (name, version, _) in PYTHON_RULES.items()
     ]
@@ -67,7 +78,7 @@ def evidence(tmp_path):
         target = image_root / path.lstrip("/")
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes(data)
-        files[path] = {"kind": "file", "sha256": digest(data), "mode": "0o644"}
+        files[path] = {"kind": "file", "sha256": digest(data), "mode": "0o644", "size": len(data)}
 
     packages = dict(pair for names, _ in OS_RULES.values() for pair in names.items())
     status = "\n\n".join(
@@ -78,7 +89,27 @@ def evidence(tmp_path):
     for path in VALIDATOR_FILES:
         put("/app/" + path, (ROOT / path).read_bytes())
     put(VENDOR + "vendor.txt", b"msgpack==1.1.2\nsetuptools==70.3.0\nurllib3==2.7.0\n")
-    put(VENDOR + "bom.cdx.json", b'{"synthetic_scanner_origin":true}')
+    components = [dict(ROOT_COMPONENT)] + [
+        {
+            "type": "library",
+            "name": name,
+            "version": version,
+            "purl": "pkg:pypi/" + name + "@" + version,
+            "bom-ref": "pkg:pypi/" + name + "@" + version,
+        }
+        for name, version in sorted({(name, version) for name, version, _ in PYTHON_RULES.values()})
+    ]
+    put(
+        VENDOR + "bom.cdx.json",
+        encode(
+            {
+                "bomFormat": "CycloneDX",
+                "specVersion": "1.4",
+                "metadata": {"component": dict(ROOT_COMPONENT)},
+                "components": components,
+            }
+        ),
+    )
     put(
         "/app/.venv/lib/python3.12/site-packages/pip-26.2.2.dist-info/METADATA",
         b"Name: pip\nVersion: 26.2.2\n",
@@ -111,9 +142,15 @@ def evidence(tmp_path):
     }
     scan = {
         "SchemaVersion": 2,
+        "Trivy": {"Version": "0.70.0"},
         "ArtifactType": "container_image",
         "CreatedAt": NOW.isoformat(),
-        "Metadata": {"ImageID": IMAGE_ID, "OS": {"Family": "debian", "Name": "13.7"}},
+        "Metadata": {
+            "ImageID": IMAGE_ID,
+            "OS": {"Family": "debian", "Name": "13.7"},
+            "ImageConfig": {"config": {}},
+            "DiffIDs": [LAYER["DiffID"]],
+        },
         "Results": [
             {
                 "Target": "synthetic-image (debian 13.7)",
@@ -126,20 +163,63 @@ def evidence(tmp_path):
                 "Class": "lang-pkgs",
                 "Type": "python-pkg",
                 "Vulnerabilities": python_findings(),
+                "Packages": [
+                    {
+                        "ID": name + "@" + version,
+                        "Name": name,
+                        "Version": version,
+                        "Identifier": {
+                            "UID": {
+                                "msgpack": "1" * 16,
+                                "setuptools": "2" * 16,
+                                "urllib3": "3" * 16,
+                            }[name],
+                            "PURL": "pkg:pypi/" + name + "@" + version,
+                            "BOMRef": "pkg:pypi/" + name + "@" + version,
+                        },
+                        "Layer": dict(LAYER),
+                        "AnalyzedBy": "sbom",
+                    }
+                    for name, version in sorted(
+                        {(name, version) for name, version, _ in PYTHON_RULES.values()}
+                    )
+                ],
             },
         ],
     }
-    return {"scan": scan, "inventory": inv, "runtime": runtime, "smoke": smoke}
+    exported = io.BytesIO()
+    with tarfile.open(fileobj=exported, mode="w") as archive:
+        for path in files:
+            archive.add(image_root / path.lstrip("/"), arcname=path.lstrip("/"))
+    sbom_inventory = collect(
+        io.BytesIO(exported.getvalue()),
+        runtime,
+        image_id=IMAGE_ID,
+        runtime_sha256=digest(encode(runtime)),
+    )
+    assert sbom_inventory["complete"], sbom_inventory["errors"]
+    return {
+        "scan": scan,
+        "inventory": inv,
+        "runtime": runtime,
+        "smoke": smoke,
+        "sbom_inventory": sbom_inventory,
+    }
 
 
 def run(evidence, *, bind_manifest=True):
     if bind_manifest:
         evidence["smoke"]["runtime_manifest_sha256"] = digest(encode(evidence["runtime"]))
+        if isinstance(evidence["sbom_inventory"], dict):
+            evidence["sbom_inventory"]["runtime_manifest_sha256"] = digest(
+                encode(evidence["runtime"])
+            )
     return evaluate(
         **evidence,
         image_id=IMAGE_ID,
         scan_sha256=digest(encode(evidence["scan"])),
         runtime_sha256=digest(encode(evidence["runtime"])),
+        sbom_sha256=digest(encode(evidence["sbom_inventory"])),
         now=NOW,
     )
 
@@ -148,7 +228,7 @@ def test_exact_reviewed_findings_preserve_raw_records_and_report_distinct_reason
     before = copy.deepcopy(evidence)
     result = run(evidence)
     assert result["status"] == "passed" and result["effective_blocking_findings"] == 0
-    assert result["raw_findings"] == 48 and result["reviewed_dispositions"] == 48
+    assert result["raw_findings"] == 49 and result["reviewed_dispositions"] == 49
     assert result["raw_scan_sha256"] == digest(encode(evidence["scan"]))
     assert result["findings"][0]["finding"] == before["scan"]["Results"][0]["Vulnerabilities"][0]
     assert (
@@ -167,9 +247,10 @@ def test_aggregate_python_findings_without_origin_remain_blocked_even_with_match
             "BOMRef": f"pkg:pypi/{finding['PkgName']}@{finding['InstalledVersion']}"
         }
     result = run(evidence)
-    assert result["status"] == "blocked" and result["effective_blocking_findings"] == 4
+    assert result["status"] == "blocked" and result["effective_blocking_findings"] == 5
     assert all(
-        row["disposition"]["reason"] == "finding_path_missing" for row in result["findings"][-4:]
+        row["disposition"]["reason"] == "sbom_finding_uid_invalid"
+        for row in result["findings"][-5:]
     )
 
 
@@ -251,10 +332,7 @@ def test_inventory_cannot_claim_absence_while_manifest_contains_the_component(ev
     }
     result = run(evidence)
     assert result["status"] == "blocked"
-    assert any(
-        row.get("disposition", {}).get("reason") == "manifest_component_present:infocmp"
-        for row in result["findings"]
-    )
+    assert result["errors"] == ["sbom_manifest_coverage_incomplete"]
 
 
 def test_inventory_incompleteness_and_inconsistent_presence_cannot_clear_findings(evidence):
@@ -265,7 +343,6 @@ def test_inventory_incompleteness_and_inconsistent_presence_cannot_clear_finding
 @pytest.mark.parametrize(
     "path",
     [
-        "",
         "app/../other",
         "/other/vendor.txt",
         "/app/.venv/lib/python3.12/site-packages/urllib3-2.7.0.dist-info/METADATA",
@@ -274,7 +351,7 @@ def test_inventory_incompleteness_and_inconsistent_presence_cannot_clear_finding
 def test_python_findings_require_exact_vendor_origin(evidence, path):
     evidence["scan"]["Results"][1]["Vulnerabilities"] = python_findings(path)
     result = run(evidence)
-    assert result["status"] == "blocked" and result["effective_blocking_findings"] == 4
+    assert result["status"] == "blocked" and result["effective_blocking_findings"] == 5
 
 
 def test_vendor_version_and_manifest_hash_must_match(evidence):
@@ -289,7 +366,7 @@ def test_sourceless_package_index_bytecode_prevents_absence_disposition(evidence
     ] = {"kind": "file", "mode": "0o644", "sha256": "f" * 64}
     result = run(evidence)
     assert result["status"] == "blocked"
-    assert result["findings"][-3]["disposition"]["reason"].startswith("manifest_component_present:")
+    assert result["errors"] == ["sbom_manifest_coverage_incomplete"]
 
 
 def test_api_does_not_get_worker_execution_path_disposition(evidence):
@@ -325,6 +402,8 @@ def test_json_input_rejects_duplicate_keys_and_byte_overflow(tmp_path):
 def test_stdlib_only_module_cli_preserves_raw_hash_and_blocks_ambiguous_origin(evidence, tmp_path):
     evidence["scan"]["CreatedAt"] = datetime.now(UTC).isoformat()
     evidence["scan"]["Results"][1]["Vulnerabilities"] = python_findings("")
+    for finding in evidence["scan"]["Results"][1]["Vulnerabilities"]:
+        finding.pop("PkgIdentifier")
     evidence["smoke"]["runtime_manifest_sha256"] = digest(encode(evidence["runtime"]))
     arguments = []
     for key, option in (
@@ -332,6 +411,7 @@ def test_stdlib_only_module_cli_preserves_raw_hash_and_blocks_ambiguous_origin(e
         ("inventory", "inventory"),
         ("runtime", "runtime-manifest"),
         ("smoke", "smoke"),
+        ("sbom_inventory", "sbom-inventory"),
     ):
         path = tmp_path / (key + ".json")
         path.write_bytes(encode(evidence[key]))
@@ -356,15 +436,144 @@ def test_stdlib_only_module_cli_preserves_raw_hash_and_blocks_ambiguous_origin(e
     assert result.returncode == 1, result.stderr
     report = json.loads(output.read_text())
     assert report["raw_scan_sha256"] == digest((tmp_path / "scan.json").read_bytes())
-    assert report["effective_blocking_findings"] == 4 and IMAGE.fullmatch(report["image_config_id"])
+    assert report["effective_blocking_findings"] == 5 and IMAGE.fullmatch(report["image_config_id"])
 
 
 def test_cli_cannot_overwrite_the_raw_report_with_an_effective_result(tmp_path):
     raw = tmp_path / "raw.json"
     raw.write_text('{"retained":"original evidence"}')
     command = [sys.executable, "-S", "-m", "scripts.image_security_gate", "--image-id", IMAGE_ID]
-    for option in ("scan", "inventory", "runtime-manifest", "smoke", "output"):
+    for option in ("scan", "inventory", "runtime-manifest", "smoke", "sbom-inventory", "output"):
         command.extend(["--" + option, str(raw)])
     result = subprocess.run(command, cwd=ROOT, capture_output=True, timeout=10)
     assert result.returncode == 2
     assert raw.read_text() == '{"retained":"original evidence"}'
+
+
+@pytest.mark.parametrize("path", [None, ""])
+def test_missing_path_requires_exclusive_input_and_full_scanner_identity_join(evidence, path):
+    findings = evidence["scan"]["Results"][1]["Vulnerabilities"]
+    for finding in findings:
+        if path is None:
+            finding.pop("PkgPath")
+        else:
+            finding["PkgPath"] = path
+    before = copy.deepcopy(findings)
+    report = run(evidence)
+    assert report["status"] == "passed"
+    for row in report["findings"][-5:]:
+        origin = row["disposition"]["derived_origin"]
+        assert origin["method"] == "unique_pinned_scanner_input"
+        assert origin["path"] == VENDOR + "bom.cdx.json"
+    assert findings == before
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        "duplicate",
+        "analyzer",
+        "combined_analyzer",
+        "id",
+        "version",
+        "purl",
+        "layer",
+        "unbound_layer",
+        "path",
+        "missing_packages",
+    ],
+)
+def test_exclusive_input_never_overrides_ambiguous_or_different_package_attribution(
+    evidence, change
+):
+    result = evidence["scan"]["Results"][1]
+    for finding in result["Vulnerabilities"]:
+        finding.pop("PkgPath")
+    package = result["Packages"][0]
+    if change == "duplicate":
+        result["Packages"].append(copy.deepcopy(package))
+    elif change == "analyzer":
+        package["AnalyzedBy"] = "python-pkg"
+    elif change == "combined_analyzer":
+        package["AnalyzedBy"] = ["sbom", "python-pkg"]
+    elif change == "id":
+        package["ID"] = "different"
+    elif change == "version":
+        package["Version"] = "other"
+    elif change == "purl":
+        package["Identifier"]["PURL"] = "pkg:pypi/msgpack@other"
+    elif change == "layer":
+        package["Layer"] = {"DiffID": "sha256:" + "f" * 64}
+    elif change == "unbound_layer":
+        evidence["scan"]["Metadata"]["DiffIDs"] = []
+    elif change == "path":
+        package["FilePath"] = "/other.cdx.json"
+    else:
+        result.pop("Packages")
+    assert run(evidence)["status"] == "blocked"
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        "missing",
+        "incomplete",
+        "filter",
+        "scanner",
+        "hash",
+        "document",
+        "components",
+        "duplicate_component",
+        "image",
+        "volume",
+        "extra_candidate",
+        "root",
+    ],
+)
+def test_invalid_export_or_scanner_provenance_blocks_even_explicit_package_paths(evidence, change):
+    proof = evidence["sbom_inventory"]
+    candidate = proof["recognized_candidates"][0]
+    if change == "missing":
+        evidence["sbom_inventory"] = None
+    elif change == "incomplete":
+        proof["complete"] = False
+    elif change == "filter":
+        proof["filter"]["suffixes"].append(".json")
+    elif change == "scanner":
+        evidence["scan"]["Trivy"]["Version"] = "0.71.0"
+    elif change == "hash":
+        candidate["sha256"] = "0" * 64
+    elif change == "document":
+        candidate["document"] += " "
+    elif change == "components":
+        candidate["components"][-1]["version"] = "other"
+    elif change == "duplicate_component":
+        candidate["components"].append(copy.deepcopy(candidate["components"][-1]))
+    elif change == "image":
+        proof["image_config_id"] = "sha256:" + "f" * 64
+    elif change == "volume":
+        evidence["scan"]["Metadata"]["ImageConfig"]["config"]["Volumes"] = {"/hidden": {}}
+    elif change == "extra_candidate":
+        proof["recognized_candidates"].append(copy.deepcopy(candidate))
+    else:
+        candidate["root_component"]["name"] = "other"
+    assert run(evidence)["status"] == "blocked"
+
+
+@pytest.mark.parametrize("path", [0, False, [], {}])
+def test_falsey_nonstring_finding_path_never_selects_derived_origin(evidence, path):
+    for finding in evidence["scan"]["Results"][1]["Vulnerabilities"]:
+        finding["PkgPath"] = path
+    report = run(evidence)
+    assert report["status"] == "blocked" and report["effective_blocking_findings"] == 5
+
+
+@pytest.mark.parametrize("key", ["Secrets", "Misconfigurations", "Licenses"])
+@pytest.mark.parametrize("value", [[{"secret": "DO_NOT_ECHO_THIS_VALUE"}], {}, "", False])
+def test_non_vulnerability_findings_or_malformed_fields_block_without_echoing_data(
+    evidence, key, value
+):
+    evidence["scan"]["Results"][0][key] = value
+    report = run(evidence)
+    assert report["status"] == "blocked" and report["errors"]
+    assert "DO_NOT_ECHO_THIS_VALUE" not in json.dumps(report)

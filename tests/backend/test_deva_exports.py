@@ -87,7 +87,7 @@ def test_deva_review_three_real_formats_and_equivalent_requests(capture_http, tm
             assert coverage["script_code"] == "Deva" and not coverage["complete_devanagari"]
             assert len(coverage["tested_clusters"]) + len(coverage["fallback_only_clusters"]) == 11
             link = client.get(path + "/download-url", headers=headers()).json()
-            data = client.get(link["url"])
+            data = client.get(link["url"], headers=headers())
             assert data.status_code == 200
             values.append(data.content)
         return values

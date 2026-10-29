@@ -8,6 +8,7 @@ import { StepMascot, StepStage } from "./StepStage";
 import { CloudReviewPanel, CanonicalGlyph } from "./CloudReviewPanel";
 import type { ReviewCoverage } from "@/lib/extraction-client";
 import { CloudExportPanel } from "./CloudExportPanel";
+import { PhotoLetterPanel } from "./PhotoLetterPanel";
 import {
   captureCodepoints,
   graphemeStrings,
@@ -23,8 +24,15 @@ import {
   submitCapture,
   type CaptureProgress,
 } from "@/lib/capture-service";
-import { captureRecovery, type RawStrokeDocument } from "@/lib/capture-recovery";
-import type { AnalysisAssignment, ReviewGlyph } from "@/lib/extraction-client";
+import {
+  captureRecovery,
+  type RawStrokeDocument,
+} from "@/lib/capture-recovery";
+import type {
+  AnalysisAssignment,
+  ReviewGlyph,
+  ReviewSample,
+} from "@/lib/extraction-client";
 import { useAccountBackend } from "@/lib/use-account-backend";
 import { UploadIcon } from "./WizardIcons";
 import type {
@@ -57,11 +65,14 @@ const NUMBER: Record<CreationStep, string> = {
   export: "06",
 };
 
-const STAGE_COPY: Record<CreationStep, { eyebrow: string; title: string; body: string }> = {
+const STAGE_COPY: Record<
+  CreationStep,
+  { eyebrow: string; title: string; body: string }
+> = {
   capture: {
     eyebrow: "01 / CAPTURE",
     title: "Add a letter or a page.",
-    body: "Draw one letter and say what it is, or use a printed page. Everything you add is kept in your account.",
+    body: "Draw a letter, or choose handwriting from a photo. Your originals and approved shapes stay in your account.",
   },
   review: {
     eyebrow: "02 / REVIEW",
@@ -104,6 +115,14 @@ function delay(ms: number, signal?: AbortSignal) {
   });
 }
 
+function matchesCharacter(glyph: ReviewGlyph, character: string) {
+  const codepoints = Array.from(character, (value) => value.codePointAt(0));
+  return (
+    glyph.codepoints.length === codepoints.length &&
+    glyph.codepoints.every((value, index) => value === codepoints[index])
+  );
+}
+
 export function AccountStudio({
   project,
   step,
@@ -120,18 +139,25 @@ export function AccountStudio({
   const backend = useAccountBackend(project.id, project.scriptCode);
   const [method, setMethod] = useState<Method | null>(null);
   const [strokes, setStrokes] = useState<Stroke[]>([]);
-  const capture = useRef<{ document: RawStrokeDocument; startedAtMs: number } | null>(null);
+  const capture = useRef<{
+    document: RawStrokeDocument;
+    startedAtMs: number;
+  } | null>(null);
   const [letter, setLetter] = useState("");
   const [pageFile, setPageFile] = useState<File | null>(null);
+  const [photoSource, setPhotoSource] = useState<ReviewSample | null>(null);
+  const [savedPhotos, setSavedPhotos] = useState<ReviewSample[]>([]);
   const [templateIndex, setTemplateIndex] = useState("");
   const [progress, setProgress] = useState<CaptureProgress | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [stageNote, setStageNote] = useState("");
   const [glyphs, setGlyphs] = useState<ReviewGlyph[]>([]);
-  const [measured, setMeasured] = useState<{ slant: number; weight: number } | null>(
-    null,
-  );
+  const [specimenError, setSpecimenError] = useState("");
+  const [measured, setMeasured] = useState<{
+    slant: number;
+    weight: number;
+  } | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const cameraInput = useRef<HTMLInputElement>(null);
   const request = useRef<AbortController | null>(null);
@@ -144,14 +170,72 @@ export function AccountStudio({
   );
 
   useEffect(() => {
-    if (step !== "preview" || !backend.extraction) return;
+    setPhotoSource(null);
+    setSavedPhotos([]);
+  }, [backend.uid, project.id]);
+
+  useEffect(() => {
+    if (
+      step !== "capture" ||
+      !backend.extraction ||
+      project.scriptCode !== "Latn"
+    )
+      return;
     const controller = new AbortController();
     void backend.extraction
-      .glyphs(project.id, controller.signal)
-      .then((rows) => setGlyphs(rows))
+      .samples(project.id, controller.signal)
+      .then((rows) => {
+        if (!controller.signal.aborted)
+          setSavedPhotos(
+            rows.filter(
+              (row) =>
+                row.source_type.startsWith("freeform_") &&
+                row.state !== "rejected",
+            ),
+          );
+      })
       .catch(() => {});
     return () => controller.abort();
-  }, [backend.extraction, project.id, step]);
+  }, [backend.extraction, backend.uid, project.id, project.scriptCode, step]);
+
+  useEffect(() => {
+    if (step !== "preview" || !backend.extraction) return;
+    const controller = new AbortController();
+    const extraction = backend.extraction;
+    setGlyphs([]);
+    setSpecimenError("");
+    const load = async () => {
+      const rows = await extraction.glyphs(project.id, controller.signal);
+      const selected = new Map<string, ReviewGlyph>();
+      for (const character of graphemeStrings(
+        project.previewText || "Your words here",
+      ).slice(0, 240)) {
+        const row = rows.find(
+          (item) =>
+            item.active_revision_id && matchesCharacter(item, character),
+        );
+        if (row) selected.set(row.id, row);
+      }
+      const details: ReviewGlyph[] = [];
+      for (const row of selected.values()) {
+        if (controller.signal.aborted) return;
+        const result = await extraction.glyph(
+          project.id,
+          row.id,
+          controller.signal,
+        );
+        details.push(result.data);
+      }
+      if (!controller.signal.aborted) setGlyphs(details);
+    };
+    void load().catch(() => {
+      if (!controller.signal.aborted)
+        setSpecimenError(
+          "Your approved shapes could not be loaded. Reopen Preview to try again.",
+        );
+    });
+    return () => controller.abort();
+  }, [backend.extraction, project.id, project.previewText, step]);
 
   useEffect(() => {
     if (step !== "style" || !backend.extraction) return;
@@ -191,10 +275,12 @@ export function AccountStudio({
         startedAtMs: built.captureStartedAtMs,
       };
       setError("");
+      return true;
     } catch {
       setError(
-        "This stroke could not keep its real timing. Clear the page and start this letter again.",
+        "This stroke could not keep its real timing and was not added. Try again, or clear the page to start this letter again.",
       );
+      return false;
     }
   }
 
@@ -261,6 +347,10 @@ export function AccountStudio({
       const document = capture.current?.document;
       if (!document || !strokes.length)
         throw new Error("Draw at least one stroke first.");
+      if (document.strokes.length !== strokes.length)
+        throw new Error(
+          "Draw this letter again: its visible strokes do not match the saved source.",
+        );
       const codepoints = captureCodepoints(letter, project.scriptCode);
       const operation = await captureRecovery.prepare({
         ownerUid: backend.uid,
@@ -292,7 +382,9 @@ export function AccountStudio({
           captureAssetId: confirmed.assetId,
         },
         captures: [
-          ...project.captures.filter((item) => item.sampleId !== confirmed.sampleId),
+          ...project.captures.filter(
+            (item) => item.sampleId !== confirmed.sampleId,
+          ),
           reference,
         ],
         assignments: [
@@ -349,7 +441,8 @@ export function AccountStudio({
     setError("");
     setStageNote("");
     try {
-      const choice = templateIndex !== "" ? backend.templates[Number(templateIndex)] : null;
+      const choice =
+        templateIndex !== "" ? backend.templates[Number(templateIndex)] : null;
       const original = await captureRecovery.preserve(project.id, pageFile);
       const operation = await captureRecovery.prepare({
         ownerUid: backend.uid,
@@ -385,7 +478,9 @@ export function AccountStudio({
           captureAssetId: confirmed.assetId,
         },
         captures: [
-          ...project.captures.filter((item) => item.sampleId !== confirmed.sampleId),
+          ...project.captures.filter(
+            (item) => item.sampleId !== confirmed.sampleId,
+          ),
           {
             sampleId: confirmed.sampleId,
             assetId: confirmed.assetId,
@@ -395,8 +490,30 @@ export function AccountStudio({
         ],
       });
       if (!choice) {
+        if (project.scriptCode === "Latn" && backend.extraction) {
+          const rows = await backend.extraction.samples(project.id);
+          const selected = rows.find(
+            (row) => row.sample_id === confirmed.sampleId,
+          );
+          if (!selected)
+            throw new Error("The stored photo could not be reopened.");
+          resetCapture();
+          setSavedPhotos(
+            rows.filter(
+              (row) =>
+                row.source_type.startsWith("freeform_") &&
+                row.state !== "rejected",
+            ),
+          );
+          setPhotoSource(selected);
+          announce(
+            "Page stored privately. Choose and label the letters from this existing photo.",
+          );
+          await backend.refreshOperations();
+          return;
+        }
         announce(
-          "Page stored privately. Natural-page reading is experimental, so this page won’t create letters yet.",
+          "Page stored privately. Reading this script from an ordinary page is not available yet.",
         );
         resetCapture();
         await backend.refreshOperations();
@@ -425,7 +542,8 @@ export function AccountStudio({
     const approved = new Set(coverage?.user_approved ?? []);
     const mapped = next.map((glyph) => {
       const revision = glyph.revisions.find(
-        (item) => item.id === (glyph.active_revision_id ?? glyph.working_revision_id),
+        (item) =>
+          item.id === (glyph.active_revision_id ?? glyph.working_revision_id),
       );
       return {
         id: glyph.id,
@@ -486,7 +604,9 @@ export function AccountStudio({
             {step === "capture" || step === "preview" ? (
               <PenCharacter mood="happy" />
             ) : (
-              <QuillCharacter mood={step === "review" ? "happy" : "surprised"} />
+              <QuillCharacter
+                mood={step === "review" ? "happy" : "surprised"}
+              />
             )}
           </span>
         </div>
@@ -507,7 +627,29 @@ export function AccountStudio({
 
         {step === "capture" && (
           <div className={styles.captureArea}>
-            {method === null && (
+            {photoSource &&
+              backend.capture &&
+              backend.extraction &&
+              backend.uid && (
+                <PhotoLetterPanel
+                  key={`${backend.uid}:${photoSource.sample_id}`}
+                  capture={backend.capture}
+                  extraction={backend.extraction}
+                  projectId={project.id}
+                  ownerUid={backend.uid}
+                  sample={photoSource}
+                  onClose={() => setPhotoSource(null)}
+                  onReady={async () => {
+                    await backend.refreshOperations();
+                    setPhotoSource(null);
+                    announce(
+                      "Selected letters are ready in Review. Inspect and approve their actual shapes.",
+                    );
+                    go("review");
+                  }}
+                />
+              )}
+            {method === null && !photoSource && (
               <div className="capture-choice-grid">
                 <button
                   className="capture-choice capture-choice-draw"
@@ -546,10 +688,33 @@ export function AccountStudio({
                     <QuillCharacter mood="happy" className="choice-character" />
                   </span>
                   <span className="choice-copy">
-                    <strong>Use a printed page</strong>
+                    <strong>Upload handwriting</strong>
                     <span className="choice-cue">↗</span>
                   </span>
                 </button>
+              </div>
+            )}
+
+            {method === null && !photoSource && savedPhotos.length > 0 && (
+              <div className={styles.card}>
+                <strong>Continue with a saved photo</strong>
+                <p className={styles.note}>
+                  Your originals are already stored. Choose letters from an
+                  existing page without uploading it again.
+                </p>
+                <div className={styles.actions}>
+                  {savedPhotos.map((source, index) => (
+                    <button
+                      key={source.sample_id}
+                      type="button"
+                      className="text-button"
+                      onClick={() => setPhotoSource(source)}
+                      disabled={busy}
+                    >
+                      Choose letters from saved photo {index + 1}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -558,9 +723,16 @@ export function AccountStudio({
                 <div className={styles.cardHead}>
                   <div>
                     <strong>Draw one letter</strong>
-                    <span>Timing, pressure and tilt are kept when your pen shares them.</span>
+                    <span>
+                      Timing, pressure and tilt are kept when your pen shares
+                      them.
+                    </span>
                   </div>
-                  <button className="text-button" onClick={resetCapture} disabled={busy}>
+                  <button
+                    className="text-button"
+                    onClick={resetCapture}
+                    disabled={busy}
+                  >
                     ← Change method
                   </button>
                 </div>
@@ -569,7 +741,9 @@ export function AccountStudio({
                   <input
                     value={letter}
                     maxLength={16}
-                    placeholder={project.scriptCode === "Deva" ? "क or क्ष" : "a"}
+                    placeholder={
+                      project.scriptCode === "Deva" ? "क or क्ष" : "a"
+                    }
                     onChange={(event) => setLetter(event.target.value)}
                     disabled={busy}
                   />
@@ -609,10 +783,14 @@ export function AccountStudio({
               <div className={styles.card}>
                 <div className={styles.cardHead}>
                   <div>
-                    <strong>Use a printed page</strong>
+                    <strong>Upload handwriting</strong>
                     <span>A clear photo or scan of your handwriting.</span>
                   </div>
-                  <button className="text-button" onClick={resetCapture} disabled={busy}>
+                  <button
+                    className="text-button"
+                    onClick={resetCapture}
+                    disabled={busy}
+                  >
                     ← Change method
                   </button>
                 </div>
@@ -692,7 +870,10 @@ export function AccountStudio({
                     {busy ? "Saving your page…" : "Save this page"}
                   </button>
                   {pageFile && !busy && (
-                    <button className="text-button" onClick={() => setPageFile(null)}>
+                    <button
+                      className="text-button"
+                      onClick={() => setPageFile(null)}
+                    >
                       Remove image
                     </button>
                   )}
@@ -706,14 +887,19 @@ export function AccountStudio({
                       onChange={(event) => setTemplateIndex(event.target.value)}
                       disabled={busy}
                     >
-                      <option value="">Natural page · stored privately, not read</option>
+                      <option value="">
+                        Your own page · choose and label its letters
+                      </option>
                       {backend.templates
                         .filter(
                           (item) =>
                             item.manifest.script_code === project.scriptCode,
                         )
                         .map((item, index) => (
-                          <option key={`${item.manifest.template_id}-${index}`} value={index}>
+                          <option
+                            key={`${item.manifest.template_id}-${index}`}
+                            value={index}
+                          >
                             {item.manifest.template_id} · v
                             {item.manifest.template_version} · page{" "}
                             {item.manifest.page.index + 1}
@@ -721,20 +907,21 @@ export function AccountStudio({
                         ))}
                     </select>
                   </label>
-                  {templateIndex !== "" && backend.templates[Number(templateIndex)] && (
-                    <p className={styles.note}>
-                      Print this page at 100% and keep every marker visible.{" "}
-                      <a
-                        href={backend.extraction?.publicTemplateUrl(
-                          backend.templates[Number(templateIndex)].pdf_url,
-                        )}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Open the printable page ↗
-                      </a>
-                    </p>
-                  )}
+                  {templateIndex !== "" &&
+                    backend.templates[Number(templateIndex)] && (
+                      <p className={styles.note}>
+                        Print this page at 100% and keep every marker visible.{" "}
+                        <a
+                          href={backend.extraction?.publicTemplateUrl(
+                            backend.templates[Number(templateIndex)].pdf_url,
+                          )}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Open the printable page ↗
+                        </a>
+                      </p>
+                    )}
                 </details>
               </div>
             )}
@@ -753,7 +940,9 @@ export function AccountStudio({
                 {progress.phase !== "confirmed" && (
                   <>
                     <progress
-                      value={progress.total === null ? undefined : progress.completed}
+                      value={
+                        progress.total === null ? undefined : progress.completed
+                      }
                       max={progress.total ?? 1}
                       aria-label="Capture progress"
                     />
@@ -776,8 +965,8 @@ export function AccountStudio({
             {lastCapture && method === null && (
               <p className={styles.note}>
                 {project.captures.length} capture
-                {project.captures.length === 1 ? "" : "s"} saved to your account.
-                Add another letter any time.
+                {project.captures.length === 1 ? "" : "s"} saved to your
+                account. Add another letter any time.
               </p>
             )}
             {strokes.length > 0 && !busy && (
@@ -788,21 +977,23 @@ export function AccountStudio({
           </div>
         )}
 
-        {(step === "review" || step === "edit") && backend.extraction && backend.uid && (
-          <div className={styles.reviewWrap}>
-            <CloudReviewPanel
-              key={`${backend.uid}:${project.id}:${step}`}
-              client={backend.extraction}
-              jobClient={backend.jobs ?? undefined}
-              projectId={project.id}
-              ownerUid={backend.uid}
-              scriptCode={project.scriptCode}
-              operations={backend.operations}
-              startOpen
-              onChanged={(rows, counts) => mergeGlyphs(rows, counts)}
-            />
-          </div>
-        )}
+        {(step === "review" || step === "edit") &&
+          backend.extraction &&
+          backend.uid && (
+            <div className={styles.reviewWrap}>
+              <CloudReviewPanel
+                key={`${backend.uid}:${project.id}:${step}`}
+                client={backend.extraction}
+                jobClient={backend.jobs ?? undefined}
+                projectId={project.id}
+                ownerUid={backend.uid}
+                scriptCode={project.scriptCode}
+                operations={backend.operations}
+                startOpen
+                onChanged={(rows, counts) => mergeGlyphs(rows, counts)}
+              />
+            </div>
+          )}
         {step === "edit" && project.glyphs.length === 0 && (
           <p className={styles.note}>
             Add a letter in Capture before editing its shape.
@@ -824,7 +1015,11 @@ export function AccountStudio({
                 <div>
                   <span>Letters approved</span>
                   <strong>
-                    {project.glyphs.filter((glyph) => glyph.status === "approved").length}
+                    {
+                      project.glyphs.filter(
+                        (glyph) => glyph.status === "approved",
+                      ).length
+                    }
                   </strong>
                 </div>
               </div>
@@ -840,7 +1035,10 @@ export function AccountStudio({
               and is chosen at export.
             </p>
             <div className={styles.actions}>
-              <button className="button button-dark" onClick={() => go("preview")}>
+              <button
+                className="button button-dark"
+                onClick={() => go("preview")}
+              >
                 See the specimen <span aria-hidden="true">→</span>
               </button>
             </div>
@@ -849,18 +1047,42 @@ export function AccountStudio({
 
         {step === "preview" && (
           <div className={styles.card}>
-            <div className={styles.specimen} aria-label="Specimen from approved outlines">
-              {graphemeStrings(project.previewText || "Your words here").map(
-                (character, index) => {
+            <label className={`${styles.field} ${styles.specimenField}`}>
+              Specimen text
+              <textarea
+                rows={2}
+                maxLength={240}
+                value={project.previewText}
+                onChange={(event) =>
+                  update({ previewText: event.target.value })
+                }
+                aria-describedby="approved-specimen-help"
+              />
+            </label>
+            <p id="approved-specimen-help" className={styles.note}>
+              Try the letters you approved. Underlined characters are missing
+              approved shapes. The specimen shows up to 240 characters.
+            </p>
+            <div
+              className={styles.specimen}
+              aria-label="Specimen from approved outlines"
+            >
+              {graphemeStrings(project.previewText || "Your words here")
+                .slice(0, 240)
+                .map((character, index) => {
                   if (/^\s$/.test(character))
-                    return <span key={`space-${index}`} className={styles.specimenSpace} />;
-                  const codepoints = [...character].map((value) =>
-                    value.codePointAt(0),
-                  );
+                    return (
+                      <span
+                        key={`space-${index}`}
+                        className={styles.specimenSpace}
+                      />
+                    );
                   const glyph = glyphs.find((item) =>
-                    codepoints.every((cp) => item.codepoints.includes(cp ?? -1)),
+                    matchesCharacter(item, character),
                   );
-                  const outline = glyph?.active_outline ?? glyph?.outline;
+                  const outline = glyph?.active_revision_id
+                    ? glyph.active_outline
+                    : null;
                   return outline ? (
                     <CanonicalGlyph
                       key={`${character}-${index}`}
@@ -868,13 +1090,22 @@ export function AccountStudio({
                       label={character}
                     />
                   ) : (
-                    <span key={`${character}-${index}`} className={styles.specimenMissing}>
+                    <span
+                      key={`${character}-${index}`}
+                      className={styles.specimenMissing}
+                      title={`${character}: not approved yet`}
+                      aria-label={`${character}, not approved`}
+                    >
                       {character}
                     </span>
                   );
-                },
-              )}
+                })}
             </div>
+            {specimenError && (
+              <p className="form-error" role="alert">
+                {specimenError}
+              </p>
+            )}
             <div className={styles.actions}>
               {project.selectedExportId ? (
                 <Link
@@ -884,7 +1115,10 @@ export function AccountStudio({
                   Write with this font <span aria-hidden="true">→</span>
                 </Link>
               ) : (
-                <button className="button button-dark" onClick={() => go("export")}>
+                <button
+                  className="button button-dark"
+                  onClick={() => go("export")}
+                >
                   Generate the font <span aria-hidden="true">→</span>
                 </button>
               )}
@@ -911,7 +1145,6 @@ export function AccountStudio({
               ownerUid={backend.uid}
               quiet
               defaultFamily={project.name}
-              defaultSnapshotId={project.activeSnapshotId ?? ""}
               onReady={persistExports}
             />
             {project.selectedExportId && (

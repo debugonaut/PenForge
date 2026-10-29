@@ -10,7 +10,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 sys.path[:0] = [str(ROOT / "apps/api"), str(ROOT / "packages/contracts")]
 
-from penforge_contracts import CONTRACT_MODELS, AnalyzeSamplesJobV2, contract_registry  # noqa: E402
+from penforge_contracts import (  # noqa: E402
+    CONTRACT_MODELS,
+    AnalyzeSamplesJobV2,
+    AnalyzeSamplesJobV3,
+    contract_registry,
+)
 
 
 def artifacts() -> dict[Path, dict]:
@@ -25,6 +30,7 @@ def artifacts() -> dict[Path, dict]:
         folder = "jobs" if name.endswith("_job") else "schemas"
         result[base / folder / f"{name}.v1.json"] = model.model_json_schema()
     result[base / "jobs/analyze_samples_job.v2.json"] = AnalyzeSamplesJobV2.model_json_schema()
+    result[base / "jobs/analyze_samples_job.v3.json"] = AnalyzeSamplesJobV3.model_json_schema()
     return result
 
 

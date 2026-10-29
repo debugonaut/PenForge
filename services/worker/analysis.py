@@ -141,6 +141,13 @@ class AnalysisWorker:
                     )
                     if "drawing_mode" in job["payload"]:
                         config["drawing_mode"] = job["payload"]["drawing_mode"]
+                    if "image_mode" in job["payload"]:
+                        config["image_mode"] = job["payload"]["image_mode"]
+                        config["image_regions"] = [
+                            region
+                            for region in job["payload"]["image_regions"]
+                            if region["sample_id"] == sid
+                        ]
                     if sample["template_id"]:
                         manifest = self.service.manifest(sample, job["payload"]["script_code"])
                         config.update(
@@ -152,9 +159,11 @@ class AnalysisWorker:
                         [source_hash],
                         config.get("manifest_hash"),
                         config,
-                        pipeline(job["payload"]["script_code"], job["payload"].get("drawing_mode"))[
-                            "algorithm_version"
-                        ],
+                        pipeline(
+                            job["payload"]["script_code"],
+                            job["payload"].get("drawing_mode"),
+                            job["payload"].get("image_mode"),
+                        )["algorithm_version"],
                     )
                     job["_failure_input_hash"] = content_hash(deps)
                     cached = await checkpoints.load(job, self.worker_id, f"sample-{index}", deps)
@@ -217,7 +226,8 @@ class AnalysisWorker:
                         cid = str(
                             uuid5(
                                 job["id"],
-                                f"attempt:{job['attempts']}:{sid}:{item.get('cell_id', 'drawing')}",
+                                f"attempt:{job['attempts']}:{sid}:"
+                                f"{item.get('region_id', item.get('cell_id', 'drawing'))}",
                             )
                         )
                         candidates.append(
@@ -237,7 +247,11 @@ class AnalysisWorker:
                             flags=item["flags"],
                             source_hash=source_hash,
                             expected_text_is_ground_truth=False,
-                            **{k: v for k, v in item.items() if k in {"cell_id", "provenance"}},
+                            **{
+                                k: v
+                                for k, v in item.items()
+                                if k in {"cell_id", "region_id", "provenance"}
+                            },
                         )
                         for key in ("crop_artifact", "mask_artifact"):
                             if key in item:
@@ -253,7 +267,9 @@ class AnalysisWorker:
                         samples=assessments,
                         candidates=evidence,
                         policy_hash=policy_hash(
-                            job["payload"]["script_code"], job["payload"].get("drawing_mode")
+                            job["payload"]["script_code"],
+                            job["payload"].get("drawing_mode"),
+                            job["payload"].get("image_mode"),
                         ),
                     )
                 ),
@@ -275,7 +291,9 @@ class AnalysisWorker:
                     template_manifest_hash=job["payload"].get("template_manifest_hash"),
                 ),
                 pipeline=pipeline(
-                    job["payload"]["script_code"], job["payload"].get("drawing_mode")
+                    job["payload"]["script_code"],
+                    job["payload"].get("drawing_mode"),
+                    job["payload"].get("image_mode"),
                 ),
                 candidates=[
                     GlyphCandidate.model_validate(item).model_dump(mode="json")

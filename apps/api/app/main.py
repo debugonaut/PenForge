@@ -13,13 +13,13 @@ from penforge_contracts import ContractRegistry, contract_registry, register_con
 
 from app.adapters.auth.base import AuthVerifier
 from app.adapters.auth.fake import FakeAuthVerifier
-from app.adapters.storage.local_fs import LocalObjectStorage
+from app.adapters.storage.factory import build_storage
 from app.core.config import Settings
 from app.core.errors import ErrorEnvelope, register_errors
 from app.core.metrics import Metrics
 from app.core.middleware import RequestMiddleware
 from app.core.operational_metrics import collect as collect_operational_metrics
-from app.core.ratelimit import InMemoryRateLimiter
+from app.core.ratelimit import InMemoryRateLimiter, PostgresRateLimiter
 from app.db.session import make_async_engine
 from app.modules.accountability.router import router as accountability_router
 from app.modules.accountability.service import AccountabilityService
@@ -66,24 +66,10 @@ def create_app(
     @asynccontextmanager
     async def lifespan(application: FastAPI) -> AsyncIterator[None]:
         # Storage is opened only on startup; OpenAPI export has no side effects.
-        storage = (
-            LocalObjectStorage(
-                config.storage_root,
-                secret=(
-                    hashlib.sha256(
-                        b"penforge-local-storage-v1\0"
-                        + config.hmac_secret.get_secret_value().encode()
-                    ).digest()
-                    if config.hmac_secret
-                    else None
-                ),
-                max_upload_bytes=config.upload_max_bytes,
-            )
-            if config.storage_backend == "local_fs"
-            else None
-        )
+        storage = build_storage(config)
         application.state.storage = storage
         engine = None
+        limiter_engine = None
         owned_verifier = None
         if config.auth_backend == "firebase":
             if application.state.auth_verifier is None:
@@ -169,6 +155,14 @@ def create_app(
                 identity_admin=application.state.auth_verifier,
                 lease_seconds=config.lease_seconds,
             )
+        if config.rate_limit_backend == "postgres":
+            owned = getattr(application.state.identity_service, "engine", None)
+            if owned is None:
+                limiter_engine = make_async_engine(
+                    config.database_url.get_secret_value(), pool_size=config.database_pool_size
+                )
+                owned = limiter_engine
+            application.state.rate_limiter = PostgresRateLimiter(owned)
         if application.state.privacy_service:
             privacy = application.state.privacy_service
             await privacy.restore_reconcile()
@@ -184,6 +178,8 @@ def create_app(
         finally:
             if engine:
                 await engine.dispose()
+            if limiter_engine:
+                await limiter_engine.dispose()
             if owned_verifier:
                 owned_verifier.close()
             if storage:

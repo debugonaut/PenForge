@@ -2,10 +2,12 @@ import { createTypeScriptLoader } from "./helpers/typescript.mjs";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { unicodeModuleUrl } from "./helpers/unicode.mjs";
+import { writingTextModuleUrl } from "./helpers/writing-text.mjs";
 
 const moduleUrl = createTypeScriptLoader(import.meta.url);
 const writingUrl = await moduleUrl("../src/lib/writing.ts", [
   ["../../packages/contracts/src/unicode", unicodeModuleUrl],
+  ["./writing-text", writingTextModuleUrl],
 ]);
 const { DEFAULT_WRITING_DOCUMENT, normalizeWritingDocument } = await import(
   writingUrl
@@ -36,6 +38,7 @@ const {
   await moduleUrl("../src/lib/writing-desk.ts", [
     ['"./writing"', JSON.stringify(writingUrl)],
     ["../../packages/contracts/src/unicode", unicodeModuleUrl],
+    ["./writing-text", writingTextModuleUrl],
   ])
 );
 
@@ -76,9 +79,7 @@ test("find and replace counts across words and inserts replacement literally", (
 test("word count covers the note and sign-off, not the greeting or title", () => {
   assert.equal(writingWordCount(DEFAULT_WRITING_DOCUMENT), 24);
   assert.equal(
-    writingWordCount(
-      normalizeWritingDocument({ body: "  ", signature: "" }),
-    ),
+    writingWordCount(normalizeWritingDocument({ body: "  ", signature: "" })),
     0,
   );
 });
@@ -118,13 +119,16 @@ test("local versions tolerate corrupt records and stay newest-first and capped",
   assert.equal(parsed[1].document.body, "Kept words");
   assert.equal(WRITING_VERSIONS_KEY, "penforge-writing-versions-v1");
 
-  const capped = Array.from({ length: MAX_WRITING_VERSIONS + 4 }, (_, index) => ({
-    id: `v${index}`,
-    at: index,
-    title: `v${index}`,
-    format: "note",
-    document: normalizeWritingDocument({ body: `Words ${index}` }),
-  }));
+  const capped = Array.from(
+    { length: MAX_WRITING_VERSIONS + 4 },
+    (_, index) => ({
+      id: `v${index}`,
+      at: index,
+      title: `v${index}`,
+      format: "note",
+      document: normalizeWritingDocument({ body: `Words ${index}` }),
+    }),
+  );
   const stored = readWritingVersions(JSON.stringify(capped));
   assert.equal(stored.length, MAX_WRITING_VERSIONS);
   assert.equal(stored[0].id, `v${MAX_WRITING_VERSIONS + 3}`);
@@ -149,7 +153,10 @@ test("local versions tolerate corrupt records and stay newest-first and capped",
 test("occasion templates fill only the words and preserve the desk settings", () => {
   assert.equal(WRITING_TEMPLATES[0].id, "blank");
   assert.ok(WRITING_TEMPLATES.length >= 5);
-  assert.equal(new Set(WRITING_TEMPLATES.map((t) => t.id)).size, WRITING_TEMPLATES.length);
+  assert.equal(
+    new Set(WRITING_TEMPLATES.map((t) => t.id)).size,
+    WRITING_TEMPLATES.length,
+  );
   const document = normalizeWritingDocument({
     ...DEFAULT_WRITING_DOCUMENT,
     paper: "kraft",
@@ -269,13 +276,18 @@ test("library search matches titles and bodies; format and sort stay predictable
       body: "Milk, eggs",
     },
   ];
-  assert.deepEqual(filterWritingPages(pages).map((p) => p.id), ["1", "2", "3"]);
+  assert.deepEqual(
+    filterWritingPages(pages).map((p) => p.id),
+    ["1", "2", "3"],
+  );
   assert.deepEqual(
     filterWritingPages(pages, { query: "birthday" }).map((p) => p.id),
     ["1", "2"],
   );
   assert.deepEqual(
-    filterWritingPages(pages, { query: "birthday", format: "letter" }).map((p) => p.id),
+    filterWritingPages(pages, { query: "birthday", format: "letter" }).map(
+      (p) => p.id,
+    ),
     ["2"],
   );
   assert.deepEqual(

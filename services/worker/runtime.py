@@ -379,7 +379,7 @@ class PipelineWorker(VerificationWorker):
         for _ in range(4):
             async with self.queue.engine.begin() as connection:
                 candidates = await queue_candidates(
-                    connection, types, (1, 2), self.limits.memory_mb
+                    connection, types, (1, 2, 3), self.limits.memory_mb
                 )
             if not candidates:
                 return False

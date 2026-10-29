@@ -47,6 +47,8 @@ class StoredObject:
 
 
 class ObjectStorage(Protocol):
+    def close(self) -> None: ...
+
     def create_upload(
         self,
         key: str,

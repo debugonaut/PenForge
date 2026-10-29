@@ -15,6 +15,7 @@ from pathlib import Path, PurePosixPath
 from urllib.parse import unquote
 
 PRIVATE_PREFIXES = (
+    "public/fonts/local-demo/",
     ".git/",
     ".local/",
     ".agents/",

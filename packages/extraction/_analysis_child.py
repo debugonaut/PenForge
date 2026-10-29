@@ -48,7 +48,39 @@ def main():
 
     candidates = []
     source_type = config["source_type"]
-    if source_type == "canvas_drawing":
+    if config.get("image_mode") is not None:
+        if (
+            config["image_mode"] != "manual_regions_v1"
+            or source_type != "freeform_photo"
+            or config.get("drawing_mode") is not None
+            or config.get("assignment") is not None
+            or config.get("manifest") is not None
+        ):
+            raise ValueError("unsupported_manual_image_mode")
+        from packages.extraction.manual_regions import extract_manual_regions
+
+        manual_result = extract_manual_regions(data, config["image_regions"], config["source_hash"])
+        quality = manual_result.quality
+        state, reasons = (
+            ("needs_better_input", list(manual_result.reasons))
+            if manual_result.reasons
+            else ("analyzed", [])
+        )
+        for manual_glyph in manual_result.glyphs:
+            candidates.append(
+                dict(
+                    region_id=manual_glyph.region_id,
+                    codepoints=manual_glyph.codepoints,
+                    outline=outline(manual_glyph.outline),
+                    flags=list(manual_glyph.flags),
+                    provenance=manual_glyph.provenance,
+                    crop_artifact=save(manual_glyph.crop_png, "segment", "image/png"),
+                    mask_artifact=save(manual_glyph.mask_png, "segment", "image/png"),
+                )
+            )
+    elif "image_regions" in config:
+        raise ValueError("manual_image_mode_required")
+    elif source_type == "canvas_drawing":
         try:
             mode = config.get("drawing_mode")
             converter = vectorize_strokes

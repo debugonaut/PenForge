@@ -7,6 +7,8 @@ export type TemplateReference = components["schemas"]["TemplateReference"];
 export type TemplateChoice = components["schemas"]["TemplateItem"];
 export type ReviewSample = components["schemas"]["SampleResponse"];
 export type AnalysisAssignment = components["schemas"]["CaptureAssignment"];
+export type ImageRegionAssignment =
+  components["schemas"]["ImageRegionAssignment"];
 export type AnalysisJob = components["schemas"]["AnalysisJobResponse"];
 export type ReviewRevision = components["schemas"]["RevisionResponse"];
 export type ReviewGlyph = components["schemas"]["GlyphResponse"];
@@ -143,6 +145,26 @@ export function createExtractionClient(
             sample_ids: sampleIds,
             assignments,
             ...(drawingMode ? { drawing_mode: drawingMode } : {}),
+          },
+          key,
+          signal,
+        })
+      ).data,
+    analyzeImageRegions: async (
+      id: string,
+      sampleId: string,
+      regions: ImageRegionAssignment[],
+      key: string,
+      signal?: AbortSignal,
+    ) =>
+      (
+        await request<AnalysisJob>(`${project(id)}/jobs`, {
+          method: "POST",
+          body: {
+            job_type: "analyze_samples",
+            sample_ids: [sampleId],
+            image_mode: "manual_regions_v1",
+            image_regions: regions,
           },
           key,
           signal,

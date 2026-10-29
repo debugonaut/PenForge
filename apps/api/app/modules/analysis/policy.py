@@ -37,7 +37,7 @@ def image_config():
     )
 
 
-def policy_hash(script="Latn", drawing_mode=None):
+def policy_hash(script="Latn", drawing_mode=None, image_mode=None):
     original = content_hash(
         policy()
         if script == "Latn"
@@ -49,6 +49,21 @@ def policy_hash(script="Latn", drawing_mode=None):
         }
     )
 
+    if image_mode:
+        if image_mode != "manual_regions_v1" or drawing_mode or script != "Latn":
+            raise ValueError("unsupported_image_mode")
+        return content_hash(
+            {
+                "structured_policy": original,
+                "image_mode": image_mode,
+                "algorithm_version": "manual-region-threshold-trace-v1",
+                "grayscale": "white-alpha-integer-luma-299-587-114",
+                "threshold": "strict-less-than",
+                "max_regions": 96,
+                "max_crop_pixels": 4_000_000,
+                "max_batch_pixels": 8_000_000,
+            }
+        )
     return (
         content_hash({"structured_policy": original, "canvas_policy": canvas_policy()})
         if drawing_mode
@@ -70,9 +85,16 @@ def calibration_policy():
     return value
 
 
-def pipeline(script="Latn", drawing_mode=None):
+def pipeline(script="Latn", drawing_mode=None, image_mode=None):
     if script not in {"Latn", "Deva"}:
         raise ValueError("unsupported_script")
+    if image_mode:
+        if image_mode != "manual_regions_v1" or drawing_mode or script != "Latn":
+            raise ValueError("unsupported_image_mode")
+        return PIPELINE | dict(
+            algorithm_version="latin-manual-regions-v1",
+            preprocessing_version="manual-region-threshold-trace-v1",
+        )
     if drawing_mode:
         if drawing_mode != "fixed_round_v1" or script != "Latn":
             raise ValueError("unsupported_drawing_mode")

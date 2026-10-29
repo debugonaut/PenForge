@@ -22,7 +22,11 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" data-scroll-behavior="smooth">
+    <html
+      lang="en"
+      data-scroll-behavior="smooth"
+      data-demo-font={process.env.NEXT_PUBLIC_PENFORGE_DEMO_FONT}
+    >
       <body>
         <MotionPreference />
         <a className="skip-link" href="#main-content">

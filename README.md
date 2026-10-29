@@ -19,6 +19,10 @@ Backend, ML and infrastructure work follows the complete [v3 engineering specifi
 
 ## Run
 
+Use Node.js 24 LTS, version 24.22.1 or newer within 24.x. The [.nvmrc](.nvmrc)
+pins the verified runtime; `package.json` declares the patched minimum. Use the
+committed lockfile. CI also blocks moderate-or-higher npm vulnerability findings.
+
 ```sh
 npm ci
 npm run dev
@@ -66,6 +70,13 @@ Landing captures and earlier editor, preview, and Workbench screenshots are kept
 Reference review included the live [RIFT](https://www.tryrift.fun/) site and Dennis Snellenberg’s [Breathtaking](https://dribbble.com/shots/13961411-Breathtaking), plus [Impeccable](https://github.com/pbakaus/impeccable), the official [GSAP guidance](https://github.com/greensock/gsap-skills), [LottieFiles motion design](https://github.com/LottieFiles/motion-design-skill), [Zero-Jank Scroll](https://github.com/harshavarma02/zero-jank-scroll-agent-skill), [mthines animations](https://github.com/mthines/agent-skills/blob/main/skills/design/animations/SKILL.md), and [motion-design-agent](https://github.com/soilmass/motion-design-agent). LottieFiles guidance informed coordinated entrances, quick control feedback, and restrained paper settling. The other supplied frontend/motion collections were reviewed as indexes. These were consulted as references; no external skill installer or setup script was run. The local brainstorming skill was used only for context review, following the explicit instruction to begin implementation without new design approvals.
 
 ## Remaining integration
+
+The [assisted photo implementation](docs/photo-font/evidence.md) now lets an account
+user select and label letters from an existing ordinary photo, inspect crop/mask
+evidence, approve the outlines and build real fonts. It uses a separate bounded v3
+job and preserves the original; automatic page recognition remains unqualified.
+Local account capture/review, current-approval export and generated-font handoff
+repairs are recorded with their executed checks and remaining hosted limits.
 
 Backend Phases 00–10 are implemented locally within their evidence gates. Phase 10 ships measured pair kerning; joins and advanced refinement remain gated. Phase 11 portable tooling and audit repairs exist, while hosted execution and its full public outcome remain incomplete. Use the [phase index](docs/backend-ml-infra/plan.md) and each phase's evidence for current scope and pending browser/OS checks. No handwriting model is qualified; Devanagari production, ordinary-photo automation and public deployment remain unproven.
 

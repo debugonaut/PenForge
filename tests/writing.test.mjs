@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
 import { unicodeModuleUrl } from "./helpers/unicode.mjs";
+import { writingTextModuleUrl } from "./helpers/writing-text.mjs";
 
 const moduleUrl = createTypeScriptLoader(import.meta.url);
 const {
@@ -22,9 +23,12 @@ const {
   exportWritingPng,
   readFontCoverage,
   writingLineSeed,
-} = await import(await moduleUrl("../src/lib/writing.ts", [
-  ["../../packages/contracts/src/unicode", unicodeModuleUrl],
-]));
+} = await import(
+  await moduleUrl("../src/lib/writing.ts", [
+    ["../../packages/contracts/src/unicode", unicodeModuleUrl],
+    ["./writing-text", writingTextModuleUrl],
+  ])
+);
 
 test("handoff fields are bounded and unrelated or unsafe query values are ignored", () => {
   const query = new URLSearchParams({
@@ -488,11 +492,16 @@ test("the pinned stage fits a whole sheet without stretching or cropping it", ()
   const tall = fitWritingPage(page, { width: 300, height: 900 });
   assert.deepEqual(tall, { width: 300, height: 423, scale: 300 / 780 });
   assert.ok(tall.height <= 900);
-  assert.ok(Math.abs(tall.width / tall.height - page.width / page.height) < 0.003);
+  assert.ok(
+    Math.abs(tall.width / tall.height - page.width / page.height) < 0.003,
+  );
   // A collapsed column must not render a sliver of paper.
   assert.equal(fitWritingPage(page, { width: 39, height: 700 }), null);
   assert.equal(fitWritingPage(page, { width: 600, height: 39 }), null);
-  assert.equal(fitWritingPage({ width: 0, height: 0 }, { width: 600, height: 600 }), null);
+  assert.equal(
+    fitWritingPage({ width: 0, height: 0 }, { width: 600, height: 600 }),
+    null,
+  );
 });
 
 test("ink and paper contrast is measured so unreadable pairings can be flagged", () => {

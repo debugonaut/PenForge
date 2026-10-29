@@ -153,8 +153,24 @@ export function createCaptureClient(
         key,
         signal,
       ),
-    /** Owner-authorized, size-checked preview of a stored original. */
+    /** Owner-authorized original bytes, streamed within the admitted size and digest. */
     async preview(assetId: string, signal?: AbortSignal): Promise<Blob> {
+      const asset = await request<CaptureAsset>(
+        `/api/v1/assets/${encodeURIComponent(assetId)}`,
+        "GET",
+        undefined,
+        undefined,
+        signal,
+      );
+      const limit = 20 * 1024 * 1024;
+      if (
+        !Number.isSafeInteger(asset.size_bytes) ||
+        asset.size_bytes <= 0 ||
+        asset.size_bytes > limit ||
+        !/^sha256:[a-f0-9]{64}$/.test(asset.sha256 ?? "") ||
+        !["image/png", "image/jpeg", "image/webp"].includes(asset.mime_type)
+      )
+        throw new CaptureError("invalid_preview");
       const grant = await request<CaptureGrant>(
         `/api/v1/assets/${encodeURIComponent(assetId)}/download-url`,
         "GET",
@@ -183,13 +199,33 @@ export function createCaptureClient(
         signal,
       });
       const type = response.headers.get("Content-Type")?.split(";")[0];
-      if (
-        !response.ok ||
-        !["image/png", "image/jpeg", "image/webp"].includes(type ?? "")
-      )
+      if (!response.ok || type !== asset.mime_type || !response.body)
         throw new CaptureError("invalid_preview");
-      const blob = await response.blob();
-      if (blob.size <= 0 || blob.size > 2 * 1024 * 1024)
+      const reader = response.body.getReader();
+      const chunks: Uint8Array<ArrayBuffer>[] = [];
+      let size = 0;
+      try {
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          size += value.byteLength;
+          if (size > asset.size_bytes || size > limit)
+            throw new CaptureError("invalid_preview");
+          chunks.push(new Uint8Array(value));
+        }
+      } finally {
+        await reader.cancel();
+        reader.releaseLock();
+      }
+      if (size !== asset.size_bytes) throw new CaptureError("invalid_preview");
+      const blob = new Blob(chunks, { type: asset.mime_type });
+      const digest = Array.from(
+        new Uint8Array(
+          await crypto.subtle.digest("SHA-256", await blob.arrayBuffer()),
+        ),
+        (value) => value.toString(16).padStart(2, "0"),
+      ).join("");
+      if (`sha256:${digest}` !== asset.sha256)
         throw new CaptureError("invalid_preview");
       return blob;
     },

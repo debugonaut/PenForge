@@ -17,7 +17,9 @@ pytestmark = pytest.mark.integration
 
 def create_job(client, project):
     created, _, _ = initialize(client, project)
-    assert client.put(created["upload"]["url"], content=SOURCE).status_code == 204
+    assert (
+        client.put(created["upload"]["url"], content=SOURCE, headers=headers()).status_code == 204
+    )
     result = client.post(f"/api/v1/uploads/{created['asset_id']}/complete", headers=headers())
     assert result.status_code == 202, result.text
     return result.json()["job_id"]

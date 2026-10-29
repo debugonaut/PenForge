@@ -79,8 +79,10 @@ class UploadsService:
         derivative_max_dimension: int = 1000,
         idempotency_ttl_seconds: int = 86400,
         job_max_attempts: int = 3,
+        storage_backend: str = "local_fs",
     ):
         self.engine, self.identity_service, self.storage = engine, identity_service, storage
+        self.storage_backend = storage_backend
         self.clock, self.ids = clock, ids
         self.upload_issuance_enabled = upload_issuance_enabled
         self.upload_max_bytes, self.upload_max_pixels = upload_max_bytes, upload_max_pixels
@@ -330,7 +332,7 @@ class UploadsService:
                     "owner_user_id": user["id"],
                     "project_id": project_id,
                     "kind": "original_upload",
-                    "storage_backend": "local_fs",
+                    "storage_backend": self.storage_backend,
                     "storage_key": f"u/{user['id']}/p/{project_id}/orig/{asset_id}",
                     "mime_type": body.declared_mime,
                     "size_bytes": body.declared_size,
@@ -622,7 +624,7 @@ class UploadsService:
                 "owner_user_id": owner_id,
                 "project_id": project["id"],
                 "kind": "raw_strokes",
-                "storage_backend": "local_fs",
+                "storage_backend": self.storage_backend,
                 "storage_key": key,
                 "mime_type": "application/json",
                 "size_bytes": len(data),
@@ -725,7 +727,7 @@ class UploadsService:
                 "owner_user_id": owner_id,
                 "project_id": project_id,
                 "kind": kind,
-                "storage_backend": "local_fs",
+                "storage_backend": self.storage_backend,
                 "storage_key": storage_key,
                 "mime_type": mime_type,
                 "size_bytes": size_bytes,

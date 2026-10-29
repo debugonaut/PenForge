@@ -1,14 +1,13 @@
-"""Local worker entry point. Provider/service credentials remain Phase 11 gates."""
+"""Durable worker entry point; local filesystem or hosted S3-compatible storage."""
 
 import argparse
 import asyncio
-import hashlib
 import json
 import os
 from pathlib import Path
 from uuid import uuid4
 
-from app.adapters.storage.local_fs import LocalObjectStorage
+from app.adapters.storage.factory import build_storage
 from app.core.config import Settings
 from app.db.session import make_async_engine
 from app.modules.analysis.service import AnalysisService
@@ -28,21 +27,11 @@ async def main(
     retention_apply: Path | None = None,
 ) -> None:
     settings = Settings()
-    if settings.app_env not in {"local", "test"} or settings.storage_backend != "local_fs":
-        raise SystemExit("Local worker requires local/test filesystem configuration.")
+    storage = build_storage(settings)
+    if storage is None:
+        raise SystemExit("Worker requires configured object storage.")
     engine = make_async_engine(
         settings.database_url.get_secret_value(), pool_size=settings.database_pool_size
-    )
-    storage = LocalObjectStorage(
-        settings.storage_root,
-        max_upload_bytes=settings.upload_max_bytes,
-        secret=(
-            hashlib.sha256(
-                b"penforge-local-storage-v1\0" + settings.hmac_secret.get_secret_value().encode()
-            ).digest()
-            if settings.hmac_secret
-            else None
-        ),
     )
     uploads, queue = capture_services(settings, engine, IdentityService(engine), storage)
     try:

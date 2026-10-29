@@ -192,6 +192,26 @@
             ],
             "title": "Drawing Mode"
           },
+          "image_mode": {
+            "anyOf": [
+              {
+                "const": "manual_regions_v1",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Mode"
+          },
+          "image_regions": {
+            "items": {
+              "$ref": "#/components/schemas/ImageRegionAssignment"
+            },
+            "maxItems": 96,
+            "title": "Image Regions",
+            "type": "array"
+          },
           "job_type": {
             "const": "analyze_samples",
             "default": "analyze_samples",
@@ -488,6 +508,75 @@
           "drawing_mode"
         ],
         "title": "AnalyzeSamplesJobV2",
+        "type": "object"
+      },
+      "AnalyzeSamplesJobV3": {
+        "additionalProperties": false,
+        "description": "User-assigned image regions; no OCR or automatic character alignment.",
+        "properties": {
+          "image_mode": {
+            "const": "manual_regions_v1",
+            "title": "Image Mode",
+            "type": "string"
+          },
+          "image_regions": {
+            "items": {
+              "$ref": "#/components/schemas/ImageRegionAssignment"
+            },
+            "maxItems": 96,
+            "minItems": 1,
+            "title": "Image Regions",
+            "type": "array"
+          },
+          "job_type": {
+            "const": "analyze_samples",
+            "title": "Job Type",
+            "type": "string"
+          },
+          "options": {
+            "$ref": "#/components/schemas/AnalyzeOptions"
+          },
+          "project_id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Project Id",
+            "type": "string"
+          },
+          "sample_ids": {
+            "items": {
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            "maxItems": 8,
+            "minItems": 1,
+            "title": "Sample Ids",
+            "type": "array"
+          },
+          "schema_version": {
+            "const": 3,
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "script_code": {
+            "const": "Latn",
+            "title": "Script Code",
+            "type": "string"
+          },
+          "template_manifest_hash": {
+            "default": null,
+            "title": "Template Manifest Hash",
+            "type": "null"
+          }
+        },
+        "required": [
+          "schema_version",
+          "job_type",
+          "project_id",
+          "sample_ids",
+          "script_code",
+          "image_mode",
+          "image_regions"
+        ],
+        "title": "AnalyzeSamplesJobV3",
         "type": "object"
       },
       "AssetResponse": {
@@ -4466,6 +4555,122 @@
         "title": "HypothesisSpan",
         "type": "object"
       },
+      "ImageRegionAssignment": {
+        "additionalProperties": false,
+        "description": "An explicit user selection in the oriented immutable image pixel frame.",
+        "properties": {
+          "baseline_y_px": {
+            "maximum": 6000,
+            "minimum": 0,
+            "title": "Baseline Y Px",
+            "type": "number"
+          },
+          "codepoints": {
+            "items": {
+              "maximum": 1114111,
+              "minimum": 0,
+              "type": "integer"
+            },
+            "maxItems": 16,
+            "minItems": 1,
+            "title": "Codepoints",
+            "type": "array"
+          },
+          "ink_threshold": {
+            "default": 180,
+            "maximum": 255,
+            "minimum": 0,
+            "title": "Ink Threshold",
+            "type": "integer"
+          },
+          "rect": {
+            "$ref": "#/components/schemas/ImageRegionRect"
+          },
+          "region_id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Region Id",
+            "type": "string"
+          },
+          "sample_id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Sample Id",
+            "type": "string"
+          },
+          "source_height": {
+            "exclusiveMinimum": 0,
+            "maximum": 6000,
+            "title": "Source Height",
+            "type": "integer"
+          },
+          "source_sha256": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Source Sha256",
+            "type": "string"
+          },
+          "source_width": {
+            "exclusiveMinimum": 0,
+            "maximum": 6000,
+            "title": "Source Width",
+            "type": "integer"
+          },
+          "units_per_px": {
+            "exclusiveMinimum": 0,
+            "maximum": 100,
+            "title": "Units Per Px",
+            "type": "number"
+          }
+        },
+        "required": [
+          "region_id",
+          "sample_id",
+          "source_sha256",
+          "source_width",
+          "source_height",
+          "rect",
+          "codepoints",
+          "baseline_y_px",
+          "units_per_px"
+        ],
+        "title": "ImageRegionAssignment",
+        "type": "object"
+      },
+      "ImageRegionRect": {
+        "additionalProperties": false,
+        "properties": {
+          "height": {
+            "exclusiveMinimum": 0,
+            "maximum": 6000,
+            "title": "Height",
+            "type": "integer"
+          },
+          "width": {
+            "exclusiveMinimum": 0,
+            "maximum": 6000,
+            "title": "Width",
+            "type": "integer"
+          },
+          "x": {
+            "maximum": 6000,
+            "minimum": 0,
+            "title": "X",
+            "type": "integer"
+          },
+          "y": {
+            "maximum": 6000,
+            "minimum": 0,
+            "title": "Y",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "x",
+          "y",
+          "width",
+          "height"
+        ],
+        "title": "ImageRegionRect",
+        "type": "object"
+      },
       "IndicEvidence": {
         "additionalProperties": false,
         "properties": {
@@ -8194,6 +8399,14 @@
             "title": "Spacing",
             "type": "number"
           },
+          "text_styles": {
+            "items": {
+              "$ref": "#/components/schemas/WritingTextStyle"
+            },
+            "maxItems": 128,
+            "title": "Text Styles",
+            "type": "array"
+          },
           "weight": {
             "default": 500,
             "maximum": 700.0,
@@ -8367,6 +8580,93 @@
           "updated_at"
         ],
         "title": "WritingDocumentResponse",
+        "type": "object"
+      },
+      "WritingTextStyle": {
+        "additionalProperties": false,
+        "description": "Non-overlapping document overrides; offsets are native UTF-16 boundaries.",
+        "properties": {
+          "baseline_shift": {
+            "anyOf": [
+              {
+                "maximum": 24.0,
+                "minimum": -24.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Shift"
+          },
+          "end": {
+            "maximum": 1600.0,
+            "minimum": 1.0,
+            "title": "End",
+            "type": "integer"
+          },
+          "field": {
+            "enum": [
+              "title",
+              "recipient",
+              "body",
+              "signature"
+            ],
+            "title": "Field",
+            "type": "string"
+          },
+          "font_size": {
+            "anyOf": [
+              {
+                "maximum": 120.0,
+                "minimum": 12.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Font Size"
+          },
+          "spacing": {
+            "anyOf": [
+              {
+                "maximum": 16.0,
+                "minimum": -1.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spacing"
+          },
+          "start": {
+            "maximum": 1600.0,
+            "minimum": 0.0,
+            "title": "Start",
+            "type": "integer"
+          },
+          "weight": {
+            "anyOf": [
+              {
+                "maximum": 700.0,
+                "minimum": 400.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weight"
+          }
+        },
+        "required": [
+          "field",
+          "start",
+          "end"
+        ],
+        "title": "WritingTextStyle",
         "type": "object"
       }
     },

@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     firebase_auth_emulator_host: str | None = None
     firebase_allow_emulator: bool = False
     claim_max_age_seconds: int = Field(default=600, ge=30, le=3600)
-    rate_limit_backend: Literal["local", "disabled"] = "local"
+    rate_limit_backend: Literal["local", "postgres", "disabled"] = "local"
     identity_rate_limit: int = Field(default=60, ge=1, le=10000)
     identity_first_request_limit: int = Field(default=10, ge=1, le=1000)
     identity_global_first_request_limit: int = Field(default=100, ge=1, le=10000)
@@ -31,8 +31,16 @@ class Settings(BaseSettings):
     # The fallback reads pre-existing journals without rewriting any tombstone.
     privacy_hmac_secret: SecretStr | None = None
     hmac_key_version: str = Field(default="v1", pattern=r"^[a-zA-Z0-9_-]{1,32}$")
-    storage_backend: Literal["local_fs", "disabled"] = "local_fs"
+    storage_backend: Literal["local_fs", "s3", "disabled"] = "local_fs"
     storage_root: Path = Path(".local/objects")
+    # Any private S3-compatible bucket (R2, Supabase Storage, MinIO, AWS S3).
+    storage_s3_endpoint: str | None = None
+    storage_s3_bucket: str | None = None
+    storage_s3_region: str = "auto"
+    storage_s3_access_key: SecretStr | None = None
+    storage_s3_secret_key: SecretStr | None = None
+    storage_s3_prefix: str = ""
+    storage_s3_path_style: bool = True
     upload_issuance_enabled: bool = True
     upload_max_bytes: int = Field(default=20 * 1024 * 1024, ge=1024, le=20 * 1024 * 1024)
     upload_max_pixels: int = Field(default=50_000_000, ge=1, le=50_000_000)
@@ -154,10 +162,37 @@ class Settings(BaseSettings):
             self.auth_backend == "fake" or self.storage_backend == "local_fs"
         ):
             raise ValueError("Local adapters are restricted to local/test environments")
+        if self.storage_backend == "s3":
+            from urllib.parse import urlsplit
+
+            parsed = urlsplit(self.storage_s3_endpoint or "")
+            if (
+                parsed.scheme not in ("http", "https")
+                or not parsed.hostname
+                or parsed.query
+                or parsed.fragment
+                or parsed.username
+                or parsed.password
+            ):
+                raise ValueError("S3 storage requires an explicit http(s) endpoint")
+            if parsed.scheme == "http" and (
+                self.app_env not in ("local", "test")
+                or parsed.hostname not in ("127.0.0.1", "localhost", "::1")
+            ):
+                raise ValueError("Plain HTTP object storage is restricted to loopback")
+            if not self.storage_s3_bucket or not __import__("re").fullmatch(
+                r"[a-z0-9][a-z0-9.-]{1,62}", self.storage_s3_bucket
+            ):
+                raise ValueError("S3 storage requires an explicit bucket")
+            if not self.storage_s3_access_key or not self.storage_s3_secret_key:
+                raise ValueError("S3 storage requires access and secret keys")
         if self.app_env not in ("local", "test") and self.auth_backend == "firebase":
-            raise ValueError(
-                "Hosted identity requires the shared PostgreSQL rate-limit deployment gate"
-            )
+            if self.rate_limit_backend != "postgres":
+                raise ValueError(
+                    "Hosted identity requires the shared PostgreSQL rate-limit backend"
+                )
+            if self.storage_backend != "s3":
+                raise ValueError("Hosted identity requires private S3-compatible object storage")
         if self.readiness_token and len(self.readiness_token.get_secret_value()) < 32:
             raise ValueError("Readiness token must have at least 32 characters")
         if not self.database_url.get_secret_value().startswith(

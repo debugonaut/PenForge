@@ -80,6 +80,18 @@ Current landing display settings:
 
 Treat these as the accepted baseline and preserve their effect when fixing responsiveness. Large headlines can meet or sit visually behind the demo to create depth, while character silhouettes must clear readable letters. Keep controls, labels, error text and body copy at practical readable sizes; the display-scale rule does not apply to every UI label. Font loading must precede measurements used for handwriting or exported text.
 
+### Default demo handwriting — 2026-10-25
+
+The owner selected the supplied cursive handwriting, recreated as **PenForge Cursive**,
+as the intended default for demo/sample font content. It supersedes Caveat as the
+target demo handwriting face. Keep interface and landing-heading typography unchanged;
+this is a demo-font preference, not a request to replace every handwritten label.
+Continue distinguishing sample content from a visitor's generated personal font.
+The owner subsequently requested the switch for localhost. An explicit local preview
+setting selects this face in sample text and Writing Desk without changing interface
+fonts. Private preview assets remain ignored and blocked by the publication auditor;
+the owner has not authorized their inclusion in a public release.
+
 ## Palette and materials
 
 The current landing-scoped values are authoritative for its appearance; the older provisional palette in `document.md` and global studio tokens differ intentionally.
@@ -240,3 +252,20 @@ exact extraction. Exact fidelity across arbitrary print/cursive samples is a qua
 target, not an established capability. The existing isolated-letter research and
 round-brush geometry do not establish that engine. Keep unavailable capabilities
 truthful, owner approval explicit, and existing research-execution restrictions intact.
+
+## Selection editing in the Writing Desk — 2026-10-25
+
+The owner approved selecting specific words, spaces and symbols for local document
+adjustments. Keep the three-column desk and add Whole page / Selection inside
+Fine-tune handwriting. Use ordinary native left-drag, keyboard selection or a native
+touch selection in the words editor; the paper also supports text selection. Right-click
+offers Fine-tune selection, with the same visible button beside Your words.
+
+Selection controls set size, weight, spacing and vertical position. A spaces-only
+selection adds Tighter / Wider. Preserve the highlight while adjusting controls, show
+Mixed where existing values differ, and retain Undo/Redo and Reset selection. Whole
+page exits the selection. These are page overrides, distinct from font/glyph edits.
+
+Persist ranges with the words in local drafts and account documents. Reflow with real
+font measurements and share rendering with SVG, PNG and print. Editor selection marks
+and guides must never appear in the exported page. No new animation delay is needed.

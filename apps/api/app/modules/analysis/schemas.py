@@ -7,9 +7,16 @@ from penforge_contracts import (
     AnalysisPayload,
     AnalyzeSamplesJob,
     AnalyzeSamplesJobV2,
+    AnalyzeSamplesJobV3,
     TemplateManifest,
 )
-from penforge_contracts.schemas import AnalyzeOptions, CaptureAssignment, Contract, Digest
+from penforge_contracts.schemas import (
+    AnalyzeOptions,
+    CaptureAssignment,
+    Contract,
+    Digest,
+    ImageRegionAssignment,
+)
 from pydantic import Field, model_validator
 
 
@@ -21,17 +28,40 @@ class AnalysisCreate(Contract):
     drawing_mode: Literal["fixed_round_v1"] | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
+    image_mode: Literal["manual_regions_v1"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    image_regions: list[ImageRegionAssignment] = Field(
+        default_factory=list, max_length=96, exclude_if=lambda value: not value
+    )
 
     @model_validator(mode="after")
     def distinct(self) -> "AnalysisCreate":
         if len(set(self.sample_ids)) != len(self.sample_ids):
             raise ValueError("duplicate_sample")
-        self.payload(UUID(int=0), None, "Latn" if self.drawing_mode else "Deva")
+        if self.image_mode and (self.drawing_mode or self.assignments):
+            raise ValueError("image_regions_cannot_mix_capture_modes")
+        if self.image_regions and not self.image_mode:
+            raise ValueError("image_regions_require_explicit_mode")
+        self.payload(UUID(int=0), None, "Latn" if self.drawing_mode or self.image_mode else "Deva")
         return self
 
     def payload(
         self, project_id: UUID, manifest_hash: str | None, script_code: str = "Latn"
     ) -> AnalysisPayload:
+        if self.image_mode:
+            return AnalyzeSamplesJobV3.model_validate(
+                dict(
+                    schema_version=3,
+                    job_type="analyze_samples",
+                    project_id=str(project_id),
+                    script_code=script_code,
+                    sample_ids=[str(item) for item in self.sample_ids],
+                    image_mode=self.image_mode,
+                    image_regions=self.image_regions,
+                    options=self.options,
+                )
+            )
         fields = dict(
             schema_version=2 if self.drawing_mode else 1,
             job_type="analyze_samples",

@@ -4,6 +4,10 @@
 The existing six-step wizard remains the destination. Model execution is owner-run.
 This plan does not qualify a recognizer, aligner, generator or cursive support.
 
+2026-10-29: the separately approved [assisted photo route](../photo-font/evidence.md)
+uses user-selected regions and labels in analysis v3. It does not supply automatic
+recognition/alignment or change freeform evidence v1. Natural-writing goals remain open.
+
 ## Actual path and gap
 
 | Stage | Current implementation | Required change |

@@ -18,6 +18,8 @@ import type { FontProject } from "@/lib/contracts";
 import { projectService } from "@/lib/mock-services";
 import {
   DEFAULT_WRITING_DOCUMENT,
+  SAMPLE_FONT_NAME,
+  SAMPLE_FONT_CSS,
   MAX_WRITING_BODY,
   WRITING_STORAGE_KEY,
   buildWritingSvg,
@@ -31,6 +33,7 @@ import {
   loadGeneratedWritingFont,
   loadWritingFont,
   normalizeWritingDocument,
+  updateWritingDocument,
   parseWritingQuery,
   readWritingDraft,
   serializeWritingDraft,
@@ -40,6 +43,9 @@ import {
   type WritingPaper,
 } from "@/lib/writing";
 import styles from "./WritingDesk.module.css";
+import WritingSelectionControls from "./WritingSelectionControls";
+import { useWritingSelection } from "./useWritingSelection";
+import { styleWritingSelection, type WritingStyle } from "@/lib/writing-text";
 import {
   getAccountIdentityService,
   getPenforgeAuthConfiguration,
@@ -55,6 +61,12 @@ import {
   type WritingDocumentWire,
 } from "@/lib/account-documents";
 import { useAccountSession } from "@/lib/use-account-session";
+import {
+  clearGeneratedWritingReference,
+  requestedWritingExport,
+  writingFontReferenceTransition,
+  WritingFontHandoff,
+} from "@/lib/writing-font-handoff";
 import { createAccountProjectService } from "@/lib/account-project-service";
 import {
   MAX_WRITING_VERSIONS,
@@ -259,7 +271,7 @@ function projectStyle(
   project: FontProject,
 ): WritingDocument {
   return normalizeWritingDocument({
-    ...document,
+    ...clearGeneratedWritingReference(document),
     projectId: project.id,
     weight: 400 + project.style.thickness * 3,
     slant: project.style.slant,
@@ -374,6 +386,11 @@ export default function WritingDesk({
   const [projects, setProjects] = useState<FontProject[]>([]);
   const [generatedExportId, setGeneratedExportId] = useState("");
   const fontRequest = useRef<AbortController | null>(null);
+  const loadedGeneratedId = useRef<string | null>(null);
+  const fontHandoff = useRef(new WritingFontHandoff());
+  const requestedExport = useRef<string | null>(null);
+  const [accountRestored, setAccountRestored] = useState(false);
+  const restoredOwner = useRef<string | null>(null);
   const [sampleFont, setSampleFont] = useState<WritingFontSource | null>(null);
   const [customFont, setCustomFont] = useState<WritingFontSource | null>(null);
   const [ready, setReady] = useState(false);
@@ -417,13 +434,13 @@ export default function WritingDesk({
   const previousDesign = useRef<string | null>(null);
   const session = useAccountSession();
   const [accountPages, setAccountPages] = useState<WritingDocumentWire[]>([]);
-  const [accountFonts, setAccountFonts] = useState<{ id: string; name: string }[]>(
-    [],
-  );
+  const [accountFonts, setAccountFonts] = useState<
+    { id: string; name: string }[]
+  >([]);
   const documentsClient = useRef<DocumentsClient | null>(null);
-  const accountService = useRef<ReturnType<typeof createAccountProjectService> | null>(
-    null,
-  );
+  const accountService = useRef<ReturnType<
+    typeof createAccountProjectService
+  > | null>(null);
   const saver = useRef<DocumentSaver | null>(null);
   const sessionGeneration = useRef(0);
   const [pageId, setPageId] = useState<string | null>(null);
@@ -449,6 +466,12 @@ export default function WritingDesk({
   const [bulkConfirm, setBulkConfirm] = useState(false);
   const { reduced } = useMotionPreference();
   const id = useId().replace(/:/g, "");
+  const textSelection = useWritingSelection(
+    document,
+    preview,
+    pageId,
+    !compact,
+  );
   const font = customFont || sampleFont;
   const page = useMemo(
     () => layoutWritingDocument(document, font || {}),
@@ -466,8 +489,11 @@ export default function WritingDesk({
           }
         : {}),
       ...(guides ? { guides: true } : {}),
+      ...(textSelection.selection
+        ? { selection: textSelection.selection }
+        : {}),
     }),
-    [font, guides],
+    [font, guides, textSelection.selection],
   );
   const svg = useMemo(
     () => buildWritingSvg(document, svgOptions),
@@ -690,14 +716,27 @@ export default function WritingDesk({
     if (compact) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        // A dialog owns Escape while it is open; otherwise focus mode steps back.
+        // Dismiss the active surface before stepping out of focus mode.
         if (window.document.querySelector("dialog[open]")) return;
+        const openMenu = [pagesMenu, statusMenu, moreMenu, printMenu]
+          .map((menu) => menu.current)
+          .find((menu) => menu?.open);
+        if (openMenu) {
+          event.preventDefault();
+          openMenu.open = false;
+          openMenu.querySelector<HTMLElement>("summary")?.focus();
+          return;
+        }
         setFocusMode(false);
         return;
       }
       if (!(event.metaKey || event.ctrlKey) || event.altKey) return;
       const target = event.target as HTMLElement | null;
-      if (target?.closest("input, textarea, select, [contenteditable='true']"))
+      if (
+        target?.closest(
+          "input:not([type='range']), textarea, select, [contenteditable='true']",
+        )
+      )
         return;
       const key = event.key.toLowerCase();
       if (key === "f" && event.shiftKey) {
@@ -753,23 +792,55 @@ export default function WritingDesk({
     saver.current = instance;
   }
 
-  function openAccountPage(page: WritingDocumentWire) {
+  function syncGeneratedFontReference(next: WritingDocument, options: {preserveRequested?: boolean; force?: boolean} = {}) {
+    const transition = writingFontReferenceTransition(documentRef.current.generatedExportId, next.generatedExportId, loadedGeneratedId.current);
+    if (!transition.changed && !transition.clearFace && !options.force) return;
+    if (!options.preserveRequested) {
+      requestedExport.current = null;
+      const url = new URL(window.location.href);
+      if (url.searchParams.has("export")) {
+        url.searchParams.delete("export");
+        window.history.replaceState(null, "", url);
+      }
+    }
+    if (fontRequest.current) {
+      fontRequest.current.abort();
+      fontRequest.current = null;
+      setBusy((current) => current === "font" ? null : current);
+    }
+    if (transition.clearFace) {
+      loadedGeneratedId.current = null;
+      setCustomFont(null);
+    }
+    fontHandoff.current.reset();
+    if (transition.nextExport && loadedGeneratedId.current === transition.nextExport)
+      fontHandoff.current.adopt(session.uid, transition.nextExport);
+    setGeneratedExportId(transition.nextExport ?? "");
+  }
+
+  function openAccountPage(page: WritingDocumentWire, restoring = false) {
     saver.current?.dispose();
     saver.current = null;
     edited.current = false;
     const next = documentFromWire(page);
+    syncGeneratedFontReference(next, {preserveRequested: restoring, force: !restoring});
     documentRef.current = next;
     setDocument(next);
     resetHistory();
-    setGeneratedExportId(page.document.generated_export_id ?? "");
+    setGeneratedExportId(
+      (restoring ? requestedExport.current : null) ??
+        page.document.generated_export_id ??
+        "",
+    );
     setPageId(page.id);
     setLastSavedAt(Date.parse(page.updated_at) || Date.now());
     setPageSave({ state: "saved", message: "Saved to your account" });
     startSaver(page.id, page.row_version);
-    if (page.document.generated_export_id)
-      void loadGeneratedFont(page.document.generated_export_id);
+    if (!page.document.generated_export_id)
+      setCustomFont((current) => current?.kind === "generated" ? null : current);
     const url = new URL(window.location.href);
     url.searchParams.set("document", page.id);
+    if (!restoring) url.searchParams.delete("export");
     window.history.replaceState(null, "", url);
     setStatus(`Opened “${page.title}”.`);
   }
@@ -790,7 +861,22 @@ export default function WritingDesk({
     setAccountFonts([]);
     setPageId(null);
     setPageSave({ state: "idle", message: "" });
-    if (!uid || !identity || configuration?.state !== "configured") return;
+    setAccountRestored(false);
+    restoredOwner.current = null;
+    fontHandoff.current.reset();
+    loadedGeneratedId.current = null;
+    if (fontRequest.current) {
+      fontRequest.current.abort();
+      fontRequest.current = null;
+      setBusy((current) => (current === "font" ? null : current));
+    }
+    setCustomFont((current) =>
+      current?.kind === "generated" ? null : current,
+    );
+    if (!uid || !identity || configuration?.state !== "configured") {
+      setAccountRestored(true);
+      return;
+    }
     const client = createDocumentsClient(
       configuration.apiOrigin,
       createOwnerTokenProvider(
@@ -812,12 +898,19 @@ export default function WritingDesk({
         const target = requested
           ? items.find((item) => item.id === requested)
           : undefined;
-        if (target) openAccountPage(target);
+        if (target) openAccountPage(target, true);
+        restoredOwner.current = uid;
+        setAccountRestored(true);
       })
       .catch((cause) => {
-        if (!current() || (cause instanceof DOMException && cause.name === "AbortError"))
+        if (
+          !current() ||
+          (cause instanceof DOMException && cause.name === "AbortError")
+        )
           return;
         documentsClient.current = null;
+        restoredOwner.current = uid;
+        setAccountRestored(true);
         setPageSave({
           state: "offline",
           message:
@@ -831,7 +924,9 @@ export default function WritingDesk({
         .list()
         .then((items) => {
           if (!current()) return;
-          setAccountFonts(items.map((item) => ({ id: item.id, name: item.name })));
+          setAccountFonts(
+            items.map((item) => ({ id: item.id, name: item.name })),
+          );
         })
         .catch(() => {
           /* The typeface picker still offers the sample and device projects. */
@@ -865,18 +960,23 @@ export default function WritingDesk({
     } catch {
       setSaveState("Changes stay in this tab");
     }
-    const generatedId = new URLSearchParams(window.location.search).get(
-      "export",
-    );
-    if (!compact && generatedId && /^[0-9a-f-]{36}$/i.test(generatedId))
-      setGeneratedExportId(generatedId);
+    requestedExport.current = compact
+      ? null
+      : requestedWritingExport(window.location.search);
     const query = compact ? {} : parseWritingQuery(window.location.search);
     initial = normalizeWritingDocument({ ...initial, ...query });
     edited.current = Object.keys(query).length > 0;
     documentRef.current = initial;
     setDocument(initial);
     resetHistory();
-    if (initial.generatedExportId) setGeneratedExportId(initial.generatedExportId);
+    setGeneratedExportId(
+      compact
+        ? (initial.generatedExportId ?? "")
+        : (requestedWritingExport(
+            window.location.search,
+            initial.generatedExportId,
+          ) ?? ""),
+    );
     setReady(true);
     void loadWritingFont()
       .then((loaded) => {
@@ -901,6 +1001,10 @@ export default function WritingDesk({
             const styled = normalizeWritingDocument({
               ...projectStyle(initial, project),
               ...query,
+              ...(requestedExport.current &&
+              documentRef.current.generatedExportId
+                ? { generatedExportId: documentRef.current.generatedExportId }
+                : {}),
             });
             documentRef.current = styled;
             setDocument(styled);
@@ -921,6 +1025,34 @@ export default function WritingDesk({
       cancelled = true;
     };
   }, [compact]);
+
+  useEffect(() => {
+    if (compact) return;
+    const target = fontHandoff.current.take({
+      ready,
+      accountRestored: accountRestored && restoredOwner.current === session.uid,
+      settled: session.settled,
+      restoring: session.restoring,
+      configured: session.configured,
+      uid: session.uid,
+      busy: !!busy,
+      exportId: requestedExport.current ?? document.generatedExportId ?? null,
+    });
+    if (target) void loadGeneratedFont(target, true);
+    // The handoff owns its attempt key; the loader reads current refs and keeps its owner fence.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    accountRestored,
+    busy,
+    compact,
+    document.generatedExportId,
+    pageId,
+    ready,
+    session.configured,
+    session.restoring,
+    session.settled,
+    session.uid,
+  ]);
 
   useEffect(() => {
     if (!ready || !edited.current) return;
@@ -948,11 +1080,10 @@ export default function WritingDesk({
     setDocumentBusy(true);
     setPageSave({ state: "saving", message: "Saving…" });
     try {
+      const current = documentRef.current;
       const created = await client.create(
-        generatedExportId && !document.generatedExportId
-          ? { ...document, generatedExportId }
-          : document,
-        document.format,
+        current,
+        current.format,
         crypto.randomUUID(),
       );
       if (documentsClient.current !== client) return;
@@ -1021,7 +1152,9 @@ export default function WritingDesk({
       const latest = await client.get(page.id);
       await client.remove(page.id, latest.row_version);
       if (documentsClient.current !== client) return;
-      setAccountPages((current) => current.filter((item) => item.id !== page.id));
+      setAccountPages((current) =>
+        current.filter((item) => item.id !== page.id),
+      );
       if (pageId === page.id) newAccountPage();
       setStatus(`Deleted “${page.title}”.`);
     } catch {
@@ -1039,6 +1172,7 @@ export default function WritingDesk({
         const latest = await documentsClient.current.get(pageId);
         edited.current = false;
         const next = documentFromWire(latest);
+        syncGeneratedFontReference(next);
         documentRef.current = next;
         setDocument(next);
         resetHistory();
@@ -1075,10 +1209,9 @@ export default function WritingDesk({
 
   function update(patch: Partial<WritingDocument>, coalesceKey?: string) {
     edited.current = true;
-    applyDocument(
-      normalizeWritingDocument({ ...documentRef.current, ...patch }),
-      { key: coalesceKey },
-    );
+    applyDocument(updateWritingDocument(documentRef.current, patch), {
+      key: coalesceKey,
+    });
     setStatus("");
   }
 
@@ -1096,6 +1229,7 @@ export default function WritingDesk({
     const history = historyRef.current;
     const previous = history.past[history.past.length - 1];
     if (!previous) return;
+    syncGeneratedFontReference(previous);
     history.past = history.past.slice(0, -1);
     history.future = [documentRef.current, ...history.future].slice(0, 60);
     history.lastKey = null;
@@ -1114,6 +1248,7 @@ export default function WritingDesk({
     const history = historyRef.current;
     const next = history.future[0];
     if (!next) return;
+    syncGeneratedFontReference(next);
     history.future = history.future.slice(1);
     history.past = [...history.past.slice(-59), documentRef.current];
     history.lastKey = null;
@@ -1126,6 +1261,28 @@ export default function WritingDesk({
     });
     edited.current = true;
     setStatus("Redid the change.");
+  }
+
+  function tuneSelection(patch: WritingStyle | null, key = "reset") {
+    const selection = textSelection.selection;
+    if (!selection) return;
+    try {
+      const textStyles = styleWritingSelection(
+        documentRef.current.textStyles || [],
+        selection,
+        patch,
+      );
+      update(
+        { textStyles },
+        `selection-${selection.field}-${selection.start}-${selection.end}-${key}`,
+      );
+    } catch (cause) {
+      setStatus(
+        cause instanceof Error
+          ? cause.message
+          : "This selection couldn’t be changed.",
+      );
+    }
   }
 
   function resetTuning() {
@@ -1185,7 +1342,9 @@ export default function WritingDesk({
   }
 
   function restoreVersion(version: WritingVersion) {
-    applyDocument(normalizeWritingDocument(version.document));
+    const restored = normalizeWritingDocument(version.document);
+    syncGeneratedFontReference(restored);
+    applyDocument(restored);
     edited.current = true;
     versionsDialog.current?.close();
     setStatus(
@@ -1254,10 +1413,16 @@ export default function WritingDesk({
   }
 
   function useSampleLetters() {
+    dismissGeneratedHandoff();
     setCustomFont(null);
-    setStatus(
-      "Sample letters are back. Your words and layout are unchanged.",
-    );
+    loadedGeneratedId.current = null;
+    if (documentRef.current.generatedExportId) {
+      edited.current = true;
+      applyDocument(clearGeneratedWritingReference(documentRef.current), {
+        key: "font",
+      });
+    }
+    setStatus("Sample letters are back. Your words and layout are unchanged.");
   }
 
   function printPage(size: PrintSize) {
@@ -1316,18 +1481,20 @@ export default function WritingDesk({
   async function copyImage() {
     if (busy) return;
     if (tooTallForPng) {
-      setStatus("This page is too tall to copy as an image. Download it as SVG.");
+      setStatus(
+        "This page is too tall to copy as an image. Download it as SVG.",
+      );
       return;
     }
     setBusy("copy");
     setStatus("");
     try {
-      if (
-        !navigator.clipboard?.write ||
-        typeof ClipboardItem === "undefined"
-      )
+      if (!navigator.clipboard?.write || typeof ClipboardItem === "undefined")
         throw new Error("This browser can’t copy images.");
-      const blob = await exportWritingPng(documentRef.current, font || undefined);
+      const blob = await exportWritingPng(
+        documentRef.current,
+        font || undefined,
+      );
       await navigator.clipboard.write([
         new ClipboardItem({ "image/png": blob }),
       ]);
@@ -1383,7 +1550,11 @@ export default function WritingDesk({
 
   async function chooseProject(value: string) {
     if (value === "custom") return;
+    dismissGeneratedHandoff();
     setCustomFont(null);
+    loadedGeneratedId.current = null;
+    // Each choice is one document edit, so Undo restores the previous face
+    // instead of first removing an intermediate empty state.
     const project = projects.find((item) => item.id === value);
     if (project) {
       edited.current = true;
@@ -1408,16 +1579,48 @@ export default function WritingDesk({
       }
       return;
     }
-    edited.current = true;
-    applyDocument(
-      normalizeWritingDocument({ ...documentRef.current, projectId: undefined }),
-    );
+    if (
+      documentRef.current.generatedExportId ||
+      documentRef.current.projectId
+    ) {
+      edited.current = true;
+      applyDocument(
+        normalizeWritingDocument({
+          ...clearGeneratedWritingReference(documentRef.current),
+          projectId: undefined,
+        }),
+        { key: "font" },
+      );
+    }
     setStatus("Sample handwriting selected.");
   }
 
-  async function loadGeneratedFont(exportId = generatedExportId) {
+  function dismissGeneratedHandoff() {
+    fontHandoff.current.dismiss();
+    requestedExport.current = null;
+    const url = new URL(window.location.href);
+    if (url.searchParams.has("export")) {
+      url.searchParams.delete("export");
+      window.history.replaceState(null, "", url);
+    }
+    if (fontRequest.current) {
+      fontRequest.current.abort();
+      fontRequest.current = null;
+      setBusy((current) => (current === "font" ? null : current));
+    }
+  }
+
+  async function loadGeneratedFont(
+    exportId = generatedExportId,
+    automatic = false,
+  ) {
     if (busy) return;
-    if (!/^[0-9a-f-]{36}$/i.test(exportId)) return;
+    const id = requestedWritingExport("", exportId);
+    if (!id) return;
+    if (!automatic) {
+      dismissGeneratedHandoff();
+    }
+    const generation = sessionGeneration.current;
     const cancellation = new AbortController();
     fontRequest.current?.abort();
     fontRequest.current = cancellation;
@@ -1433,9 +1636,13 @@ export default function WritingDesk({
       const uid = session.getSnapshot().identity?.firebase_uid;
       const client = createExportClient(
         session.configuration.apiOrigin,
-        createOwnerTokenProvider(session, uid, () => new Error("identity_changed")),
+        createOwnerTokenProvider(
+          session,
+          uid,
+          () => new Error("identity_changed"),
+        ),
       );
-      const result = await client.font(exportId, cancellation.signal);
+      const result = await client.font(id, cancellation.signal);
       const manifest = result.metadata.build_manifest;
       if (
         !manifest?.options ||
@@ -1454,12 +1661,15 @@ export default function WritingDesk({
       });
       if (
         cancellation.signal.aborted ||
+        sessionGeneration.current !== generation ||
         session.getSnapshot().identity?.firebase_uid !== uid
       )
         return;
       setCustomFont(loaded);
+      loadedGeneratedId.current = result.metadata.id;
       // The reference is part of the saved page, so returning to it renews the same bytes.
-      if (document.generatedExportId !== result.metadata.id)
+      setGeneratedExportId(result.metadata.id);
+      if (documentRef.current.generatedExportId !== result.metadata.id)
         update({ projectId: undefined, generatedExportId: result.metadata.id });
       const missing = result.metadata.coverage_report?.missing;
       setStatus(
@@ -1468,7 +1678,10 @@ export default function WritingDesk({
     } catch (cause) {
       if (!cancellation.signal.aborted) setStatus(exportErrorText(cause));
     } finally {
-      if (!cancellation.signal.aborted) setBusy(null);
+      if (fontRequest.current === cancellation) {
+        fontRequest.current = null;
+        if (!cancellation.signal.aborted) setBusy(null);
+      }
     }
   }
 
@@ -1480,8 +1693,10 @@ export default function WritingDesk({
     setStatus("");
     try {
       const loaded = await loadCustomWritingFont(file);
+      dismissGeneratedHandoff();
       setCustomFont(loaded);
-      update({ projectId: undefined });
+      loadedGeneratedId.current = null;
+      update({ projectId: undefined, generatedExportId: undefined });
       setStatus(`${file.name} is ready. This font stays in the current tab.`);
     } catch (cause) {
       setStatus(
@@ -1586,39 +1801,39 @@ export default function WritingDesk({
           value={selectedFont}
           onChange={(event) => void chooseProject(event.target.value)}
         >
-        <option value="sample">Sample handwriting</option>
-        {!!accountFonts.length && (
-          <optgroup label="Your account projects">
-            {accountFonts.map((project) => (
-              <option value={project.id} key={project.id}>
-                {project.name} · account
+          <option value="sample">{SAMPLE_FONT_NAME}</option>
+          {!!accountFonts.length && (
+            <optgroup label="Your account projects">
+              {accountFonts.map((project) => (
+                <option value={project.id} key={project.id}>
+                  {project.name} · account
+                </option>
+              ))}
+            </optgroup>
+          )}
+          {!!projects.length && (
+            <optgroup label="Demo drafts on this device">
+              {projects.map((project) => (
+                <option value={project.id} key={project.id}>
+                  {project.name} · draft
+                </option>
+              ))}
+            </optgroup>
+          )}
+          {document.projectId &&
+            !projects.some((item) => item.id === document.projectId) &&
+            !accountFonts.some((item) => item.id === document.projectId) && (
+              <option value={document.projectId}>
+                Unavailable project · sample preview
               </option>
-            ))}
-          </optgroup>
-        )}
-        {!!projects.length && (
-          <optgroup label="Demo drafts on this device">
-            {projects.map((project) => (
-              <option value={project.id} key={project.id}>
-                {project.name} · draft
-              </option>
-            ))}
-          </optgroup>
-        )}
-        {document.projectId &&
-          !projects.some((item) => item.id === document.projectId) &&
-          !accountFonts.some((item) => item.id === document.projectId) && (
-            <option value={document.projectId}>
-              Unavailable project · sample preview
+            )}
+          {customFont && (
+            <option value="custom">
+              {customFont.kind === "generated"
+                ? customFont.name
+                : `Imported · ${customFont.name}`}
             </option>
           )}
-        {customFont && (
-          <option value="custom">
-            {customFont.kind === "generated"
-              ? customFont.name
-              : `Imported · ${customFont.name}`}
-          </option>
-        )}
         </select>
         <span className={styles.typefaceChip} aria-hidden="true">
           {fontSource}
@@ -1640,13 +1855,13 @@ export default function WritingDesk({
           >
             <span
               className={styles.fontSample}
-              style={{ fontFamily: "'Caveat Variable', cursive" }}
+              style={{ fontFamily: SAMPLE_FONT_CSS }}
               aria-hidden="true"
             >
               Aa
             </span>
             <span className={styles.fontRowText}>
-              <strong>Sample handwriting</strong>
+              <strong>{SAMPLE_FONT_NAME}</strong>
               <small>The preview typeface · every page can use it</small>
             </span>
             {!customFont && !document.projectId && (
@@ -1686,7 +1901,7 @@ export default function WritingDesk({
             >
               <span
                 className={styles.fontSample}
-                style={{ fontFamily: "'Caveat Variable', cursive" }}
+                style={{ fontFamily: SAMPLE_FONT_CSS }}
                 aria-hidden="true"
               >
                 Aa
@@ -1711,7 +1926,7 @@ export default function WritingDesk({
             >
               <span
                 className={styles.fontSample}
-                style={{ fontFamily: "'Caveat Variable', cursive" }}
+                style={{ fontFamily: SAMPLE_FONT_CSS }}
                 aria-hidden="true"
               >
                 Aa
@@ -1727,8 +1942,8 @@ export default function WritingDesk({
           ))}
           <p className={styles.fontLibraryHint}>
             A generated font loads by its private export ID under Advanced. To
-            install one in another app, <Link href="/projects">download it
-            from the Workbench</Link>.
+            install one in another app,{" "}
+            <Link href="/projects">download it from the Workbench</Link>.
           </p>
         </div>
       </details>
@@ -1814,10 +2029,7 @@ export default function WritingDesk({
           aria-label="Custom accent color"
           onChange={(event) => update({ accent: event.target.value })}
         />
-        <span
-          aria-hidden="true"
-          style={{ backgroundColor: document.accent }}
-        />
+        <span aria-hidden="true" style={{ backgroundColor: document.accent }} />
         Custom
         {customAccentActive && (
           <Icon name="check" className={styles.checkBadge} />
@@ -1880,130 +2092,169 @@ export default function WritingDesk({
           className={styles.resetTuning}
           onClick={resetTuning}
           disabled={!tuningChanged}
+          hidden={textSelection.scope === "selection"}
         >
           Reset
         </button>
       </div>
-      <div className={styles.tuningGrid}>
-        {[
-          {
-            key: "fontSize" as const,
-            name: "Size",
-            min: 24,
-            max: 72,
-            step: 1,
-            suffix: "px",
-          },
-          {
-            key: "weight" as const,
-            name: "Weight",
-            min: 400,
-            max: 700,
-            step: 10,
-            suffix: "",
-          },
-          {
-            key: "spacing" as const,
-            name: "Spacing",
-            min: -1,
-            max: 3,
-            step: 0.1,
-            suffix: "px",
-          },
-          {
-            key: "slant" as const,
-            name: "Slant",
-            min: -15,
-            max: 15,
-            step: 1,
-            suffix: "°",
-          },
-          {
-            key: "lineHeight" as const,
-            name: "Line height",
-            min: 1,
-            max: 1.8,
-            step: 0.05,
-            suffix: "",
-          },
-          {
-            key: "naturalness" as const,
-            name: "Naturalness",
-            min: 0,
-            max: 1,
-            step: 0.05,
-            suffix: "",
-          },
-        ].map((control) => (
-          <label
-            key={control.key}
-            htmlFor={`${id}-${control.key}`}
-            className={styles.tuningControl}
-          >
-            <span className={styles.tuningLabel}>
-              {control.name}
-              <output>
-                {Number(document[control.key].toFixed(2))}
-                {control.suffix}
-              </output>
-            </span>
-            <input
-              id={`${id}-${control.key}`}
-              type="range"
-              min={control.min}
-              max={control.max}
-              step={control.step}
-              value={document[control.key]}
-              onChange={(event) =>
-                update(
-                  { [control.key]: Number(event.target.value) },
-                  control.key,
-                )
-              }
-            />
-          </label>
-        ))}
-        <div className={styles.tuningControl}>
-          <span className={styles.tuningLabel}>Guides</span>
-          <label className={styles.guidesToggle}>
-            <input
-              type="checkbox"
-              checked={guides}
-              onChange={(event) => setGuides(event.target.checked)}
-            />
-            <span>Baselines</span>
-          </label>
-        </div>
-        <div className={styles.tuningControl}>
-          <span className={styles.tuningLabel}>Alignment</span>
-          <div
-            className={styles.alignment}
-            role="group"
-            aria-label="Text alignment"
-          >
-            {(["left", "center", "right"] as const).map((alignment) => (
-              <button
-                key={alignment}
-                type="button"
-                aria-label={`Align ${alignment}`}
-                title={`Align ${alignment}`}
-                aria-pressed={document.alignment === alignment}
-                onClick={() => update({ alignment })}
+      <div
+        ref={textSelection.controls}
+        tabIndex={-1}
+        className={styles.selectionScope}
+        role="group"
+        aria-label="Fine-tune scope"
+      >
+        <button
+          type="button"
+          aria-pressed={textSelection.scope === "page"}
+          onClick={textSelection.clear}
+        >
+          Whole page
+        </button>
+        <button
+          type="button"
+          aria-pressed={textSelection.scope === "selection"}
+          disabled={!textSelection.selection}
+          onClick={() => textSelection.setScope("selection")}
+        >
+          Selection
+        </button>
+      </div>
+      {textSelection.scope === "selection" && textSelection.selection ? (
+        <WritingSelectionControls
+          document={document}
+          selection={textSelection.selection}
+          id={id}
+          onChange={tuneSelection}
+          onReset={() => tuneSelection(null)}
+        />
+      ) : (
+        <>
+          <p className={styles.selectionHint}>
+            Select words or spaces to adjust just that part.
+          </p>
+          <div className={styles.tuningGrid}>
+            {[
+              {
+                key: "fontSize" as const,
+                name: "Size",
+                min: 24,
+                max: 72,
+                step: 1,
+                suffix: "px",
+              },
+              {
+                key: "weight" as const,
+                name: "Weight",
+                min: 400,
+                max: 700,
+                step: 10,
+                suffix: "",
+              },
+              {
+                key: "spacing" as const,
+                name: "Spacing",
+                min: -1,
+                max: 3,
+                step: 0.1,
+                suffix: "px",
+              },
+              {
+                key: "slant" as const,
+                name: "Slant",
+                min: -15,
+                max: 15,
+                step: 1,
+                suffix: "°",
+              },
+              {
+                key: "lineHeight" as const,
+                name: "Line height",
+                min: 1,
+                max: 1.8,
+                step: 0.05,
+                suffix: "",
+              },
+              {
+                key: "naturalness" as const,
+                name: "Naturalness",
+                min: 0,
+                max: 1,
+                step: 0.05,
+                suffix: "",
+              },
+            ].map((control) => (
+              <label
+                key={control.key}
+                htmlFor={`${id}-${control.key}`}
+                className={styles.tuningControl}
               >
-                <Icon
-                  name={
-                    alignment === "left"
-                      ? "alignLeft"
-                      : alignment === "center"
-                        ? "alignCenter"
-                        : "alignRight"
+                <span className={styles.tuningLabel}>
+                  {control.name}
+                  <output>
+                    {Number(document[control.key].toFixed(2))}
+                    {control.suffix}
+                  </output>
+                </span>
+                <input
+                  id={`${id}-${control.key}`}
+                  type="range"
+                  min={control.min}
+                  max={control.max}
+                  step={control.step}
+                  value={document[control.key]}
+                  onChange={(event) =>
+                    update(
+                      { [control.key]: Number(event.target.value) },
+                      control.key,
+                    )
                   }
                 />
-              </button>
+              </label>
             ))}
+            <div className={styles.tuningControl}>
+              <span className={styles.tuningLabel}>Guides</span>
+              <label className={styles.guidesToggle}>
+                <input
+                  type="checkbox"
+                  checked={guides}
+                  onChange={(event) => setGuides(event.target.checked)}
+                />
+                <span>Baselines</span>
+              </label>
+            </div>
+            <div className={styles.tuningControl}>
+              <span className={styles.tuningLabel}>Alignment</span>
+              <div
+                className={styles.alignment}
+                role="group"
+                aria-label="Text alignment"
+              >
+                {(["left", "center", "right"] as const).map((alignment) => (
+                  <button
+                    key={alignment}
+                    type="button"
+                    aria-label={`Align ${alignment}`}
+                    title={`Align ${alignment}`}
+                    aria-pressed={document.alignment === alignment}
+                    onClick={() => update({ alignment })}
+                  >
+                    <Icon
+                      name={
+                        alignment === "left"
+                          ? "alignLeft"
+                          : alignment === "center"
+                            ? "alignCenter"
+                            : "alignRight"
+                      }
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </section>
   );
 
@@ -2063,14 +2314,14 @@ export default function WritingDesk({
               </label>
               <button
                 type="button"
-                disabled={
-                  !!busy || !/^[0-9a-f-]{36}$/i.test(generatedExportId)
-                }
+                disabled={!!busy || !/^[0-9a-f-]{36}$/i.test(generatedExportId)}
                 onClick={() => void loadGeneratedFont()}
               >
                 Load private generated font
               </button>
-              <small>Owner-authorized fetch. Your words stay in this tab.</small>
+              <small>
+                Owner-authorized fetch. Your words stay in this tab.
+              </small>
             </div>
           </details>
         </div>
@@ -2151,8 +2402,7 @@ export default function WritingDesk({
                     </button>
                   </div>
                 )}
-                {(pageSave.state === "error" ||
-                  pageSave.state === "offline") &&
+                {(pageSave.state === "error" || pageSave.state === "offline") &&
                   pageId && (
                     <div className={styles.libraryConflict} role="status">
                       <span>{pageSave.message}</span>
@@ -2198,18 +2448,20 @@ export default function WritingDesk({
                         role="group"
                         aria-label="Filter pages by format"
                       >
-                        {(["all", "letter", "note", "card"] as const).map((format) => (
-                          <button
-                            key={format}
-                            type="button"
-                            aria-pressed={libraryFormat === format}
-                            onClick={() => setLibraryFormat(format)}
-                          >
-                            {format === "all"
-                              ? "All"
-                              : format[0].toUpperCase() + format.slice(1)}
-                          </button>
-                        ))}
+                        {(["all", "letter", "note", "card"] as const).map(
+                          (format) => (
+                            <button
+                              key={format}
+                              type="button"
+                              aria-pressed={libraryFormat === format}
+                              onClick={() => setLibraryFormat(format)}
+                            >
+                              {format === "all"
+                                ? "All"
+                                : format[0].toUpperCase() + format.slice(1)}
+                            </button>
+                          ),
+                        )}
                       </div>
                       <label className={styles.librarySort}>
                         Sort
@@ -2459,13 +2711,28 @@ export default function WritingDesk({
           )}
           {!compact && (
             <>
-              <h2 className={styles.wordsHeading}>Your words</h2>
+              <div className={styles.wordsSelectionHead}>
+                <h2 className={styles.wordsHeading}>Your words</h2>
+                <button
+                  type="button"
+                  className={styles.selectionAction}
+                  disabled={!textSelection.selection}
+                  onClick={textSelection.fineTune}
+                >
+                  Fine-tune selection
+                </button>
+              </div>
               <div className={styles.wordsRow}>
                 <label htmlFor={`${id}-title`}>
                   {labels.title}
                   <input
                     id={`${id}-title`}
                     value={document.title}
+                    data-writing-field="title"
+                    onSelect={(event) =>
+                      textSelection.capture(event.currentTarget)
+                    }
+                    onContextMenu={textSelection.contextMenu}
                     maxLength={80}
                     onChange={(event) =>
                       update({ title: event.target.value }, "title")
@@ -2478,6 +2745,11 @@ export default function WritingDesk({
                   <input
                     id={`${id}-recipient`}
                     value={document.recipient}
+                    data-writing-field="recipient"
+                    onSelect={(event) =>
+                      textSelection.capture(event.currentTarget)
+                    }
+                    onContextMenu={textSelection.contextMenu}
                     maxLength={100}
                     onChange={(event) =>
                       update({ recipient: event.target.value }, "recipient")
@@ -2498,11 +2770,12 @@ export default function WritingDesk({
             <textarea
               id={`${id}-body`}
               value={document.body}
+              data-writing-field="body"
+              onSelect={(event) => textSelection.capture(event.currentTarget)}
+              onContextMenu={textSelection.contextMenu}
               maxLength={MAX_WRITING_BODY}
               rows={compact ? 4 : 6}
-              onChange={(event) =>
-                update({ body: event.target.value }, "body")
-              }
+              onChange={(event) => update({ body: event.target.value }, "body")}
               spellCheck
               placeholder="What would you like to say?"
             />
@@ -2512,9 +2785,7 @@ export default function WritingDesk({
               <span className={styles.signatureHead}>
                 <label htmlFor={`${id}-signature`}>{labels.signature}</label>
                 <details className={styles.snippets}>
-                  <summary className={styles.snippetToggle}>
-                    Sign-offs
-                  </summary>
+                  <summary className={styles.snippetToggle}>Sign-offs</summary>
                   <div className={styles.snippetPanel}>
                     {snippets.length === 0 ? (
                       <p>Save a sign-off you use often and reuse it.</p>
@@ -2557,6 +2828,9 @@ export default function WritingDesk({
               <textarea
                 id={`${id}-signature`}
                 value={document.signature}
+                data-writing-field="signature"
+                onSelect={(event) => textSelection.capture(event.currentTarget)}
+                onContextMenu={textSelection.contextMenu}
                 maxLength={100}
                 rows={2}
                 onChange={(event) =>
@@ -2583,6 +2857,11 @@ export default function WritingDesk({
                   <input
                     id={`${id}-title`}
                     value={document.title}
+                    data-writing-field="title"
+                    onSelect={(event) =>
+                      textSelection.capture(event.currentTarget)
+                    }
+                    onContextMenu={textSelection.contextMenu}
                     maxLength={80}
                     onChange={(event) => update({ title: event.target.value })}
                   />
@@ -2592,6 +2871,11 @@ export default function WritingDesk({
                   <input
                     id={`${id}-recipient`}
                     value={document.recipient}
+                    data-writing-field="recipient"
+                    onSelect={(event) =>
+                      textSelection.capture(event.currentTarget)
+                    }
+                    onContextMenu={textSelection.contextMenu}
                     maxLength={100}
                     onChange={(event) =>
                       update({ recipient: event.target.value })
@@ -2603,6 +2887,11 @@ export default function WritingDesk({
                   <textarea
                     id={`${id}-signature`}
                     value={document.signature}
+                    data-writing-field="signature"
+                    onSelect={(event) =>
+                      textSelection.capture(event.currentTarget)
+                    }
+                    onContextMenu={textSelection.contextMenu}
                     maxLength={100}
                     rows={2}
                     onChange={(event) =>
@@ -2846,6 +3135,9 @@ export default function WritingDesk({
             <div ref={previewBody} className={styles.previewBody}>
               <div
                 ref={preview}
+                onContextMenu={textSelection.contextMenu}
+                tabIndex={0}
+                aria-label="Paper preview. Select text to fine-tune it."
                 className={styles.previewViewport}
                 data-format={document.format}
                 data-zoomed={zoom !== 1}
@@ -2922,6 +3214,23 @@ export default function WritingDesk({
           </aside>
         )}
       </div>
+      {!compact && textSelection.menu && (
+        <div
+          ref={textSelection.menuRef}
+          className={styles.selectionMenu}
+          role="menu"
+          aria-label="Selected text"
+          style={{ left: textSelection.menu.x, top: textSelection.menu.y }}
+        >
+          <button
+            type="button"
+            role="menuitem"
+            onClick={textSelection.fineTune}
+          >
+            Fine-tune selection <span aria-hidden="true">↗</span>
+          </button>
+        </div>
+      )}
       {!compact && (
         <>
           <dialog

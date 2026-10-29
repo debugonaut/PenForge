@@ -15,7 +15,10 @@ import {
 type Props = {
   strokes: Stroke[];
   onChange: (strokes: Stroke[]) => void;
-  onObservedStroke?: (stroke: ObservedStroke, size: CaptureSize) => void;
+  onObservedStroke?: (
+    stroke: ObservedStroke,
+    size: CaptureSize,
+  ) => boolean | void;
   label: string;
   height?: React.CSSProperties["height"];
   readOnly?: boolean;
@@ -143,7 +146,10 @@ export function DrawingCanvas({
     inputMode.current = null;
     setLive(null);
     if (commit && completed?.length) {
-      if (captured && size) latest.current.onObservedStroke?.(captured, size);
+      if (latest.current.onObservedStroke) {
+        if (!captured || !size) return;
+        if (latest.current.onObservedStroke(captured, size) === false) return;
+      }
       latest.current.onChange([...latest.current.strokes, completed]);
     }
   }

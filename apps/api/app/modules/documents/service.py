@@ -221,6 +221,32 @@ class DocumentsService:
             values["document"] = changes["document"]
         async with self._transaction() as connection:
             user = await self._identity(connection, principal)
+            # Validate title-only patches against retained ranges, and body-only
+            # patches against the actual title. The subsequent CAS fences races.
+            current = await DocumentsRepository(connection).get(user["id"], document_id)
+            if current is None:
+                raise ApiError("not_found", 404)
+            if current["row_version"] != version:
+                raise ApiError(
+                    "revision_conflict",
+                    412,
+                    context={
+                        "current_row_version": current["row_version"],
+                        "updated_at": current["updated_at"].astimezone(UTC).isoformat(),
+                    },
+                )
+            try:
+                WritingDocumentCreate.model_validate(
+                    {
+                        "title": values.get("title", current["title"]),
+                        "format": values.get("format", current["format"]),
+                        "document": values.get("document", current["document"]),
+                    }
+                )
+            except ValueError:
+                raise ApiError(
+                    "validation_error", 400, details={"fields": ["/body/document/text_styles"]}
+                ) from None
             row = await DocumentsRepository(connection).compare_and_set(
                 user["id"], document_id, version, values, now
             )

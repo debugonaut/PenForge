@@ -10,6 +10,7 @@ const config = [
     ignores: [
       ".next/**", ".next-dev/**", ".next-*/**", "node_modules/**", "next-env.d.ts",
       ".venv/**", ".bootstrap-venv/**", ".python/**", ".cache/**",
+      "artifacts/**",
     ],
   },
   ...compat.extends("next/core-web-vitals", "next/typescript"),

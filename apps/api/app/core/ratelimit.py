@@ -4,11 +4,16 @@ import hashlib
 import hmac
 import ipaddress
 import math
+import random
 import threading
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from typing import Protocol
+
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncEngine
 
 from app.core.errors import ApiError
 
@@ -52,6 +57,62 @@ def hash_ip(ip: str, secret: bytes, *, key_version: str = "v1") -> bytes:
     return hmac.digest(
         secret, b"penforge:identity-ip:" + key_version.encode() + b":" + canonical, hashlib.sha256
     )
+
+
+class PostgresRateLimiter:
+    """Atomic fixed windows shared by every API instance.
+
+    One statement inserts or increments the current window, so concurrent replicas
+    cannot each spend the same allowance. Only HMAC digests/UUID-derived keys reach
+    this table; no raw client address is stored. Expired windows are pruned lazily.
+    """
+
+    def __init__(
+        self,
+        engine: AsyncEngine,
+        *,
+        clock: Callable[[], float] = time.time,
+        cleanup_probability: float = 0.01,
+    ):
+        self._engine = engine
+        self._clock = clock
+        self._cleanup_probability = min(max(cleanup_probability, 0.0), 1.0)
+
+    async def consume(self, key: str, *, limit: int, window_seconds: int) -> RateLimitResult:
+        if not key or len(key) > 256 or limit < 1 or window_seconds < 1:
+            raise ValueError("A bounded key and positive limits are required")
+        now = self._clock()
+        if not math.isfinite(now):
+            raise ValueError("The limiter clock must be finite")
+        start = math.floor(now / window_seconds) * window_seconds
+        reset = max(1, math.ceil(start + window_seconds - now))
+        async with self._engine.begin() as connection:
+            used = (
+                await connection.execute(
+                    text(
+                        """
+                        INSERT INTO rate_limit_windows
+                          (key, limit_amount, window_seconds, window_start, used)
+                        VALUES (:key, :limit, :window_seconds, :start, 1)
+                        ON CONFLICT (key, limit_amount, window_seconds, window_start)
+                        DO UPDATE SET used = rate_limit_windows.used + 1
+                        RETURNING used
+                        """
+                    ),
+                    {
+                        "key": key,
+                        "limit": limit,
+                        "window_seconds": window_seconds,
+                        "start": datetime.fromtimestamp(start, UTC),
+                    },
+                )
+            ).scalar_one()
+            if random.random() < self._cleanup_probability:
+                await connection.execute(
+                    text("DELETE FROM rate_limit_windows WHERE window_start < :cutoff"),
+                    {"cutoff": datetime.fromtimestamp(now - 86400, UTC)},
+                )
+        return RateLimitResult(used <= limit, limit, max(0, limit - used), reset)
 
 
 class InMemoryRateLimiter:

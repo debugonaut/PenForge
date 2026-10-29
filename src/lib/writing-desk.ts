@@ -2,6 +2,7 @@
 import { graphemeStrings } from "../../packages/contracts/src/unicode";
 import {
   normalizeWritingDocument,
+  updateWritingDocument,
   type WritingDocument,
   type WritingFormat,
 } from "./writing";
@@ -62,14 +63,20 @@ export function replaceWritingMatches(
 ): WritingDocument | null {
   if (!query) return null;
   const pattern = searchPattern(query, matchCase);
-  const replace = () => replacement;
-  const next = normalizeWritingDocument({
-    ...document,
-    title: document.title.replace(pattern, replace),
-    recipient: document.recipient.replace(pattern, replace),
-    body: document.body.replace(pattern, replace),
-    signature: document.signature.replace(pattern, replace),
-  });
+  let next = document;
+  for (const field of WRITING_TEXT_FIELDS) {
+    // Apply each match from the end so untouched words keep their own styles.
+    const matches = [...document[field].matchAll(pattern)];
+    for (const match of matches.reverse()) {
+      const start = match.index!;
+      next = updateWritingDocument(next, {
+        [field]:
+          next[field].slice(0, start) +
+          replacement +
+          next[field].slice(start + match[0].length),
+      });
+    }
+  }
   return JSON.stringify(next) === JSON.stringify(document) ? null : next;
 }
 
@@ -161,12 +168,7 @@ export function appendWritingVersion(
 }
 
 export type WritingTemplateId =
-  | "blank"
-  | "thankyou"
-  | "apology"
-  | "birthday"
-  | "love"
-  | "reminder";
+  "blank" | "thankyou" | "apology" | "birthday" | "love" | "reminder";
 
 export type WritingTemplate = {
   id: WritingTemplateId;
@@ -238,6 +240,7 @@ export function applyWritingTemplate(
   if (!template) return null;
   return normalizeWritingDocument({
     ...document,
+    textStyles: undefined,
     title: template.title,
     recipient: template.recipient,
     body: template.body,

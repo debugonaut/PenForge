@@ -138,7 +138,7 @@
   padding: 3px 4px 8px;
   background: transparent;
   color: var(--proof-ink, #192e35);
-  font-family: var(--font-hand, "Caveat Variable", cursive);
+  font-family: var(--font-demo, var(--font-hand));
   font-size: var(--proof-size, 44px);
   font-weight: var(--proof-weight, 500);
   line-height: var(--proof-leading, 1.25);

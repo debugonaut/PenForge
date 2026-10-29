@@ -1,0 +1,210 @@
+{
+  "$defs": {
+    "AnalyzeOptions": {
+      "additionalProperties": false,
+      "properties": {
+        "enhance": {
+          "default": true,
+          "title": "Enhance",
+          "type": "boolean"
+        },
+        "fuse_samples": {
+          "default": false,
+          "title": "Fuse Samples",
+          "type": "boolean"
+        },
+        "quality_policy": {
+          "const": "accuracy_first",
+          "default": "accuracy_first",
+          "title": "Quality Policy",
+          "type": "string"
+        }
+      },
+      "title": "AnalyzeOptions",
+      "type": "object"
+    },
+    "ImageRegionAssignment": {
+      "additionalProperties": false,
+      "description": "An explicit user selection in the oriented immutable image pixel frame.",
+      "properties": {
+        "baseline_y_px": {
+          "maximum": 6000,
+          "minimum": 0,
+          "title": "Baseline Y Px",
+          "type": "number"
+        },
+        "codepoints": {
+          "items": {
+            "maximum": 1114111,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "maxItems": 16,
+          "minItems": 1,
+          "title": "Codepoints",
+          "type": "array"
+        },
+        "ink_threshold": {
+          "default": 180,
+          "maximum": 255,
+          "minimum": 0,
+          "title": "Ink Threshold",
+          "type": "integer"
+        },
+        "rect": {
+          "$ref": "#/$defs/ImageRegionRect"
+        },
+        "region_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Region Id",
+          "type": "string"
+        },
+        "sample_id": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "title": "Sample Id",
+          "type": "string"
+        },
+        "source_height": {
+          "exclusiveMinimum": 0,
+          "maximum": 6000,
+          "title": "Source Height",
+          "type": "integer"
+        },
+        "source_sha256": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Source Sha256",
+          "type": "string"
+        },
+        "source_width": {
+          "exclusiveMinimum": 0,
+          "maximum": 6000,
+          "title": "Source Width",
+          "type": "integer"
+        },
+        "units_per_px": {
+          "exclusiveMinimum": 0,
+          "maximum": 100,
+          "title": "Units Per Px",
+          "type": "number"
+        }
+      },
+      "required": [
+        "region_id",
+        "sample_id",
+        "source_sha256",
+        "source_width",
+        "source_height",
+        "rect",
+        "codepoints",
+        "baseline_y_px",
+        "units_per_px"
+      ],
+      "title": "ImageRegionAssignment",
+      "type": "object"
+    },
+    "ImageRegionRect": {
+      "additionalProperties": false,
+      "properties": {
+        "height": {
+          "exclusiveMinimum": 0,
+          "maximum": 6000,
+          "title": "Height",
+          "type": "integer"
+        },
+        "width": {
+          "exclusiveMinimum": 0,
+          "maximum": 6000,
+          "title": "Width",
+          "type": "integer"
+        },
+        "x": {
+          "maximum": 6000,
+          "minimum": 0,
+          "title": "X",
+          "type": "integer"
+        },
+        "y": {
+          "maximum": 6000,
+          "minimum": 0,
+          "title": "Y",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "x",
+        "y",
+        "width",
+        "height"
+      ],
+      "title": "ImageRegionRect",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "User-assigned image regions; no OCR or automatic character alignment.",
+  "properties": {
+    "image_mode": {
+      "const": "manual_regions_v1",
+      "title": "Image Mode",
+      "type": "string"
+    },
+    "image_regions": {
+      "items": {
+        "$ref": "#/$defs/ImageRegionAssignment"
+      },
+      "maxItems": 96,
+      "minItems": 1,
+      "title": "Image Regions",
+      "type": "array"
+    },
+    "job_type": {
+      "const": "analyze_samples",
+      "title": "Job Type",
+      "type": "string"
+    },
+    "options": {
+      "$ref": "#/$defs/AnalyzeOptions"
+    },
+    "project_id": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "title": "Project Id",
+      "type": "string"
+    },
+    "sample_ids": {
+      "items": {
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+        "type": "string"
+      },
+      "maxItems": 8,
+      "minItems": 1,
+      "title": "Sample Ids",
+      "type": "array"
+    },
+    "schema_version": {
+      "const": 3,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "script_code": {
+      "const": "Latn",
+      "title": "Script Code",
+      "type": "string"
+    },
+    "template_manifest_hash": {
+      "default": null,
+      "title": "Template Manifest Hash",
+      "type": "null"
+    }
+  },
+  "required": [
+    "schema_version",
+    "job_type",
+    "project_id",
+    "sample_ids",
+    "script_code",
+    "image_mode",
+    "image_regions"
+  ],
+  "title": "AnalyzeSamplesJobV3",
+  "type": "object"
+}

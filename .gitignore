@@ -53,6 +53,8 @@ serviceAccount*.json
 /uploads/
 /captures/
 /private-data/
+# Owner-supplied font bytes for explicitly enabled localhost previews.
+/public/fonts/local-demo/
 
 # Generated evidence and research/model outputs
 /artifacts/

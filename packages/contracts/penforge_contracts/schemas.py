@@ -668,16 +668,86 @@ class AnalyzeSamplesJobV2(_AnalyzeSamplesBase):
         return self
 
 
-AnalysisPayload = AnalyzeSamplesJob | AnalyzeSamplesJobV2
+class ImageRegionRect(Contract):
+    x: Annotated[int, Field(strict=True, ge=0, le=6000)]
+    y: Annotated[int, Field(strict=True, ge=0, le=6000)]
+    width: Annotated[int, Field(strict=True, gt=0, le=6000)]
+    height: Annotated[int, Field(strict=True, gt=0, le=6000)]
+
+
+class ImageRegionAssignment(Contract):
+    """An explicit user selection in the oriented immutable image pixel frame."""
+
+    region_id: UUIDString
+    sample_id: UUIDString
+    source_sha256: Digest
+    source_width: Annotated[int, Field(strict=True, gt=0, le=6000)]
+    source_height: Annotated[int, Field(strict=True, gt=0, le=6000)]
+    rect: ImageRegionRect
+    codepoints: Codepoints
+    baseline_y_px: Annotated[float, Field(strict=True, ge=0, le=6000, allow_inf_nan=False)]
+    units_per_px: Annotated[float, Field(strict=True, gt=0, le=100, allow_inf_nan=False)]
+    ink_threshold: Annotated[int, Field(strict=True, ge=0, le=255)] = 180
+
+    @model_validator(mode="after")
+    def bounded_region(self) -> Self:
+        if len(self.codepoints) != 1 or not 33 <= self.codepoints[0] <= 126:
+            raise ValueError("image_region_requires_latin_ascii")
+        if (
+            self.source_width * self.source_height > 16_000_000
+            or self.rect.x + self.rect.width > self.source_width
+            or self.rect.y + self.rect.height > self.source_height
+            or self.rect.width * self.rect.height > 4_000_000
+            or self.baseline_y_px > self.source_height
+        ):
+            raise ValueError("image_region_outside_source_or_budget")
+        return self
+
+
+class AnalyzeSamplesJobV3(Contract):
+    """User-assigned image regions; no OCR or automatic character alignment."""
+
+    schema_version: Literal[3]
+    job_type: Literal["analyze_samples"]
+    project_id: UUIDString
+    sample_ids: list[UUIDString] = Field(min_length=1, max_length=8)
+    script_code: Literal["Latn"]
+    template_manifest_hash: None = None
+    options: AnalyzeOptions = Field(default_factory=AnalyzeOptions)
+    image_mode: Literal["manual_regions_v1"]
+    image_regions: list[ImageRegionAssignment] = Field(min_length=1, max_length=96)
+
+    @model_validator(mode="after")
+    def distinct_regions(self) -> Self:
+        ids = [region.region_id for region in self.image_regions]
+        if len(ids) != len(set(ids)) or len(self.sample_ids) != len(set(self.sample_ids)):
+            raise ValueError("duplicate_image_region_or_source")
+        if {region.sample_id for region in self.image_regions} != set(self.sample_ids):
+            raise ValueError("image_regions_require_all_sources")
+        if sum(region.rect.width * region.rect.height for region in self.image_regions) > 8_000_000:
+            raise ValueError("image_region_batch_budget_exceeded")
+        source_settings: dict[str, tuple[str, int, int, float]] = {}
+        for region in self.image_regions:
+            settings = (
+                region.source_sha256,
+                region.source_width,
+                region.source_height,
+                region.units_per_px,
+            )
+            if source_settings.setdefault(region.sample_id, settings) != settings:
+                raise ValueError("image_regions_require_common_source_scale")
+        return self
+
+
+AnalysisPayload = AnalyzeSamplesJob | AnalyzeSamplesJobV2 | AnalyzeSamplesJobV3
 
 
 def parse_analysis_payload(value: object) -> AnalysisPayload:
-    model = (
-        AnalyzeSamplesJobV2
-        if isinstance(value, dict) and value.get("schema_version") == 2
-        else AnalyzeSamplesJob
-    )
-    return model.model_validate(value)
+    if isinstance(value, dict) and value.get("schema_version") == 3:
+        return AnalyzeSamplesJobV3.model_validate(value)
+    if isinstance(value, dict) and value.get("schema_version") == 2:
+        return AnalyzeSamplesJobV2.model_validate(value)
+    return AnalyzeSamplesJob.model_validate(value)
 
 
 class CompileExportJob(Contract):
@@ -872,6 +942,15 @@ def contract_registry() -> ContractRegistry:
             )
             for name, model in CONTRACT_MODELS.items()
         ]
+        + [
+            ContractVersion(
+                name="analyze_image_regions_job",
+                current_version=3,
+                supported_versions=[3],
+                schema_name=AnalyzeSamplesJobV3.__name__,
+                capability="future_contract",
+            )
+        ]
     )
 
 
@@ -893,7 +972,7 @@ def register_contract_schemas(openapi: dict) -> dict:
 
     components = openapi.setdefault("components", {}).setdefault("schemas", {})
     models: list[type[Contract]] = list(CONTRACT_MODELS.values())
-    models.extend([ContractRegistry, AnalyzeSamplesJobV2])
+    models.extend([ContractRegistry, AnalyzeSamplesJobV2, AnalyzeSamplesJobV3])
     for model in models:
         schema = model.model_json_schema(ref_template="#/components/schemas/{model}")
         definitions = schema.pop("$defs", {})

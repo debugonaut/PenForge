@@ -47,7 +47,7 @@ export function CloudExportPanel({
 }) {
   const [opened, setOpened] = useState(quiet);
   const [family, setFamily] = useState(defaultFamily);
-  const [snapshot, setSnapshot] = useState(defaultSnapshotId);
+  const [snapshot, setSnapshot] = useState(quiet ? "" : defaultSnapshotId);
   const [realism, setRealism] = useState(0);
   const [spacing, setSpacing] = useState(0);
   const [formats, setFormats] = useState<Array<"ttf" | "otf" | "woff2">>([
@@ -62,9 +62,9 @@ export function CloudExportPanel({
   const controller = useRef<AbortController | null>(null);
   const storageKey = exportRecoveryPrefix(ownerUid, projectId);
   useEffect(() => {
-    if (!defaultSnapshotId) return;
+    if (quiet || !defaultSnapshotId) return;
     setSnapshot((current) => current || defaultSnapshotId);
-  }, [defaultSnapshotId]);
+  }, [defaultSnapshotId, quiet]);
   useEffect(() => {
     try {
       const saved = readExportRecoveries(localStorage, storageKey)[0];
@@ -93,7 +93,8 @@ export function CloudExportPanel({
     for (const id of receipt.export_ids)
       result.push(await client.get(id, signal));
     if (!signal.aborted) setRows(result);
-    const finished = result.length > 0 && result.every((row) => row.status !== "pending");
+    const finished =
+      result.length > 0 && result.every((row) => row.status !== "pending");
     if (finished && !signal.aborted) onReady?.(result);
     return finished;
   }
@@ -109,7 +110,9 @@ export function CloudExportPanel({
           formats,
           family_name: family,
           ...(Object.keys(options).length ? { options } : {}),
-          ...(snapshot.trim() ? { snapshot_id: snapshot.trim() } : {}),
+          ...(!quiet && snapshot.trim()
+            ? { snapshot_id: snapshot.trim() }
+            : {}),
         },
       };
       // Independent owner/project keys preserve the exact unknown-commit request.

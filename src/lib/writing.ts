@@ -1,4 +1,29 @@
 import { graphemeStrings } from "../../packages/contracts/src/unicode";
+import {
+  layoutWritingText,
+  normalizeWritingStyles,
+  writingRunWidth,
+  rebaseWritingStyles,
+  WRITING_TEXT_FIELDS,
+  type WritingLine,
+  type WritingSelection,
+  type WritingTextStyle,
+} from "./writing-text";
+
+const LOCAL_CURSIVE_SAMPLE =
+  process.env.NEXT_PUBLIC_PENFORGE_DEMO_FONT === "cursive";
+export const SAMPLE_FONT_NAME = LOCAL_CURSIVE_SAMPLE
+  ? "PenForge Cursive"
+  : "Sample handwriting";
+export const SAMPLE_FONT_CSS = LOCAL_CURSIVE_SAMPLE
+  ? "'PenForge Demo Cursive', cursive"
+  : "'Caveat Variable', cursive";
+const SAMPLE_FONT_URL = LOCAL_CURSIVE_SAMPLE
+  ? "/fonts/local-demo/PenForge-Cursive.woff2"
+  : "/fonts/CaveatVariable.woff2";
+const SAMPLE_FONT_LICENSE_URL = LOCAL_CURSIVE_SAMPLE
+  ? "/fonts/local-demo/FONT-README.txt"
+  : "/fonts/OFL-Caveat.txt";
 export type WritingFormat = "letter" | "note" | "card";
 export type WritingPaper = "cotton" | "ruled" | "graph" | "kraft";
 export type WritingAlignment = "left" | "center" | "right";
@@ -21,6 +46,7 @@ export type WritingDocument = {
   widthScale: number;
   /** 0–1 presentation wobble per line; an export effect, not a font property. */
   naturalness: number;
+  textStyles?: WritingTextStyle[];
   projectId?: string;
   /** Owner-authorized generated export reference; renewed on open. */
   generatedExportId?: string;
@@ -51,6 +77,8 @@ export type WritingSvgOptions = {
   measureText?: WritingTextMeasure;
   /** Editor-only baseline/margin guides; never passed by exports. */
   guides?: boolean;
+  /** Editor-only highlight, excluded by all export helpers. */
+  selection?: WritingSelection;
 };
 
 /**
@@ -113,9 +141,7 @@ const luminance = (hex: string) => {
  * desk can warn before someone exports a note they cannot read.
  */
 export function writingContrastRatio(ink: string, paper: WritingPaper): number {
-  const tone = /^#[0-9a-f]{6}$/i.test(ink)
-    ? ink
-    : DEFAULT_WRITING_DOCUMENT.ink;
+  const tone = /^#[0-9a-f]{6}$/i.test(ink) ? ink : DEFAULT_WRITING_DOCUMENT.ink;
   const a = luminance(tone);
   const b = luminance(paperTones[paper]);
   return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
@@ -141,7 +167,7 @@ const text = (value: unknown, maximum: number, fallback: string) =>
 export function normalizeWritingDocument(value: unknown): WritingDocument {
   const source = isObject(value) ? value : {};
   const defaults = DEFAULT_WRITING_DOCUMENT;
-  return {
+  const document: WritingDocument = {
     format: ["letter", "note", "card"].includes(String(source.format))
       ? (source.format as WritingFormat)
       : defaults.format,
@@ -181,6 +207,9 @@ export function normalizeWritingDocument(value: unknown): WritingDocument {
       ? { generatedExportId: source.generatedExportId }
       : {}),
   };
+  const textStyles = normalizeWritingStyles(source.textStyles, document);
+  if (textStyles.length) document.textStyles = textStyles;
+  return document;
 }
 
 /** Invalid or unrelated envelopes never become a writing draft. */
@@ -209,6 +238,26 @@ export function serializeWritingDraft(document: WritingDocument): string {
     version: 1,
     document: normalizeWritingDocument(document),
   });
+}
+
+/** Rebase against sanitized words before range validation, never stale offsets. */
+export function updateWritingDocument(
+  document: WritingDocument,
+  patch: Partial<WritingDocument>,
+): WritingDocument {
+  const next = normalizeWritingDocument({
+    ...document,
+    ...patch,
+    textStyles: undefined,
+  });
+  let styles =
+    patch.textStyles !== undefined
+      ? patch.textStyles
+      : document.textStyles || [];
+  if (patch.textStyles === undefined)
+    for (const field of WRITING_TEXT_FIELDS)
+      styles = rebaseWritingStyles(styles, field, document[field], next[field]);
+  return normalizeWritingDocument({ ...next, textStyles: styles });
 }
 
 /** Only supported, bounded handoff fields can enter the local composer. */
@@ -348,6 +397,7 @@ export function wrapWritingText(
 export type WritingTextBlock = {
   field: "title" | "recipient" | "body" | "signature";
   lines: string[];
+  layout: WritingLine[];
   y: number;
   size: number;
   step: number;
@@ -410,53 +460,89 @@ export function layoutWritingDocument(
   // Reserve real side bearings and slant room, beyond the font's measured
   // advances. The same safe text area is used for every field and every export.
   const safety = Math.ceil(
-    Math.max(titleSize, document.fontSize) * (0.16 + skew * 1.15),
+    Math.max(
+      titleSize,
+      document.fontSize,
+      ...(document.textStyles || []).map((style) => style.fontSize || 0),
+    ) *
+      (0.16 + skew * 1.15),
   );
   const contentLeft = margin + safety;
   const contentRight = width - margin - safety;
   const availableWidth = (contentRight - contentLeft) / document.widthScale;
-  const wrap = (value: string, size: number, weight = document.weight) =>
-    wrapWritingText(
-      value,
+  const measure =
+    options.measureText ||
+    ((text: string, size: number) => estimateWritingWidth(text, size));
+  const wrap = (
+    field: WritingTextBlock["field"],
+    size: number,
+    step: number,
+    weight = document.weight,
+  ) =>
+    layoutWritingText(
+      document[field],
+      field,
+      document.textStyles || [],
+      { fontSize: size, weight, spacing: document.spacing, baselineShift: 0 },
       availableWidth,
-      size,
-      document.spacing,
-      options.measureText,
-      weight,
+      step,
+      measure,
     );
-  const titleLines = document.title
-    ? wrap(document.title, titleSize, titleWeight)
+  const titleLayout = document.title
+    ? wrap("title", titleSize, titleStep, titleWeight)
     : [];
-  const recipientLines = document.recipient
-    ? wrap(document.recipient, document.fontSize)
+  const recipientLayout = document.recipient
+    ? wrap("recipient", document.fontSize, lineStep)
     : [];
-  const bodyLines = wrap(document.body, document.fontSize);
-  const signatureLines = document.signature
-    ? wrap(document.signature, document.fontSize)
+  const bodyLayout = wrap("body", document.fontSize, lineStep);
+  const signatureLayout = document.signature
+    ? wrap("signature", document.fontSize, lineStep)
     : [];
-
+  const titleLines = titleLayout.map((line) => line.text);
+  const recipientLines = recipientLayout.map((line) => line.text);
+  const bodyLines = bodyLayout.map((line) => line.text);
+  const signatureLines = signatureLayout.map((line) => line.text);
+  const firstExtra = (lines: WritingLine[], size: number) =>
+    (lines[0]?.above ?? size * 1.08) - size * 1.08;
+  const lastOffset = (lines: WritingLine[]) =>
+    (lines.at(-1)?.offsetY ?? 0) - (lines[0]?.offsetY ?? 0);
+  const lastExtra = (lines: WritingLine[], size: number) =>
+    (lines.at(-1)?.below ?? size * 0.4) - size * 0.4;
   let cursor: number = design.top;
-  let titleY = cursor + titleSize;
+  let titleY = cursor + titleSize + firstExtra(titleLayout, titleSize);
   if (titleLines.length)
     cursor =
       titleY +
-      (titleLines.length - 1) * titleStep +
+      lastOffset(titleLayout) +
       titleSize * 0.28 +
+      lastExtra(titleLayout, titleSize) +
       design.titleGap;
-  let recipientY = cursor + document.fontSize;
+  let recipientY =
+    cursor + document.fontSize + firstExtra(recipientLayout, document.fontSize);
   if (recipientLines.length)
     cursor =
       recipientY +
-      (recipientLines.length - 1) * lineStep +
+      lastOffset(recipientLayout) +
       document.fontSize * 0.3 +
+      lastExtra(recipientLayout, document.fontSize) +
       24;
-  let bodyY = cursor + document.fontSize;
-  cursor = bodyY + (bodyLines.length - 1) * lineStep + document.fontSize * 0.4;
-  let signatureY = cursor + design.signatureGap + document.fontSize * 0.85;
+  let bodyY =
+    cursor + document.fontSize + firstExtra(bodyLayout, document.fontSize);
+  cursor =
+    bodyY +
+    lastOffset(bodyLayout) +
+    document.fontSize * 0.4 +
+    lastExtra(bodyLayout, document.fontSize);
+  let signatureY =
+    cursor +
+    design.signatureGap +
+    document.fontSize * 0.85 +
+    firstExtra(signatureLayout, document.fontSize);
   const contentBottom = signatureLines.length
     ? signatureY +
-      (signatureLines.length - 1) * lineStep +
-      document.fontSize * 0.4
+      lastOffset(signatureLayout) +
+      document.fontSize * 0.4 +
+      lastExtra(signatureLayout, document.fontSize)
     : cursor;
   const bottomPadding = Math.max(
     design.bottom,
@@ -475,7 +561,7 @@ export function layoutWritingDocument(
 
   const block = (
     field: WritingTextBlock["field"],
-    lines: string[],
+    layout: WritingLine[],
     y: number,
     size: number,
     step: number,
@@ -494,17 +580,14 @@ export function layoutWritingDocument(
         : alignment === "right"
           ? "end"
           : "start";
+    const lines = layout.map((line) => line.text);
     const longest =
-      Math.max(
-        0,
-        ...lines.map((line) =>
-          options.measureText
-            ? options.measureText(line, size, weight) +
-              Math.max(0, graphemeStrings(line).length - 1) * document.spacing
-            : estimateWritingWidth(line, size, document.spacing),
-        ),
-      ) * document.widthScale;
-    const overhang = size * (0.12 + skew * 1.1);
+      Math.max(0, ...layout.map((line) => line.width)) * document.widthScale;
+    const largestSize = Math.max(
+      size,
+      ...layout.flatMap((line) => line.runs.map((run) => run.style.fontSize)),
+    );
+    const overhang = largestSize * (0.12 + skew * 1.1);
     const left =
       anchor === "middle"
         ? x - longest / 2
@@ -514,6 +597,10 @@ export function layoutWritingDocument(
     return {
       field,
       lines,
+      layout: layout.map((line) => ({
+        ...line,
+        offsetY: line.offsetY - (layout[0]?.offsetY || 0),
+      })),
       y,
       size,
       step,
@@ -523,8 +610,8 @@ export function layoutWritingDocument(
       bounds: {
         left: left - overhang,
         right: left + longest + overhang,
-        top: y - size * 1.08,
-        bottom: y + Math.max(0, lines.length - 1) * step + size * 0.4,
+        top: y - (layout[0]?.above ?? size * 1.08),
+        bottom: y + lastOffset(layout) + (layout.at(-1)?.below ?? size * 0.4),
       },
     };
   };
@@ -533,7 +620,7 @@ export function layoutWritingDocument(
   const blocks = [
     block(
       "title",
-      titleLines,
+      titleLayout,
       titleY,
       titleSize,
       titleStep,
@@ -542,16 +629,16 @@ export function layoutWritingDocument(
     ),
     block(
       "recipient",
-      recipientLines,
+      recipientLayout,
       recipientY,
       document.fontSize,
       lineStep,
       cardAlignment,
     ),
-    block("body", bodyLines, bodyY, document.fontSize, lineStep),
+    block("body", bodyLayout, bodyY, document.fontSize, lineStep),
     block(
       "signature",
-      signatureLines,
+      signatureLayout,
       signatureY,
       document.fontSize,
       lineStep,
@@ -646,18 +733,66 @@ export function buildWritingSvg(
         ? "#fffdf4"
         : "#fffdf7";
   const n = (value: number) => Number(value.toFixed(3));
-  const font = `'${embedded ? family : "Caveat Variable"}',cursive`;
+  const font = embedded ? `'${family}',cursive` : SAMPLE_FONT_CSS;
   const naturalness = document.naturalness;
+  const measure =
+    options.measureText ||
+    ((text: string, size: number) => estimateWritingWidth(text, size));
   const content = page.blocks
     .map((block) =>
-      block.lines
+      block.layout
         .map((line, index) => {
-          // A tiny per-line drift sells handwriting without moving the layout.
-          const seed = writingLineSeed(line, index + block.field.length);
+          const seed = writingLineSeed(line.text, index + block.field.length);
           const drift = naturalness > 0 ? (seed - 0.5) * 2 * naturalness : 0;
           const rise = drift * block.size * 0.05;
-          const turn = drift * 1.6;
-          return `<text data-field="${block.field}" xml:space="preserve" transform="translate(${n(block.x)} ${n(block.y + index * block.step + rise)}) rotate(${n(turn)}) skewX(${-document.slant}) scale(${document.widthScale} 1)" text-anchor="${block.anchor}" font-size="${n(block.size)}" font-weight="${block.weight}">${escapeWritingXml(line)}</text>`;
+          const transform = `translate(${n(block.x)} ${n(block.y + line.offsetY + rise)}) rotate(${n(drift * 1.6)}) skewX(${-document.slant}) scale(${document.widthScale} 1)`;
+          const left =
+            block.anchor === "middle"
+              ? -line.width / 2
+              : block.anchor === "end"
+                ? -line.width
+                : 0;
+          const attrs = `data-field="${block.field}" data-source-start="${line.start}" data-source-end="${line.end}" xml:space="preserve"`;
+          const styled = (document.textStyles || []).some(
+            (range) =>
+              range.field === block.field &&
+              range.start < line.end &&
+              range.end > line.start,
+          );
+          const text = styled
+            ? `<text ${attrs} transform="${transform}" text-anchor="start">${line.runs.map((run) => `<tspan x="${n(left + run.x)}" y="${n(-run.style.baselineShift)}" font-size="${n(run.style.fontSize)}" font-weight="${run.style.weight}" letter-spacing="${run.style.spacing}">${escapeWritingXml(run.text)}</tspan>`).join("")}</text>`
+            : `<text ${attrs} transform="${transform}" text-anchor="${block.anchor}" font-size="${n(block.size)}" font-weight="${block.weight}">${escapeWritingXml(line.text)}</text>`;
+          const selection = options.selection;
+          const highlight =
+            selection?.field === block.field
+              ? line.runs
+                  .map((run) => {
+                    const start = Math.max(selection.start, run.start),
+                      end = Math.min(selection.end, run.end);
+                    if (start >= end) return "";
+                    const prefix = run.text.slice(0, start - run.start);
+                    const selected = run.text.slice(
+                      start - run.start,
+                      end - run.start,
+                    );
+                    const x =
+                      left +
+                      run.x +
+                      (prefix
+                        ? writingRunWidth(prefix, run.style, measure) +
+                          run.style.spacing
+                        : 0);
+                    const width =
+                      writingRunWidth(selected, run.style, measure) +
+                      (end < run.end ? run.style.spacing : 0);
+                    return `<rect data-writing-selection="true" pointer-events="none" x="${n(x)}" y="${n(-run.style.fontSize * 1.08 - run.style.baselineShift)}" width="${n(Math.max(3, width))}" height="${n(run.style.fontSize * 1.48)}" rx="3" fill="#e8bb63" fill-opacity=".35"/>`;
+                  })
+                  .join("")
+              : "";
+          return (
+            (highlight ? `<g transform="${transform}">${highlight}</g>` : "") +
+            text
+          );
         })
         .join(""),
     )
@@ -692,7 +827,7 @@ export function buildWritingSvg(
   } else {
     const ornament = `<path d="M0 34C0 15 15 0 34 0M0 22C13 22 22 13 22 0"/><circle cx="0" cy="34" r="1.8" fill="${document.accent}" stroke="none"/>`;
     const titleRule = page.titleLines.length
-      ? `<path d="M${width / 2 - 36} ${n(page.titleY + (page.titleLines.length - 1) * page.titleStep + page.titleSize * 0.36)}h72" stroke-width="2"/>`
+      ? `<path d="M${width / 2 - 36} ${n(page.titleY + (page.blocks[0].layout.at(-1)?.offsetY || 0) + page.titleSize * 0.36)}h72" stroke-width="2"/>`
       : "";
     decoration = `<g data-motif="greeting-frame" fill="none" stroke="${document.accent}" stroke-width="1.5"><rect x="62" y="58" width="${width - 124}" height="${height - 116}" rx="1" stroke-opacity=".5"/><path d="M57 52V${height - 52}" stroke-opacity=".18"/><g transform="translate(84 80)">${ornament}</g><g transform="translate(${width - 84} ${height - 80}) rotate(180)">${ornament}</g>${titleRule}</g>`;
   }
@@ -707,7 +842,7 @@ export function buildWritingSvg(
         block.lines
           .map(
             (_, index) =>
-              `<path d="M${page.contentLeft} ${n(block.y + index * block.step)}H${page.contentRight}" ${guideStroke}/>`,
+              `<path d="M${page.contentLeft} ${n(block.y + block.layout[index].offsetY)}H${page.contentRight}" ${guideStroke}/>`,
           )
           .join(""),
       )
@@ -715,7 +850,7 @@ export function buildWritingSvg(
     guides = `<g data-writing-guides="true" fill="none" stroke-width="1">${marginLines}${baselines}</g>`;
   }
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" data-writing-design="${document.format}" role="img" aria-label="${escapeWritingXml(document.title || "Personal writing")}"><title>${escapeWritingXml(document.title || "Personal writing")}</title><metadata>${escapeWritingXml(options.fontLicense || "Penforge writing document. Preview may use the Caveat sample typeface.")}</metadata><defs><style>${embedded ? `@font-face{font-family:'${family}';src:url('${embedded}');font-weight:400 700;font-style:normal;}` : ""}</style><pattern id="writing-fibers" width="90" height="90" patternUnits="userSpaceOnUse"><path d="m9 12 2 1m34 39 1-2m34 18-2 1M24 79l1-1M71 8l1 2" stroke="#806d4a" stroke-width=".65" opacity=".13"/></pattern></defs><rect width="${width}" height="${height}" fill="${document.format === "card" ? document.accent : background}"/><g data-paper="${document.paper}"><rect x="${inset}" y="${stockTop}" width="${stockWidth}" height="${stockHeight}" rx="${document.format === "card" ? 2 : 0}" fill="${background}"/><rect x="${inset + 1}" y="${stockTop + 1}" width="${stockWidth - 2}" height="${stockHeight - 2}" fill="url(#writing-fibers)" stroke="#b7a58d" stroke-opacity=".3"/>${rules}</g>${decoration}${guides}<g data-writing-content="true" font-family="${font}" fill="${document.ink}" letter-spacing="${document.spacing}">${content}</g></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" data-writing-design="${document.format}" role="img" aria-label="${escapeWritingXml(document.title || "Personal writing")}"><title>${escapeWritingXml(document.title || "Personal writing")}</title><metadata>${escapeWritingXml(options.fontLicense || "Penforge writing document. Preview may use the selected sample typeface.")}</metadata><defs><style>${embedded ? `@font-face{font-family:'${family}';src:url('${embedded}');font-weight:400 700;font-style:normal;}` : ""}</style><pattern id="writing-fibers" width="90" height="90" patternUnits="userSpaceOnUse"><path d="m9 12 2 1m34 39 1-2m34 18-2 1M24 79l1-1M71 8l1 2" stroke="#806d4a" stroke-width=".65" opacity=".13"/></pattern></defs><rect width="${width}" height="${height}" fill="${document.format === "card" ? document.accent : background}"/><g data-paper="${document.paper}"><rect x="${inset}" y="${stockTop}" width="${stockWidth}" height="${stockHeight}" rx="${document.format === "card" ? 2 : 0}" fill="${background}"/><rect x="${inset + 1}" y="${stockTop + 1}" width="${stockWidth - 2}" height="${stockHeight - 2}" fill="url(#writing-fibers)" stroke="#b7a58d" stroke-opacity=".3"/>${rules}</g>${decoration}${guides}<g data-writing-content="true" font-family="${font}" fill="${document.ink}" letter-spacing="${document.spacing}">${content}</g></svg>`;
 }
 
 function createWritingFontMetrics(family: string): WritingTextMeasure {
@@ -732,14 +867,14 @@ let sampleFont: Promise<WritingFontSource> | undefined;
 export function loadWritingFont(): Promise<WritingFontSource> {
   if (!sampleFont)
     sampleFont = Promise.all([
-      fetch("/fonts/CaveatVariable.woff2").then((response) => {
+      fetch(SAMPLE_FONT_URL).then((response) => {
         if (!response.ok)
           throw new Error(
             "The sample typeface could not be loaded. Please try again.",
           );
         return response.blob();
       }),
-      fetch("/fonts/OFL-Caveat.txt").then((response) => {
+      fetch(SAMPLE_FONT_LICENSE_URL).then((response) => {
         if (!response.ok)
           throw new Error(
             "The typeface license could not be loaded. Please try again.",
@@ -758,7 +893,7 @@ export function loadWritingFont(): Promise<WritingFontSource> {
         await face.load();
         document.fonts.add(face);
         return {
-          name: "Caveat sample",
+          name: SAMPLE_FONT_NAME,
           fontDataUrl,
           fontFamily: family,
           fontLicense: license,
@@ -798,7 +933,11 @@ export function readFontCoverage(
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const version = view.getUint32(0);
   // 0x00010000 (TrueType), 'OTTO' (CFF) and 'true' carry an uncompressed cmap.
-  if (version !== 0x00010000 && version !== 0x4f54544f && version !== 0x74727565)
+  if (
+    version !== 0x00010000 &&
+    version !== 0x4f54544f &&
+    version !== 0x74727565
+  )
     return null;
   const tables = view.getUint16(4);
   let cmap = -1;
@@ -857,10 +996,7 @@ export function readFontCoverage(
             glyph = (point + delta) & 0xffff;
           } else {
             const address =
-              rangeOffsets +
-              segment * 2 +
-              rangeOffset +
-              (point - start) * 2;
+              rangeOffsets + segment * 2 + rangeOffset + (point - start) * 2;
             if (address + 2 > bytes.byteLength) continue;
             glyph = view.getUint16(address);
             if (glyph !== 0) glyph = (glyph + delta) & 0xffff;

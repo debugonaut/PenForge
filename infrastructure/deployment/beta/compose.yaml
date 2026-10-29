@@ -1,0 +1,59 @@
+# Single-host beta deployment: one container runs the API and the scheduled worker.
+#
+#   cp .env.beta.example .env.beta        # fill in the real values
+#   docker compose --env-file .env.beta up -d --build
+#
+# Object storage is intentionally external (any private S3-compatible bucket);
+# nothing private is written to the host filesystem except the worker temp root.
+name: penforge-beta
+
+services:
+  db:
+    image: postgres:16.6-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-penforge}
+      POSTGRES_USER: ${POSTGRES_USER:-penforge}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env.beta}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    # Loopback only: the API reaches the database over the compose network.
+    ports:
+      - "127.0.0.1:5433:5432"
+
+  api:
+    build:
+      context: ../../..
+      dockerfile: infrastructure/deployment/beta/beta.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env.beta
+    environment:
+      # Compose interpolation cannot rewrite env_file values, so build the URL here.
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-penforge}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-penforge}
+      WORKER_WAKE_FILE: /tmp/penforge-worker-wake
+    ports:
+      - "127.0.0.1:8080:8080"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8080/api/v1/health', timeout=5).status == 200 else 1)",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  pgdata:

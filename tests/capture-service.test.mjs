@@ -542,6 +542,65 @@ test("the real recovery adapter preserves selected File bytes and keeps confirme
 
 const { createCaptureClient } = await import(clientUrl);
 
+function originalPreviewTransport(bytes, overrides = {}) {
+  const digest = crypto.subtle
+    .digest("SHA-256", bytes)
+    .then((value) => `sha256:${Buffer.from(value).toString("hex")}`);
+  const calls = [];
+  const client = createCaptureClient(
+    "https://capture.example.test",
+    async () => "verified-token",
+    async (url, options) => {
+      calls.push({ url: String(url), options });
+      if (String(url).endsWith("/download-url"))
+        return Response.json({
+          method: "GET",
+          url: "/api/v1/storage/objects/private-original",
+          headers: {},
+        });
+      if (String(url).includes("/assets/"))
+        return Response.json({
+          asset_id: "asset-a",
+          mime_type: "image/png",
+          size_bytes: bytes.byteLength,
+          sha256: await digest,
+          ...overrides,
+        });
+      return new Response(bytes, { headers: { "Content-Type": "image/png" } });
+    },
+  );
+  return { client, calls };
+}
+
+test("stored originals above2MiB retain exact bytes within admitted20MiB size", async () => {
+  const bytes = new Uint8Array(2 * 1024 * 1024 + 17).fill(37);
+  const { client, calls } = originalPreviewTransport(bytes);
+  const blob = await client.preview("asset-a");
+  assert.equal(blob.size, bytes.byteLength);
+  assert.deepEqual(new Uint8Array(await blob.arrayBuffer()), bytes);
+  assert.equal(calls.length, 3);
+  assert.ok(
+    calls.every(
+      ({ options }) =>
+        options.cache === "no-store" && options.credentials === "omit",
+    ),
+  );
+});
+
+test("stored original preview rejects substituted content, oversized metadata and stream overflow", async () => {
+  for (const overrides of [
+    { sha256: `sha256:${"0".repeat(64)}` },
+    { size_bytes: 20 * 1024 * 1024 + 1 },
+    { size_bytes: imageBytes.byteLength - 1 },
+  ]) {
+    const { client } = originalPreviewTransport(imageBytes, overrides);
+    await assert.rejects(
+      () => client.preview("asset-a"),
+      (error) => error.code === "invalid_preview",
+    );
+  }
+});
+
 test("capture transport is inert until requested and sends explicit authenticated idempotent JSON only", async () => {
   const calls = [];
   const client = createCaptureClient(

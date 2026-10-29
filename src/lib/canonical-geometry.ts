@@ -148,3 +148,32 @@ export function transformOutline(
   assertRenderableOutline(result);
   return result;
 }
+
+/** Balance capture-side whitespace without scaling, clipping or moving the baseline.
+ * Curve control bounds are conservative: all actual ink remains inside them.
+ * The caller presents this as a pending edit before saving and explicit approval.
+ */
+export function fitOutlineSpacing(
+  outline: CanonicalOutline,
+  sideSpace = outline.units_per_em * 0.04,
+): CanonicalOutline {
+  assertRenderableOutline(outline);
+  if (
+    !Number.isFinite(sideSpace) ||
+    sideSpace < 0 ||
+    sideSpace > outline.units_per_em
+  )
+    throw new Error("invalid_side_space");
+  const all = points(outline);
+  if (!all.length) throw new Error("spacing_requires_drawn_outline");
+  const minX = Math.min(...all.map((point) => point.x));
+  const maxX = Math.max(...all.map((point) => point.x));
+  const result = transformOutline(outline, {
+    scale: 1,
+    dx: sideSpace - minX,
+    dy: 0,
+  });
+  result.metrics.advance_width = maxX - minX + sideSpace * 2;
+  assertRenderableOutline(result);
+  return result;
+}

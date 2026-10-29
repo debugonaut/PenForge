@@ -10,6 +10,37 @@ const { createExtractionClient, ExtractionError } = await import(
     ["../../packages/contracts/src/client", foundation],
   ])
 );
+
+test("manual photo batch uses explicit region mode without drawing or template assignments", async () => {
+  const calls = [];
+  const client = createExtractionClient(
+    "https://review.example.test",
+    async () => "verified-token",
+    async (url, options) => {
+      calls.push({ url: String(url), options });
+      return Response.json({ job_id: "job-a", state: "queued" });
+    },
+  );
+  const regions = [
+    { region_id: "region-a", sample_id: "sample-a", codepoints: [103] },
+  ];
+  await client.analyzeImageRegions(
+    "project-a",
+    "sample-a",
+    regions,
+    "stable-key",
+  );
+  assert.equal(calls.length, 1);
+  const { options } = calls[0];
+  assert.deepEqual(JSON.parse(options.body), {
+    job_type: "analyze_samples",
+    sample_ids: ["sample-a"],
+    image_mode: "manual_regions_v1",
+    image_regions: regions,
+  });
+  assert.equal(options.headers["Idempotency-Key"], "stable-key");
+  assert.equal(options.credentials, "omit");
+});
 const point = (x, y) => ({ x, y });
 const outline = {
   schema_version: 1,
@@ -48,6 +79,42 @@ const outline = {
     },
   ],
 };
+
+test("tighter side spacing preserves source shapes and baseline while removing artboard margins", () => {
+  const centered = geometry.transformOutline(outline, {
+    scale: 1,
+    dx: 550,
+    dy: 0,
+  });
+  centered.metrics.advance_width = 1710;
+  const before = structuredClone(centered);
+  const fitted = geometry.fitOutlineSpacing(centered);
+  assert.ok(fitted.metrics.advance_width < 1710);
+  assert.equal(fitted.contours.length, before.contours.length);
+  const delta = fitted.contours[0].start.x - before.contours[0].start.x;
+  function assertPoint(source, target) {
+    assert.equal(target.x, source.x + delta);
+    assert.equal(target.y, source.y);
+  }
+  for (let i = 0; i < before.contours.length; i++) {
+    assertPoint(before.contours[i].start, fitted.contours[i].start);
+    for (let j = 0; j < before.contours[i].segments.length; j++) {
+      const original = before.contours[i].segments[j];
+      const result = fitted.contours[i].segments[j];
+      assert.equal(result.type, original.type);
+      for (const key of ["to", "c", "c1", "c2"])
+        if (original[key]) assertPoint(original[key], result[key]);
+    }
+  }
+  assert.equal(
+    fitted.metrics.left_side_bearing,
+    before.metrics.left_side_bearing + delta,
+  );
+  assert.deepEqual(centered, before);
+  assert.deepEqual(geometry.fitOutlineSpacing(fitted), fitted);
+  assert.throws(() => geometry.fitOutlineSpacing(centered, -1));
+  assert.throws(() => geometry.fitOutlineSpacing(centered, Infinity));
+});
 
 test("canonical SVG keeps holes, curves and descenders in one baseline frame", () => {
   const before = structuredClone(outline);

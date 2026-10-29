@@ -7,8 +7,9 @@ and [research workflow](../../../research/README.md) for current capabilities.
 
 ## Install reproducibly
 
-Use Node 22+ and uv 0.13.1. Both lockfiles are committed workspace artifacts. If uv is
-not installed, the tested workspace-local bootstrap is:
+Use Node 24 LTS (24.22.1 or newer within 24.x) and uv 0.13.1. Both lockfiles are
+committed workspace artifacts. If uv is not installed, the tested workspace-local
+bootstrap is:
 
 ```sh
 python3 -m venv .bootstrap-venv

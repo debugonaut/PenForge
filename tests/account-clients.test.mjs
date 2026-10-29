@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createTypeScriptLoader } from "./helpers/typescript.mjs";
 import { unicodeModuleUrl } from "./helpers/unicode.mjs";
+import { writingTextModuleUrl } from "./helpers/writing-text.mjs";
 
 const moduleUrl = createTypeScriptLoader(import.meta.url);
 const foundation = await moduleUrl("../packages/contracts/src/client.ts");
@@ -10,6 +11,7 @@ const requestUrl = await moduleUrl("../src/lib/account-request.ts", [
 ]);
 const writing = await moduleUrl("../src/lib/writing.ts", [
   ["../../packages/contracts/src/unicode", unicodeModuleUrl],
+  ["./writing-text", writingTextModuleUrl],
 ]);
 const workspace = await import(
   await moduleUrl("../src/lib/account-workspace.ts", [
@@ -26,6 +28,38 @@ const documents = await import(
 );
 const { DEFAULT_WRITING_DOCUMENT } = await import(writing);
 const origin = "https://account.example.test";
+
+test("saved-page wire mapping preserves per-selection styles and omits empty overrides", () => {
+  const page = {
+    ...DEFAULT_WRITING_DOCUMENT,
+    body: "hello  !",
+    textStyles: [
+      { field: "body", start: 5, end: 7, spacing: 8 },
+      { field: "body", start: 7, end: 8, fontSize: 64, baselineShift: 6 },
+    ],
+  };
+  const wire = documents.writingBody(page);
+  assert.deepEqual(wire.text_styles[1], {
+    field: "body",
+    start: 7,
+    end: 8,
+    font_size: 64,
+    baseline_shift: 6,
+  });
+  assert.deepEqual(
+    documents.documentFromWire({
+      title: page.title,
+      format: page.format,
+      document: wire,
+    }),
+    page,
+  );
+  assert.equal(
+    "text_styles" in documents.writingBody(DEFAULT_WRITING_DOCUMENT),
+    false,
+  );
+});
+
 const workspaceResponse = {
   project_id: "project",
   workspace: workspace.toWire(workspace.emptyWorkspace()),

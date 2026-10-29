@@ -2,13 +2,16 @@
   "name": "penforge",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=24.22.1 <25"
+  },
   "scripts": {
     "dev": "next dev --hostname 0.0.0.0",
     "build": "next build",
     "start": "next start --hostname 0.0.0.0",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "test": "node --test tests/mock-services.test.mjs tests/writing-desk.test.mjs tests/writing.test.mjs tests/motion-preference.test.mjs tests/api-boundary.test.mjs tests/auth-service.test.mjs tests/password-policy.test.mjs tests/stroke-capture.test.mjs tests/capture-service.test.mjs tests/extraction-client.test.mjs tests/export-client.test.mjs tests/job-client.test.mjs tests/privacy-client.test.mjs tests/unicode-sequences.test.mjs tests/account-persistence.test.mjs tests/account-clients.test.mjs tests/owner-token.test.mjs tests/service-access.test.mjs",
+    "test": "node --test tests/contracts-generation.test.mjs tests/mock-services.test.mjs tests/writing-desk.test.mjs tests/writing.test.mjs tests/writing-selection.test.mjs tests/motion-preference.test.mjs tests/api-boundary.test.mjs tests/auth-service.test.mjs tests/password-policy.test.mjs tests/stroke-capture.test.mjs tests/capture-service.test.mjs tests/extraction-client.test.mjs tests/export-client.test.mjs tests/job-client.test.mjs tests/privacy-client.test.mjs tests/unicode-sequences.test.mjs tests/account-persistence.test.mjs tests/account-clients.test.mjs tests/owner-token.test.mjs tests/service-access.test.mjs tests/account-studio.test.mjs tests/capture-components.test.mjs tests/photo-regions.test.mjs tests/photo-recovery.test.mjs tests/writing-font-handoff.test.mjs",
     "format": "prettier --write src tests *.json *.mjs next.config.ts README.md",
     "contracts:generate": "node packages/contracts/scripts/generate.mjs",
     "contracts:check": "node packages/contracts/scripts/generate.mjs --check"
@@ -33,5 +36,13 @@
     "openapi-typescript": "7.10.1",
     "prettier": "^3.9.10",
     "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "@firebase/firestore": {
+      "@grpc/grpc-js": "1.13.6"
+    },
+    "next": {
+      "postcss": "8.5.23"
+    }
   }
 }

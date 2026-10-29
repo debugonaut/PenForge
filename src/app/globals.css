@@ -14,10 +14,21 @@
   --font-sans: "DM Sans", Arial, sans-serif;
   --font-display: "Fraunces", Georgia, serif;
   --font-hand: "Caveat Variable", "Segoe Print", cursive;
+  --font-demo: var(--font-hand);
   --motion-quick: 140ms;
   --motion-standard: 280ms;
   --motion-reveal: 520ms;
   --motion-ease: cubic-bezier(0.2, 0, 0, 1);
+}
+@font-face {
+  font-family: "PenForge Demo Cursive";
+  src: url("/fonts/local-demo/PenForge-Cursive.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+html[data-demo-font="cursive"] {
+  --font-demo: "PenForge Demo Cursive", "Segoe Print", cursive;
 }
 * {
   box-sizing: border-box;

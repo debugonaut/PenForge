@@ -31,6 +31,7 @@ def capture_services(
         derivative_max_dimension=settings.derivative_max_dimension,
         idempotency_ttl_seconds=settings.idempotency_retention_seconds,
         job_max_attempts=settings.job_max_attempts,
+        storage_backend=settings.storage_backend,
         templates=load_templates(),
     )
     return uploads, QueueService(

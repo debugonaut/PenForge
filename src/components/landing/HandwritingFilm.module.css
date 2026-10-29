@@ -29,14 +29,20 @@
   opacity: 0;
 }
 .handwriting {
-  font: 500 77px var(--font-hand, "Caveat Variable", cursive);
+  font: 500 77px var(--font-demo, var(--font-hand));
   fill: var(--film-ink);
   letter-spacing: -1.5px;
 }
 .phoneHandwriting {
-  font: 500 25px var(--font-hand, "Caveat Variable", cursive);
+  font: 500 25px var(--font-demo, var(--font-hand));
   fill: var(--film-ink);
   letter-spacing: -0.5px;
+}
+:global(html[data-demo-font="cursive"]) .handwriting {
+  font-size: 52px;
+}
+:global(html[data-demo-font="cursive"]) .phoneHandwriting {
+  font-size: 17px;
 }
 .microLabel {
   font: 500 9px var(--font-sans, sans-serif);
@@ -48,7 +54,7 @@
   fill: var(--film-ink);
 }
 .noteText {
-  font: 400 29px var(--font-hand, "Caveat Variable", cursive);
+  font: 400 29px var(--font-demo, var(--font-hand));
   fill: var(--film-ink);
 }
 .stampLabel {

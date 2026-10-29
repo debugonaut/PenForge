@@ -7,6 +7,7 @@ from starlette.types import ASGIApp, Message, Receive, Scope, Send
 from app.core.errors import error_response
 from app.core.logging import log_event
 from app.core.metrics import Metrics, route_class
+from app.core.wake import signal_activity, wake_file
 
 
 class RequestMiddleware:
@@ -26,6 +27,8 @@ class RequestMiddleware:
         if scope["type"] != "http":
             await self.app(scope, receive, send)
             return
+        # Keep the co-located scheduled worker awake while real traffic arrives.
+        signal_activity(wake_file())
         request = Request(scope)
         raw_id = request.headers.get("x-request-id", "")
         try:

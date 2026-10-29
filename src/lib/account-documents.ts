@@ -71,6 +71,31 @@ export function writingBody(document: WritingDocument): WritingBodyWire {
     slant: document.slant,
     width_scale: document.widthScale,
     naturalness: document.naturalness,
+    ...(document.textStyles?.length
+      ? {
+          text_styles: document.textStyles.map(
+            ({
+              field,
+              start,
+              end,
+              fontSize,
+              weight,
+              spacing,
+              baselineShift,
+            }) => ({
+              field,
+              start,
+              end,
+              ...(fontSize !== undefined ? { font_size: fontSize } : {}),
+              ...(weight !== undefined ? { weight } : {}),
+              ...(spacing !== undefined ? { spacing } : {}),
+              ...(baselineShift !== undefined
+                ? { baseline_shift: baselineShift }
+                : {}),
+            }),
+          ),
+        }
+      : {}),
     ...(document.projectId ? { project_id: document.projectId } : {}),
     ...(document.generatedExportId
       ? { generated_export_id: document.generatedExportId }
@@ -96,6 +121,17 @@ export function documentFromWire(wire: WritingDocumentWire): WritingDocument {
     slant: wire.document.slant,
     naturalness: wire.document.naturalness,
     widthScale: wire.document.width_scale,
+    textStyles: wire.document.text_styles?.map(
+      ({ field, start, end, font_size, weight, spacing, baseline_shift }) => ({
+        field,
+        start,
+        end,
+        ...(font_size != null ? { fontSize: font_size } : {}),
+        ...(weight != null ? { weight } : {}),
+        ...(spacing != null ? { spacing } : {}),
+        ...(baseline_shift != null ? { baselineShift: baseline_shift } : {}),
+      }),
+    ),
     ...(wire.document.project_id
       ? { projectId: wire.document.project_id }
       : {}),

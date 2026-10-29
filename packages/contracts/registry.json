@@ -135,6 +135,15 @@
       "supported_versions": [
         1
       ]
+    },
+    {
+      "capability": "future_contract",
+      "current_version": 3,
+      "name": "analyze_image_regions_job",
+      "schema_name": "AnalyzeSamplesJobV3",
+      "supported_versions": [
+        3
+      ]
     }
   ],
   "hash_encoding": "penforge-tagged-json-ieee754-v1",

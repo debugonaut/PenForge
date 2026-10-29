@@ -11,7 +11,9 @@ never depends on filesystem details.
 from __future__ import annotations
 
 import hashlib
+import os
 import time
+import uuid
 from pathlib import Path
 from typing import Protocol
 
@@ -23,6 +25,7 @@ from app.adapters.storage.base import (
     StorageError,
 )
 from app.adapters.storage.local_fs import LocalObjectStorage
+from app.adapters.storage.s3 import S3ObjectStorage
 
 SECRET = b"s" * 32
 
@@ -31,9 +34,31 @@ class StorageFactory(Protocol):
     def __call__(self, root: Path, *, secret: bytes = SECRET) -> ObjectStorage: ...
 
 
+def _s3_factory(root: Path, *, secret: bytes = SECRET) -> ObjectStorage:
+    endpoint = os.environ.get("PENFORGE_CONFORMANCE_S3_ENDPOINT")
+    bucket = os.environ.get("PENFORGE_CONFORMANCE_S3_BUCKET")
+    access = os.environ.get("PENFORGE_CONFORMANCE_S3_ACCESS_KEY")
+    key = os.environ.get("PENFORGE_CONFORMANCE_S3_SECRET_KEY")
+    if not (endpoint and bucket and access and key):
+        pytest.skip("Set PENFORGE_CONFORMANCE_S3_* to admit a hosted bucket")
+    return S3ObjectStorage(
+        endpoint=endpoint,
+        bucket=bucket,
+        region=os.environ.get("PENFORGE_CONFORMANCE_S3_REGION", "auto"),
+        access_key=access,
+        secret_key=key,
+        prefix=f"conformance/{root.name}/{uuid.uuid4().hex[:8]}",
+        force_path_style=os.environ.get("PENFORGE_CONFORMANCE_S3_PATH_STYLE", "1") == "1",
+        secret=secret,
+    )
+
+
 FACTORIES: dict[str, StorageFactory] = {
     "local_fs": lambda root, secret=SECRET: LocalObjectStorage(root / "objects", secret=secret),
 }
+# The hosted bucket is admitted only when its real endpoint and credentials are supplied.
+if os.environ.get("PENFORGE_CONFORMANCE_S3_ENDPOINT"):
+    FACTORIES["s3"] = _s3_factory
 BACKENDS = sorted(FACTORIES)
 
 

@@ -1,0 +1,37 @@
+# Only the Next.js frontend is deployed to Vercel.
+# This file keeps owner-private assets and the Python/backend workspace out of the upload.
+
+# Owner-only localhost demo font; a production build refuses to run with it present.
+public/fonts/local-demo
+
+# Backend, workers, infrastructure and their toolchains
+apps
+services
+infrastructure
+scripts
+tests
+packages/font-engine
+pyproject.toml
+uv.lock
+Makefile
+alembic.ini
+
+# Local environments, evidence and private research material
+artifacts
+research
+docs
+.venv
+.python
+.bootstrap-venv
+.cache
+.local
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Editor / OS noise
+.git
+.github
+.DS_Store
+*.log

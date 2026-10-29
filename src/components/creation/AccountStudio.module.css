@@ -87,7 +87,8 @@
 }
 
 .field input,
-.field select {
+.field select,
+.field textarea {
   font: inherit;
   font-weight: 500;
   padding: 10px 12px;
@@ -95,6 +96,18 @@
   border-radius: 10px;
   background: #fffdf7;
   color: inherit;
+}
+
+.specimenField {
+  max-width: 65ch;
+}
+
+.specimenField textarea {
+  width: 100%;
+  min-width: 0;
+  font-size: 1rem;
+  line-height: 1.4;
+  resize: vertical;
 }
 
 .actions {
@@ -205,7 +218,12 @@
   border: 1.5px solid rgba(25, 46, 53, 0.25);
   border-radius: 14px;
   background:
-    linear-gradient(transparent 62%, rgba(85, 126, 149, 0.22) 62%, rgba(85, 126, 149, 0.22) 63%, transparent 63%),
+    linear-gradient(
+      transparent 62%,
+      rgba(85, 126, 149, 0.22) 62%,
+      rgba(85, 126, 149, 0.22) 63%,
+      transparent 63%
+    ),
     #fffdf7;
   color: #192e35;
 }
@@ -230,15 +248,17 @@
   min-width: 34px;
   height: 84px;
   font-size: 2rem;
-  color: rgba(25, 46, 53, 0.32);
+  color: #635c50;
+  border-bottom: 1px dashed currentColor;
 }
 
 .mascotFoot {
   position: absolute;
   right: -8px;
   bottom: -28px;
-  width: 130px;
-  height: 130px;
+  /* Match StepMascot's footprint so its decoration cannot widen the page. */
+  width: 176px;
+  height: 158px;
   pointer-events: none;
 }
 

@@ -342,6 +342,45 @@ def test_documents_are_idempotent_owner_scoped_and_deletable(
     run(account_database, scenario)
 
 
+def test_document_selection_styles_survive_saves_and_reject_invalid_title_patches(
+    account_database: tuple[Engine, str],
+) -> None:
+    owner = principal()
+
+    async def scenario(_sync, _async, _projects, _workspaces, documents):
+        body = WritingDocumentCreate.model_validate(
+            {
+                "title": "Hello",
+                "format": "note",
+                "document": {
+                    "body": "a  b",
+                    "text_styles": [
+                        {"field": "title", "start": 0, "end": 5, "font_size": 64},
+                        {"field": "body", "start": 1, "end": 3, "spacing": 8},
+                    ],
+                },
+            }
+        )
+        _, created = await documents.create(owner, idempotency_key=uuid.uuid4().hex, body=body)
+        document_id = uuid.UUID(created["id"])
+        saved = await documents.get(owner, document_id)
+        assert (
+            saved["document"]["text_styles"] == body.document.model_dump(mode="json")["text_styles"]
+        )
+        with pytest.raises(ApiError) as invalid:
+            await documents.update(owner, document_id, if_match='"v1"', changes={"title": "Hi"})
+        assert invalid.value.code == "validation_error"
+        unchanged = await documents.get(owner, document_id)
+        assert unchanged["row_version"] == 1
+        updated = await documents.update(
+            owner, document_id, if_match='"v1"', changes={"title": "Hello again"}
+        )
+        assert updated["document"]["text_styles"] == saved["document"]["text_styles"]
+        await documents.delete(owner, document_id, if_match='"v2"')
+
+    run(account_database, scenario)
+
+
 def test_account_removal_cascades_drafts_and_documents(
     account_database: tuple[Engine, str],
 ) -> None:

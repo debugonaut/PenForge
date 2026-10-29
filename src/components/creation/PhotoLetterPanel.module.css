@@ -1,0 +1,203 @@
+.panel {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  padding: 22px;
+  border: 1.5px solid #192e35;
+  border-radius: 18px;
+  background: #fffcf3;
+}
+.heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.heading h2 {
+  margin: 0 0 8px;
+  font-size: 1.5rem;
+}
+.heading p {
+  max-width: 65ch;
+  margin: 0;
+  color: #5b5449;
+  line-height: 1.5;
+}
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(230px, 1fr);
+  align-items: start;
+  gap: 20px;
+}
+.imageScroll {
+  min-width: 0;
+  max-height: 70vh;
+  overflow: auto;
+  border: 1px solid #b8b5a9;
+  border-radius: 8px;
+  background: #fff;
+}
+.imageStage {
+  position: relative;
+  min-width: 0;
+}
+.imageStage img {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+}
+.imageStage svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: crosshair;
+}
+.currentRect {
+  fill: rgb(255 214 71 / 15%);
+  stroke: #bd422d;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+.savedRect {
+  fill: rgb(65 130 86 / 10%);
+  stroke: #326942;
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+.baseline {
+  fill: none;
+  stroke: #24649b;
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+  vector-effect: non-scaling-stroke;
+}
+.controls {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.panel fieldset {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid #b8b5a9;
+  border-radius: 10px;
+}
+.panel legend {
+  padding: 0 6px;
+  font-weight: 700;
+}
+.panel label {
+  display: grid;
+  gap: 5px;
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+.panel input {
+  box-sizing: border-box;
+  min-width: 0;
+  width: 100%;
+  padding: 9px;
+  font: inherit;
+  border: 1px solid #6c746d;
+  border-radius: 7px;
+  background: #fffdf7;
+  color: #192e35;
+}
+.panel input[type="range"] {
+  padding: 0;
+}
+.coordinates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.panel small,
+.note {
+  margin: 0;
+  color: #5b5449;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+.previews {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.previews figure {
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 12px;
+  min-width: 0;
+  border: 1px solid #b8b5a9;
+  border-radius: 8px;
+  background: #fff;
+}
+.previews figcaption {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.previews canvas {
+  max-width: 100%;
+  height: auto;
+}
+.batch h3 {
+  margin: 0 0 12px;
+  font-size: 1rem;
+}
+.batch ul {
+  display: grid;
+  gap: 8px;
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  max-height: 240px;
+  overflow: auto;
+}
+.batch li {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #ddd7c8;
+  font-size: 0.85rem;
+}
+.batch li span {
+  flex: 1;
+  min-width: 130px;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+@media (max-width: 850px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+  .controls {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 560px) {
+  .panel {
+    padding: 14px;
+  }
+  .controls,
+  .previews {
+    grid-template-columns: 1fr;
+  }
+  .imageScroll {
+    max-height: 55vh;
+  }
+}

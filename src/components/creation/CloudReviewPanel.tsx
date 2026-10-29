@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { captureCodepoints } from "../../../packages/contracts/src/unicode";
 import type { JobClient } from "@/lib/job-client";
 import { IndicGeometryReview } from "./IndicGeometryReview";
@@ -11,6 +11,7 @@ import {
   outlinePath,
   outlineViewBox,
   transformOutline,
+  fitOutlineSpacing,
 } from "@/lib/canonical-geometry";
 import {
   extractionErrorText,
@@ -214,6 +215,8 @@ export function CloudReviewPanel({
     jobId?: string;
   } | null>(null);
   const requestKeys = useRef(new Map<string, string>());
+  const changed = useRef(onChanged);
+  changed.current = onChanged;
   const [opened, setOpened] = useState(startOpen);
   const [busy, setBusy] = useState(false);
   const [samples, setSamples] = useState<ReviewSample[]>([]);
@@ -299,34 +302,54 @@ export function CloudReviewPanel({
       if (current()) setBusy(false);
     }
   }
-  async function refresh(signal: AbortSignal, current: () => boolean) {
-    const [sourceRows, letters, counts, prompt, measured, available] =
-      await Promise.all([
-        client.samples(projectId, signal),
-        client.glyphs(projectId, signal),
-        client.coverage(projectId, signal),
-        client.followUp(projectId, signal),
-        client.styleProfile(projectId, signal).catch((cause) => {
-          if (cause instanceof ExtractionError && cause.status === 404)
-            return null;
-          throw cause;
-        }),
-        client.capabilities(projectId, signal),
-      ]);
-    if (!current()) return;
-    setSamples(sourceRows);
-    setGlyphs(letters);
-    setCoverage(counts);
-    onChanged?.(letters, counts);
-    setFollowUp(prompt);
-    setProfile(measured);
-    setCapabilities(available);
-    setSampleId((previous) =>
-      sourceRows.some((source) => source.sample_id === previous)
-        ? previous
-        : (sourceRows[0]?.sample_id ?? ""),
-    );
-  }
+  const refresh = useCallback(
+    async (signal: AbortSignal, current: () => boolean) => {
+      const [sourceRows, letters, counts, prompt, measured, available] =
+        await Promise.all([
+          client.samples(projectId, signal),
+          client.glyphs(projectId, signal),
+          client.coverage(projectId, signal),
+          client.followUp(projectId, signal),
+          client.styleProfile(projectId, signal).catch((cause) => {
+            if (cause instanceof ExtractionError && cause.status === 404)
+              return null;
+            throw cause;
+          }),
+          client.capabilities(projectId, signal),
+        ]);
+      if (!current()) return;
+      setSamples(sourceRows);
+      setGlyphs(letters);
+      setCoverage(counts);
+      changed.current?.(letters, counts);
+      setFollowUp(prompt);
+      setProfile(measured);
+      setCapabilities(available);
+      setSampleId((previous) =>
+        sourceRows.some((source) => source.sample_id === previous)
+          ? previous
+          : (sourceRows[0]?.sample_id ?? ""),
+      );
+    },
+    [client, projectId],
+  );
+  useEffect(() => {
+    if (!startOpen) return;
+    const version = generation.current;
+    const controller = new AbortController();
+    cancellation.current = controller;
+    const current = () =>
+      generation.current === version && !controller.signal.aborted;
+    setBusy(true);
+    void refresh(controller.signal, current)
+      .catch((cause) => {
+        if (current()) setError(extractionErrorText(cause));
+      })
+      .finally(() => {
+        if (current()) setBusy(false);
+      });
+    return () => controller.abort();
+  }, [ownerUid, refresh, startOpen]);
   function openReview() {
     setOpened(true);
     void perform(refresh);
@@ -502,6 +525,21 @@ export function CloudReviewPanel({
     } catch {
       setError(
         "Use a positive uniform scale up to 400% and finite font-unit shifts within the geometry limits.",
+      );
+    }
+  }
+
+  function previewSpacing() {
+    if (!revision || !letter?.outline) return;
+    try {
+      setDraft(fitOutlineSpacing(draft ?? letter.outline));
+      setError("");
+      setNotice(
+        "Side spacing balanced in this preview. Save the pending revision, then approve it if the spacing looks right.",
+      );
+    } catch {
+      setError(
+        "Spacing can be adjusted only for an editable drawn outline. The current source and approved version are unchanged.",
       );
     }
   }
@@ -876,6 +914,12 @@ export function CloudReviewPanel({
                     <button type="button" onClick={previewEdit}>
                       Preview outline edit
                     </button>
+                    {scriptCode === "Latn" &&
+                      (letter.outline?.contours.length ?? 0) > 0 && (
+                        <button type="button" onClick={previewSpacing}>
+                          Preview balanced side spacing
+                        </button>
+                      )}
                     <button
                       type="button"
                       disabled={!draft || !detail?.etag}

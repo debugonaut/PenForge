@@ -107,7 +107,7 @@ class AnalysisRepository:
                     sa.select(m.jobs)
                     .where(
                         m.jobs.c.job_type == "analyze_samples",
-                        m.jobs.c.payload_schema_version.in_([1, 2]),
+                        m.jobs.c.payload_schema_version.in_([1, 2, 3]),
                         m.jobs.c.state == "queued",
                         m.jobs.c.run_after <= sa.func.clock_timestamp(),
                         sa.cast(

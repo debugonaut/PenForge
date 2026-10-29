@@ -63,7 +63,7 @@
   letter-spacing: 0.8px;
 }
 .sourcePaper > p {
-  font: 550 clamp(30px, 3.5vw, 44px)/1.1 var(--font-hand);
+  font: 550 clamp(30px, 3.5vw, 44px)/1.1 var(--font-demo, var(--font-hand));
   margin: 17px 0 0;
   border-bottom: 1px solid #192e3521;
 }
@@ -105,7 +105,7 @@
   border-radius: 2px;
   background: var(--demo-white);
   color: var(--demo-ink);
-  font: 550 clamp(32px, 3.8vw, 48px)/1 var(--font-hand);
+  font: 550 clamp(32px, 3.8vw, 48px)/1 var(--font-demo, var(--font-hand));
   cursor: pointer;
   transition:
     background-color var(--motion-quick, 140ms) ease,
@@ -213,7 +213,7 @@
   align-items: baseline;
   gap: 8px;
   min-height: 34px;
-  font: 500 30px var(--font-hand);
+  font: 500 30px var(--font-demo, var(--font-hand));
 }
 .readyLetter > span {
   font: 400 10px var(--font-sans);

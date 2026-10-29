@@ -30,6 +30,7 @@ def test_public_inventory_hashes_exact_bytes_and_requires_manual_review(tmp_path
         "research/manifests/writers-v1.yaml",
         "research/CHECKPOINT_2026-10-21.inventory.json",
         "research/runs/private/font.ttf",
+        "public/fonts/local-demo/PenForge-Cursive.woff2",
         ".env.production",
         "AGENTS.md",
         "apps/api/AGENTS.md",

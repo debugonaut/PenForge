@@ -28,7 +28,11 @@ export function availableStep(
   requested: CreationStep,
 ): CreationStep {
   if (requested === "capture") return requested;
-  if (!project.glyphs.length && !hasSample(project)) return "capture";
+  const savedCapture =
+    project.origin.kind === "account" &&
+    project.captures.some((capture) => capture.sampleId && capture.assetId);
+  if (!project.glyphs.length && !hasSample(project) && !savedCapture)
+    return "capture";
   if (requested !== "review" && !project.glyphs.length) return "review";
   return requested;
 }

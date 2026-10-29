@@ -1141,7 +1141,7 @@
   border-radius: 10px;
   background: #fffaf1;
   color: #192e35;
-  font: 700 26px / 1 var(--font-hand);
+  font: 700 26px / 1 var(--font-demo, var(--font-hand));
 }
 .preset-copy {
   min-width: 0;
@@ -2309,7 +2309,7 @@
 .desk-sheet span,
 .empty-letter,
 .original-box strong {
-  font-family: var(--font-hand);
+  font-family: var(--font-demo, var(--font-hand));
   font-style: normal;
 }
 .glyph-button small {
@@ -2803,7 +2803,7 @@
 }
 .choice-paper > span {
   color: #192e35;
-  font: 700 48px/1 var(--font-hand);
+  font: 700 48px/1 var(--font-demo, var(--font-hand));
   transform: rotate(3deg);
 }
 .choice-paper i {
@@ -2937,7 +2937,7 @@
 }
 .canvas-hint span {
   color: rgba(41, 71, 100, 0.18);
-  font: 700 clamp(56px, 7vw, 84px) / 1 var(--font-hand);
+  font: 700 clamp(56px, 7vw, 84px) / 1 var(--font-demo, var(--font-hand));
   transform: rotate(-4deg);
 }
 .canvas-hint small {
@@ -3437,7 +3437,7 @@
   top: 50%;
   left: 3%;
   color: rgba(25, 46, 53, 0.1);
-  font: 700 clamp(136px, 20vw, 300px) / 1 var(--font-hand);
+  font: 700 clamp(136px, 20vw, 300px) / 1 var(--font-demo, var(--font-hand));
   pointer-events: none;
   transform: translateY(-50%) rotate(-8deg);
   white-space: nowrap;

@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createHash } from "node:crypto";
 import { unicodeModuleUrl } from "./helpers/unicode.mjs";
+import { writingTextModuleUrl } from "./helpers/writing-text.mjs";
 const compiled = createTypeScriptLoader(import.meta.url);
 const foundation = await compiled("../packages/contracts/src/client.ts");
 const { createExportClient, ExportError } = await import(
@@ -114,6 +115,7 @@ test("generated Writing Desk font embeds exact selected bytes and retains format
   const writing = await import(
     await compiled("../src/lib/writing.ts", [
       ["../../packages/contracts/src/unicode", unicodeModuleUrl],
+      ["./writing-text", writingTextModuleUrl],
     ])
   );
   const source = {

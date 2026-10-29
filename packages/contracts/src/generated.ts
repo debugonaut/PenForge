@@ -898,6 +898,10 @@ export interface components {
       assignments?: components["schemas"]["CaptureAssignment"][];
       /** Drawing Mode */
       drawing_mode?: "fixed_round_v1" | null;
+      /** Image Mode */
+      image_mode?: "manual_regions_v1" | null;
+      /** Image Regions */
+      image_regions?: components["schemas"]["ImageRegionAssignment"][];
       /**
        * Job Type
        * @default analyze_samples
@@ -1031,6 +1035,44 @@ export interface components {
        * @default null
        */
       template_manifest_hash?: string | null;
+    };
+    /**
+     * AnalyzeSamplesJobV3
+     * @description User-assigned image regions; no OCR or automatic character alignment.
+     */
+    AnalyzeSamplesJobV3: {
+      /**
+       * Image Mode
+       * @constant
+       */
+      image_mode: "manual_regions_v1";
+      /** Image Regions */
+      image_regions: components["schemas"]["ImageRegionAssignment"][];
+      /**
+       * Job Type
+       * @constant
+       */
+      job_type: "analyze_samples";
+      options?: components["schemas"]["AnalyzeOptions"];
+      /** Project Id */
+      project_id: string;
+      /** Sample Ids */
+      sample_ids: string[];
+      /**
+       * Schema Version
+       * @constant
+       */
+      schema_version: 3;
+      /**
+       * Script Code
+       * @constant
+       */
+      script_code: "Latn";
+      /**
+       * Template Manifest Hash
+       * @default null
+       */
+      template_manifest_hash?: null;
     };
     /** AssetResponse */
     AssetResponse: {
@@ -2602,6 +2644,45 @@ export interface components {
       /** Start */
       start: number;
     };
+    /**
+     * ImageRegionAssignment
+     * @description An explicit user selection in the oriented immutable image pixel frame.
+     */
+    ImageRegionAssignment: {
+      /** Baseline Y Px */
+      baseline_y_px: number;
+      /** Codepoints */
+      codepoints: number[];
+      /**
+       * Ink Threshold
+       * @default 180
+       */
+      ink_threshold?: number;
+      rect: components["schemas"]["ImageRegionRect"];
+      /** Region Id */
+      region_id: string;
+      /** Sample Id */
+      sample_id: string;
+      /** Source Height */
+      source_height: number;
+      /** Source Sha256 */
+      source_sha256: string;
+      /** Source Width */
+      source_width: number;
+      /** Units Per Px */
+      units_per_px: number;
+    };
+    /** ImageRegionRect */
+    ImageRegionRect: {
+      /** Height */
+      height: number;
+      /** Width */
+      width: number;
+      /** X */
+      x: number;
+      /** Y */
+      y: number;
+    };
     /** IndicEvidence */
     IndicEvidence: {
       /** Anchors */
@@ -4034,6 +4115,8 @@ export interface components {
        * @default 0
        */
       spacing?: number;
+      /** Text Styles */
+      text_styles?: components["schemas"]["WritingTextStyle"][];
       /**
        * Weight
        * @default 500
@@ -4098,6 +4181,29 @@ export interface components {
        * Format: date-time
        */
       updated_at: string;
+    };
+    /**
+     * WritingTextStyle
+     * @description Non-overlapping document overrides; offsets are native UTF-16 boundaries.
+     */
+    WritingTextStyle: {
+      /** Baseline Shift */
+      baseline_shift?: number | null;
+      /** End */
+      end: number;
+      /**
+       * Field
+       * @enum {string}
+       */
+      field: "title" | "recipient" | "body" | "signature";
+      /** Font Size */
+      font_size?: number | null;
+      /** Spacing */
+      spacing?: number | null;
+      /** Start */
+      start: number;
+      /** Weight */
+      weight?: number | null;
     };
   };
   responses: never;

@@ -14,6 +14,7 @@ from uuid import UUID, uuid4, uuid5
 
 from penforge_contracts import (
     AnalysisPayload,
+    AnalyzeSamplesJobV3,
     GlyphOutline,
     MLResultManifest,
     content_hash,
@@ -122,7 +123,7 @@ class AnalysisService:
         self, repo: AnalysisRepository, owner: UUID, project: UUID, payload: AnalysisPayload
     ) -> list[dict]:
         result = []
-        assigned = {item.sample_id for item in payload.assignments}
+        assigned = {item.sample_id for item in getattr(payload, "assignments", [])}
         for sid in payload.sample_ids:
             sample = await repo.sample(owner, project, UUID(sid))
             if sample is None:
@@ -140,7 +141,26 @@ class AnalysisService:
                 or asset["sha256"] != sample["source_sha256"]
             ):
                 raise ApiError("state_conflict", 409)
-            if sample["source_type"] == "canvas_drawing":
+            if isinstance(payload, AnalyzeSamplesJobV3):
+                regions = [r for r in payload.image_regions if r.sample_id == sid]
+                if (
+                    sample["source_type"] != "freeform_photo"
+                    or source["mime_type"] not in {"image/png", "image/jpeg", "image/webp"}
+                    or type(source["width_px"]) is not int
+                    or type(source["height_px"]) is not int
+                    or any(
+                        region.source_sha256 != "sha256:" + sample["source_sha256"].hex()
+                        or sorted((region.source_width, region.source_height))
+                        != sorted((source["width_px"], source["height_px"]))
+                        for region in regions
+                    )
+                ):
+                    raise ApiError(
+                        "validation_error",
+                        400,
+                        details={"reasons": ["image_region_source_mismatch"]},
+                    )
+            elif sample["source_type"] == "canvas_drawing":
                 if source["kind"] != "raw_strokes" or sid not in assigned:
                     raise ApiError(
                         "validation_error",
@@ -190,6 +210,10 @@ class AnalysisService:
                     "validation_error", 400, details={"reasons": ["script_not_validated"]}
                 )
             now = await repo.now()
+            if body.image_mode and project["script_code"] != "Latn":
+                raise ApiError(
+                    "validation_error", 400, details={"reasons": ["image_regions_require_latin"]}
+                )
             digest = bytes.fromhex(
                 content_hash(
                     {"path": f"/projects/{project_id}/jobs", "body": body.model_dump(mode="json")}
@@ -235,7 +259,15 @@ class AnalysisService:
                     "checkpoint": {"completed_units": 0},
                     "resource_profile": {
                         "mem_mb": 768,
-                        "planning": [structured_route(s["sample"]["source_type"]) for s in sources],
+                        "planning": [
+                            structured_route(s["sample"]["source_type"])
+                            | (
+                                {"method": "manual_image_regions", "recognition": "disabled"}
+                                if body.image_mode
+                                else {}
+                            )
+                            for s in sources
+                        ],
                     },
                     "created_at": now,
                 },
@@ -280,7 +312,7 @@ class AnalysisService:
         *,
         worker_mem_mb: int = 768,
         job_id=None,
-        supported_versions: tuple[int, ...] = (1, 2),
+        supported_versions: tuple[int, ...] = (1, 2, 3),
     ) -> dict | None:
         if not worker_id or len(worker_id) > 128:
             raise ValueError("invalid_worker_id")
@@ -475,7 +507,11 @@ class AnalysisService:
                 or manifest.input.source_hashes != expected_sources
                 or manifest.input.template_manifest_hash != payload.template_manifest_hash
                 or manifest.pipeline.model_dump(mode="json")
-                != pipeline(payload.script_code, getattr(payload, "drawing_mode", None))
+                != pipeline(
+                    payload.script_code,
+                    getattr(payload, "drawing_mode", None),
+                    getattr(payload, "image_mode", None),
+                )
                 or manifest.stage != "candidate_extraction"
             ):
                 raise ApiError("upload_mismatch", 400)
@@ -485,7 +521,9 @@ class AnalysisService:
                 raise ApiError("upload_mismatch", 400)
             quality = json.loads(report_bytes)
             if quality.get("policy_hash") != policy_hash(
-                payload.script_code, getattr(payload, "drawing_mode", None)
+                payload.script_code,
+                getattr(payload, "drawing_mode", None),
+                getattr(payload, "image_mode", None),
             ):
                 raise ApiError("upload_mismatch", 400)
             if not isinstance(quality.get("samples"), list) or len(quality["samples"]) != len(
@@ -495,6 +533,7 @@ class AnalysisService:
             sample_map = {str(x["sample"]["id"]): x for x in sources}
             result_id = uuid5(job["id"], "candidate_extraction")
             parsed = []
+            seen_regions: set[str] = set()
             for candidate in manifest.candidates:
                 row, data = await read(UUID(candidate.outline.artifact_id))
                 self.check_child(candidate.outline, row)
@@ -532,7 +571,32 @@ class AnalysisService:
                 ):
                     raise ApiError("upload_mismatch", 400)
                 # Assignment is a reviewed destination hint, not an OCR assertion.
-                if source["sample"]["source_type"] == "canvas_drawing":
+                if isinstance(payload, AnalyzeSamplesJobV3):
+                    region_assignment = next(
+                        (
+                            r
+                            for r in payload.image_regions
+                            if r.region_id == evidence.get("region_id")
+                            and r.sample_id == evidence["sample_id"]
+                        ),
+                        None,
+                    )
+                    provenance = evidence.get("provenance", {})
+                    valid_mapping = (
+                        region_assignment is not None
+                        and region_assignment.codepoints == candidate.codepoints
+                        and provenance.get("assignment")
+                        == region_assignment.model_dump(mode="json")
+                        and provenance.get("assignment_hash")
+                        == content_hash(region_assignment.model_dump(mode="json"))
+                        and provenance.get("outline_hash")
+                        == content_hash(outline.model_dump(mode="json"))
+                        and provenance.get("algorithm_version")
+                        == "manual-region-threshold-trace-v1"
+                        and provenance.get("ocr") is False
+                        and provenance.get("source_unchanged") is True
+                    )
+                elif source["sample"]["source_type"] == "canvas_drawing":
                     assignment = next(
                         a for a in payload.assignments if a.sample_id == evidence["sample_id"]
                     )
@@ -564,11 +628,57 @@ class AnalysisService:
                     )
                 if not valid_mapping:
                     raise ApiError("upload_mismatch", 400)
+                if isinstance(payload, AnalyzeSamplesJobV3):
+                    region_id = evidence["region_id"]
+                    if region_id in seen_regions:
+                        raise ApiError("upload_mismatch", 400)
+                    seen_regions.add(region_id)
                 parsed.append((candidate, outline, row, data, evidence, source))
             for assessment, source in zip(quality["samples"], sources, strict=True):
                 if assessment.get("state") not in {"analyzed", "needs_better_input"}:
                     raise ApiError("upload_mismatch", 400)
                 q = assessment.get("quality", {})
+                if isinstance(payload, AnalyzeSamplesJobV3):
+                    regions = [
+                        r.model_dump(mode="json")
+                        for r in payload.image_regions
+                        if r.sample_id == str(source["sample"]["id"])
+                    ]
+                    configuration = {"image_mode": payload.image_mode, "image_regions": regions}
+                    if (
+                        q.get("configuration") != configuration
+                        or q.get("configuration_hash") != content_hash(configuration)
+                        or q.get("source_bytes_hash")
+                        != "sha256:" + source["sample"]["source_sha256"].hex()
+                        or q.get("algorithm_version") != "manual-region-threshold-trace-v1"
+                    ):
+                        raise ApiError("upload_mismatch", 400)
+                    region_reports = q.get("regions")
+                    if (
+                        not isinstance(region_reports, list)
+                        or len(region_reports) != len(regions)
+                        or q.get("source_unchanged") is not True
+                        or q.get("coordinate_frame") != "exif_transposed_source_pixels"
+                        or q.get("luma_policy")
+                        != "rgb-white-alpha-integer-299-587-114-strict-less-v1"
+                    ):
+                        raise ApiError("upload_mismatch", 400)
+                    analyzed_regions = set()
+                    for report, region in zip(region_reports, regions, strict=True):
+                        if (
+                            not isinstance(report, dict)
+                            or report.get("region_id") != region["region_id"]
+                            or report.get("assignment") != region
+                            or report.get("assignment_hash") != content_hash(region)
+                            or report.get("status") not in {"analyzed", "needs_better_input"}
+                        ):
+                            raise ApiError("upload_mismatch", 400)
+                        if report["status"] == "analyzed":
+                            analyzed_regions.add(report["region_id"])
+                    if analyzed_regions != seen_regions.intersection(
+                        region["region_id"] for region in regions
+                    ):
+                        raise ApiError("upload_mismatch", 400)
                 if source["sample"]["source_type"] in {"template_scan", "template_photo"}:
                     if (
                         q.get("configuration") != image_config()
@@ -684,6 +794,11 @@ class AnalysisService:
                             "sample_id": a["sample_id"],
                             "state": a.get("state"),
                             "reasons": a.get("reasons", []),
+                            **(
+                                {"regions": a.get("quality", {}).get("regions", [])}
+                                if isinstance(payload, AnalyzeSamplesJobV3)
+                                else {}
+                            ),
                         }
                         for a in quality["samples"]
                     ],

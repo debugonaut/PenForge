@@ -950,7 +950,9 @@ service_agreements = sa.Table(
     col("handwriting_rights_confirmed", sa.Boolean),
     stamp("accepted_at"),
     fk("user_id", "users.id", delete="CASCADE"),
-    sa.UniqueConstraint("user_id", "policy_sha256"),
+    sa.UniqueConstraint(
+        "user_id", "policy_sha256", name="service_agreements_user_id_policy_sha256_key"
+    ),
     check("policy_sha256 ~ '^[0-9a-f]{64}$'", "hash"),
     check("terms_accepted AND handwriting_rights_confirmed", "affirmative"),
 )
@@ -968,3 +970,19 @@ abuse_reports = sa.Table(
     check("contact IS NULL OR length(contact) <= 254", "contact"),
 )
 sa.Index("abuse_reports_created_idx", abuse_reports.c.created_at)
+
+# Shared fixed windows for hosted admission; local/test may keep bounded memory.
+rate_limit_windows = sa.Table(
+    "rate_limit_windows",
+    metadata,
+    col("key", sa.Text, primary=True),
+    col("limit_amount", sa.Integer, primary=True),
+    col("window_seconds", sa.Integer, primary=True),
+    col("window_start", sa.DateTime(timezone=True), primary=True),
+    col("used", sa.Integer),
+    check("length(key) BETWEEN 1 AND 256", "key_length"),
+    check("limit_amount > 0", "limit_amount"),
+    check("window_seconds > 0", "window_seconds"),
+    check("used > 0", "used"),
+)
+sa.Index("rate_limit_windows_start_idx", rate_limit_windows.c.window_start)

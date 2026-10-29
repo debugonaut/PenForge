@@ -445,7 +445,7 @@ async def main():
  await asyncio.sleep(60)
 asyncio.run(main())
 """)
-        prefix = f"URL={str(sync.url)!r}\nSCHEMA={uploads_database[1]!r}\nOBJECTS={str(tmp_path / 'objects')!r}\nMARKER={str(marker)!r}\n"
+        prefix = f"URL={sync.url.render_as_string(hide_password=False)!r}\nSCHEMA={uploads_database[1]!r}\nOBJECTS={str(tmp_path / 'objects')!r}\nMARKER={str(marker)!r}\n"
         source.write_text(prefix + source.read_text())
         process = subprocess.Popen(
             [sys.executable, str(source)],

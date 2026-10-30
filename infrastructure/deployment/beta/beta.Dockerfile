@@ -20,14 +20,14 @@ ENV UV_COMPILE_BYTECODE=1 \
 
 WORKDIR /build
 COPY pyproject.toml uv.lock ./
-RUN pip install --no-cache-dir "uv==0.13.1" && \
+RUN pip install --no-cache-dir "uv==0.13.6" && \
     uv sync --locked --no-dev --group worker
 
 FROM python:3.12-slim-bookworm AS runtime
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        libharfbuzz0b libfribidi0b libraqm0 libjpeg62-turbo zlib1g \
+        libharfbuzz0b libfribidi0 libraqm0 libjpeg62-turbo zlib1g \
         fonts-dejavu-core && \
     rm -rf /var/lib/apt/lists/*
 

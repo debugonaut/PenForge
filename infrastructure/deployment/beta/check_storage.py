@@ -58,36 +58,45 @@ def main() -> int:
         force_path_style=os.environ.get("STORAGE_S3_PATH_STYLE", "true").lower()
         in ("1", "true", "yes"),
     )
-    key = f"beta-check/{uuid.uuid4().hex}.txt"
-    payload = b"penforge private beta storage probe\n"
-    digest = hashlib.sha256(payload).hexdigest()
+    probes = (("tiny", 41), ("page", 200 * 1024), ("capture", 2 * 1024 * 1024))
+    print(f"bucket {os.environ['STORAGE_S3_BUCKET']} — real probe objects, incompressible\n")
+    print(f"{'payload':8} {'bytes':>9} {'upload':>9} {'MB/s':>7} {'download':>10} {'MB/s':>7}")
+    for label, size in probes:
+        key = f"beta-check/{uuid.uuid4().hex}.bin"
+        payload = os.urandom(size)
+        digest = hashlib.sha256(payload).hexdigest()
 
-    started = time.perf_counter()
-    capability = storage.create_upload(key, size_bytes=len(payload), sha256=digest)
-    stored = storage.put(capability, payload)
-    upload_ms = (time.perf_counter() - started) * 1000
+        started = time.perf_counter()
+        capability = storage.create_upload(key, size_bytes=size, sha256=digest)
+        stored = storage.put(capability, payload)
+        upload_ms = (time.perf_counter() - started) * 1000
+        if stored.size_bytes != size or stored.sha256 != digest:
+            raise SystemExit(f"stored metadata mismatch: {stored.size_bytes} bytes, {stored.sha256}")
 
-    if stored.size_bytes != len(payload) or stored.sha256 != digest:
-        raise SystemExit(f"stored metadata mismatch: {stored.size_bytes} bytes, {stored.sha256}")
+        started = time.perf_counter()
+        url = storage.get_download_url(key, ttl_seconds=60)
+        returned = storage.read(url)
+        download_ms = (time.perf_counter() - started) * 1000
+        if returned != payload:
+            raise SystemExit("downloaded bytes differ from what was uploaded")
 
-    started = time.perf_counter()
-    url = storage.get_download_url(key, ttl_seconds=60)
-    returned = storage.read(url)
-    download_ms = (time.perf_counter() - started) * 1000
-    if returned != payload:
-        raise SystemExit("downloaded bytes differ from what was uploaded")
+        listed = [item.key for item in storage.list_objects(prefix="beta-check/")]
+        if key not in listed:
+            raise SystemExit("probe object missing from the private inventory")
+        storage.delete_object(key)
+        remaining = [item.key for item in storage.list_objects(prefix="beta-check/") if item.key == key]
+        if remaining:
+            raise SystemExit("probe object survived deletion")
 
-    listed = [item.key for item in storage.list_objects(prefix="beta-check/")]
-    if key not in listed:
-        raise SystemExit("probe object missing from the private inventory")
+        seconds_up = max(upload_ms, 0.001) / 1000
+        seconds_down = max(download_ms, 0.001) / 1000
+        print(
+            f"{label:8} {size:>9} {upload_ms:>7.0f}ms {size / 1e6 / seconds_up:>7.2f} "
+            f"{download_ms:>8.0f}ms {size / 1e6 / seconds_down:>7.2f}"
+        )
 
-    storage.delete_object(key)
     storage.close()
-    print(
-        f"storage OK — upload {upload_ms:.0f} ms, download {download_ms:.0f} ms, "
-        f"bucket {os.environ['STORAGE_S3_BUCKET']}, prefix "
-        f"{os.environ.get('STORAGE_S3_PREFIX', '') or '(none)'}"
-    )
+    print("\nstorage OK — capabilities, checksums, inventory and deletion all behave")
     return 0
 
 
